@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(cat:*)",
+      "Bash(npx claude-code-templates@latest --agent game-development/unity-game-developer --command \"game-development/unity-project-setup,game-development/game-testing-framework\")",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
