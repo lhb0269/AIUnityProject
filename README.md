@@ -205,6 +205,115 @@ int highScore = SaveSystem.Instance.LoadPreferenceInt("HighScore");
 4. **물리 최적화**: 불필요한 Rigidbody2D 및 Collider2D 비활성화
 5. **UI 최적화**: Canvas 분리 및 레이캐스트 타겟 최소화
 
+## 개발 워크플로우
+
+이 프로젝트는 **Feature Branch Workflow**를 사용합니다.
+
+### 📋 개발 프로세스
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. 브랜치 생성 (사용자)                                        │
+│     ↓                                                         │
+│  2. 개발 및 커밋 (Claude Code)                                 │
+│     ↓                                                         │
+│  3. 검토 및 머지 (사용자)                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 1️⃣ 브랜치 생성 (사용자)
+
+새로운 기능이나 작업을 시작할 때:
+
+```bash
+# 새 브랜치 생성 및 전환
+git checkout -b feature/feature-name
+
+# 원격 저장소에 브랜치 생성
+git push -u origin feature/feature-name
+```
+
+**브랜치 명명 규칙:**
+- `feature/기능명` - 새로운 기능 개발
+- `fix/버그명` - 버그 수정
+- `refactor/내용` - 코드 리팩토링
+- 예시: `Main-Menu-UI-Object-Placement`, `Player-Movement-System`
+
+### 2️⃣ 개발 및 커밋 (Claude Code)
+
+Claude Code가 기능을 개발하고 커밋합니다:
+
+```bash
+# 변경사항 스테이징
+git add .
+
+# 커밋
+git commit -m "[기능명] 설명"
+```
+
+**커밋 메시지 형식:**
+```
+[기능명] 간단한 설명
+
+상세 설명:
+- 추가된 기능 1
+- 추가된 기능 2
+- 수정된 사항
+
+🤖 Generated with Claude Code
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### 3️⃣ 검토 및 머지 (사용자)
+
+개발 완료 후 사용자가 직접 검토하고 머지합니다:
+
+```bash
+# Unity 에디터에서 테스트
+# - 컴파일 오류 확인
+# - 기능 동작 테스트
+# - 성능 확인
+
+# 문제가 없으면 main 브랜치로 머지
+git checkout main
+git merge feature/feature-name
+git push origin main
+
+# 또는 GitHub에서 Pull Request 생성
+```
+
+### ✅ 코드 리뷰 체크리스트
+
+머지 전에 확인할 사항:
+
+- [ ] **컴파일**: Unity 에디터에서 컴파일 오류 없음
+- [ ] **기능**: 의도한 대로 동작하는지 테스트
+- [ ] **성능**: 프레임 레이트 및 메모리 사용량 확인 (모바일 기준)
+- [ ] **코드 스타일**: 명명 규칙 및 주석 작성 확인
+- [ ] **문서**: README 또는 주석에 필요한 설명 포함
+
+### 🔄 브랜치 관리
+
+```
+main (프로덕션 브랜치)
+├── feature/main-menu-ui          ← 작업 중
+├── feature/player-controller     ← 머지 완료
+└── feature/game-manager          ← 머지 완료
+```
+
+### 💡 개발 팁
+
+1. **작은 단위로 커밋**: 기능별로 작은 단위로 나누어 커밋
+2. **의미있는 브랜치명**: 작업 내용을 명확히 표현하는 브랜치명 사용
+3. **정기적인 테스트**: 커밋 후 Unity 에디터에서 반드시 테스트
+4. **충돌 방지**: main 브랜치의 최신 변경사항을 정기적으로 가져오기
+
+### 🚨 주의사항
+
+- **Claude Code는 Unity 에디터를 실행할 수 없습니다** - 코드만 작성하므로 반드시 Unity에서 테스트 필요
+- **자동 Push 금지** - Claude Code는 커밋만 수행, Push는 사용자가 직접 확인 후 실행
+- **.meta 파일 포함** - Unity 메타 파일도 함께 커밋해야 함
+
 ## 라이선스
 
 이 프로젝트는 개인 학습 및 개발 목적으로 사용됩니다.

@@ -159,3 +159,76 @@ Git을 사용하는 경우 `.gitignore`에 다음 항목이 포함되어야 합�
 - Visual 스크립트는 C# 스크립트의 대안
 - 기존 C# 코드와 혼합 가능
 - 디자이너와 빠른 프로토타이핑에 유용함
+
+## 개발 워크플로우
+
+이 프로젝트는 기능 브랜치 기반 개발 워크플로우를 사용합니다:
+
+### 브랜치 전략
+
+```
+main (프로덕션 브랜치)
+  ↓
+feature/branch-name (기능 개발 브랜치)
+```
+
+### 개발 프로세스
+
+1. **브랜치 생성** (사용자)
+   - 사용자가 새로운 기능이나 작업을 위한 브랜치를 생성합니다
+   - 브랜치명은 작업 내용을 명확히 표현해야 합니다
+   - 예: `Main-Menu-UI-Object-Placement`, `Player-Movement-System`
+
+2. **개발 및 커밋** (Claude Code)
+   - Claude Code가 해당 브랜치에서 기능을 개발합니다
+   - 개발이 완료되면 의미있는 커밋 메시지와 함께 커밋합니다
+   - 커밋 메시지는 다음 형식을 따릅니다:
+     ```
+     [기능명] 간단한 설명
+
+     상세 설명:
+     - 변경사항 1
+     - 변경사항 2
+
+     🤖 Generated with Claude Code
+     Co-Authored-By: Claude <noreply@anthropic.com>
+     ```
+
+3. **검토 및 머지** (사용자)
+   - 사용자가 Unity 에디터에서 직접 기능을 테스트하고 검토합니다
+   - 문제가 없으면 GitHub에서 Pull Request를 생성하거나 직접 main 브랜치로 머지합니다
+   - 필요시 추가 수정을 요청합니다
+
+### Claude Code 작업 시 주의사항
+
+- **현재 브랜치 확인**: 항상 작업 전에 `git branch` 또는 `git status`로 올바른 브랜치에 있는지 확인
+- **자동 Push 금지**: 커밋만 수행하고, push는 사용자 확인 후에만 실행
+- **테스트 불가능**: Claude Code는 Unity 에디터를 직접 실행할 수 없으므로, 코드의 문법적 정확성에 집중
+- **메타 파일 관리**: Unity가 자동 생성하는 `.meta` 파일도 함께 커밋해야 함
+
+### 브랜치 작업 예시
+
+```bash
+# 사용자: 브랜치 생성 및 전환
+git checkout -b feature/new-feature
+git push -u origin feature/new-feature
+
+# Claude: 개발 및 커밋
+# ... 개발 작업 ...
+git add .
+git commit -m "커밋 메시지"
+
+# 사용자: 검토 후 머지
+git checkout main
+git merge feature/new-feature
+git push origin main
+```
+
+### 코드 리뷰 체크리스트
+
+사용자가 검토 시 확인할 사항:
+- [ ] Unity 에디터에서 컴파일 오류가 없는지 확인
+- [ ] 기능이 의도대로 동작하는지 테스트
+- [ ] 성능에 문제가 없는지 확인 (특히 모바일)
+- [ ] 코드 스타일과 명명 규칙이 일관성 있는지 확인
+- [ ] 필요한 주석과 문서가 포함되어 있는지 확인
