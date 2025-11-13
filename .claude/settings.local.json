@@ -4,7 +4,10 @@
       "Bash(test:*)",
       "Bash(cat:*)",
       "Bash(npx claude-code-templates@latest --agent game-development/unity-game-developer --command \"game-development/unity-project-setup,game-development/game-testing-framework\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nUnity 6 2D 게임 프로젝트 초기 설정\n\n- Unity 6 (6000.2.9f1) 2D 프로젝트 구성\n- Universal Render Pipeline (URP) 17.2.0 설정\n- New Input System 활성화\n- Visual Scripting 포함\n\n추가된 개발 도구:\n- Claude Code 에이전트 (Unity 게임 개발자)\n- Unity 프로젝트 설정 명령어\n- 게임 테스팅 프레임워크 명령어\n- CLAUDE.md 프로젝트 문서 (한국어)\n\n기타:\n- VS Code 설정 및 확장 프로그램 구성\n- .gitignore 업데이트 (*.slnx 추가)\n- Unity 패키지 및 프로젝트 설정 포함\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git config:*)"
     ],
     "deny": [],
     "ask": []
