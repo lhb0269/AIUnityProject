@@ -27,7 +27,13 @@ namespace MobileGame.UI
 
         [Header("전투 관련")]
         [SerializeField] private Button characterButton;     // 캐릭터 버튼
-        [SerializeField] private Button skillButton;         // 스킬 버튼
+        [SerializeField] private Button SkillSettingBtn;      // 스킬 설정 버튼
+        [SerializeField] private Button skill1Btn;           // 스킬 1 버튼
+        [SerializeField] private Button skill2Btn;           // 스킬 2 버튼
+        [SerializeField] private Button skill3Btn;           // 스킬 3 버튼
+        [SerializeField] private Button skill4Btn;           // 스킬 4 버튼
+        [SerializeField] private Button skill5Btn;           // 스킬 5 버튼
+        [SerializeField] private Button skill6Btn;           // 스킬 6 버튼
         [SerializeField] private Button weaponButton;        // 무기 버튼
         [SerializeField] private Button equipButton;         // 장비 버튼
         [SerializeField] private Button coworkerButton;      // 협력자 버튼
@@ -35,11 +41,13 @@ namespace MobileGame.UI
         [Header("아이템")]
         [SerializeField] private Button hpPotionBtn;         // HP 포션 버튼
         [SerializeField] private Button mpPotionBtn;         // MP 포션 버튼
+        [SerializeField] private Button potionSettingBtn;    // 포션 설정 버튼 (PotionGroup)
 
         [Header("게임플레이 컨트롤")]
         [SerializeField] private Button controllBtn;         // 컨트롤 버튼
         [SerializeField] private Button chapterBtn;          // 챕터 버튼 (ChapterGroup 내)
         [SerializeField] private Button monsterSpawnBtn;     // 몬스터 스폰 버튼 (MonsterSpawnGroup 관련)
+        [SerializeField] private Button spawnSettingBtn;     // 스폰 설정 버튼 (SpawnGroup)
 
         #endregion
 
@@ -92,7 +100,13 @@ namespace MobileGame.UI
 
             // 전투 관련
             RegisterButton(characterButton, OnCharacterClicked);
-            RegisterButton(skillButton, OnSkillClicked);
+            RegisterButton(SkillSettingBtn, OnSkillSettingClicked);
+            RegisterButton(skill1Btn, OnSkill1Clicked);
+            RegisterButton(skill2Btn, OnSkill2Clicked);
+            RegisterButton(skill3Btn, OnSkill3Clicked);
+            RegisterButton(skill4Btn, OnSkill4Clicked);
+            RegisterButton(skill5Btn, OnSkill5Clicked);
+            RegisterButton(skill6Btn, OnSkill6Clicked);
             RegisterButton(weaponButton, OnWeaponClicked);
             RegisterButton(equipButton, OnEquipClicked);
             RegisterButton(coworkerButton, OnCoworkerClicked);
@@ -100,11 +114,13 @@ namespace MobileGame.UI
             // 아이템
             RegisterButton(hpPotionBtn, OnHPPotionClicked);
             RegisterButton(mpPotionBtn, OnMPPotionClicked);
+            RegisterButton(potionSettingBtn, OnPotionSettingClicked);
 
             // 게임플레이 컨트롤
             RegisterButton(controllBtn, OnControllClicked);
             RegisterButton(chapterBtn, OnChapterClicked);
             RegisterButton(monsterSpawnBtn, OnMonsterSpawnClicked);
+            RegisterButton(spawnSettingBtn, OnSpawnSettingClicked);
 
             Debug.Log("[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
         }
@@ -129,7 +145,13 @@ namespace MobileGame.UI
 
             // 전투 관련
             UnregisterButton(characterButton, OnCharacterClicked);
-            UnregisterButton(skillButton, OnSkillClicked);
+            UnregisterButton(SkillSettingBtn, OnSkillSettingClicked);
+            UnregisterButton(skill1Btn, OnSkill1Clicked);
+            UnregisterButton(skill2Btn, OnSkill2Clicked);
+            UnregisterButton(skill3Btn, OnSkill3Clicked);
+            UnregisterButton(skill4Btn, OnSkill4Clicked);
+            UnregisterButton(skill5Btn, OnSkill5Clicked);
+            UnregisterButton(skill6Btn, OnSkill6Clicked);
             UnregisterButton(weaponButton, OnWeaponClicked);
             UnregisterButton(equipButton, OnEquipClicked);
             UnregisterButton(coworkerButton, OnCoworkerClicked);
@@ -137,11 +159,13 @@ namespace MobileGame.UI
             // 아이템
             UnregisterButton(hpPotionBtn, OnHPPotionClicked);
             UnregisterButton(mpPotionBtn, OnMPPotionClicked);
+            UnregisterButton(potionSettingBtn, OnPotionSettingClicked);
 
             // 게임플레이 컨트롤
             UnregisterButton(controllBtn, OnControllClicked);
             UnregisterButton(chapterBtn, OnChapterClicked);
             UnregisterButton(monsterSpawnBtn, OnMonsterSpawnClicked);
+            UnregisterButton(spawnSettingBtn, OnSpawnSettingClicked);
         }
 
         /// <summary>
@@ -275,14 +299,80 @@ namespace MobileGame.UI
         }
 
         /// <summary>
-        /// 스킬 버튼 클릭 핸들러
-        /// TODO: 스킬 관리 패널 구현
+        /// 스킬 설정 버튼 클릭 핸들러
+        /// TODO: 스킬 설정 패널 구현
         /// </summary>
-        public void OnSkillClicked()
+        public void OnSkillSettingClicked()
         {
-            Debug.Log("[MainMenu] 스킬 버튼 클릭");
+            Debug.Log("[MainMenu] 스킬 설정 버튼 클릭");
             // TODO: 나중에 실제 스킬 관리 패널 구현 시
-            // UIManager.Instance.ShowPanel("SkillPanel");
+            // UIManager.Instance.ShowPanel("SkillSettingsPanel");
+        }
+
+        /// <summary>
+        /// 스킬 1 버튼 클릭 핸들러
+        /// TODO: 스킬 1 사용 기능 구현
+        /// </summary>
+        public void OnSkill1Clicked()
+        {
+            Debug.Log("[MainMenu] 스킬 1 버튼 클릭");
+            // TODO: 나중에 실제 스킬 1 사용 기능 구현 시
+            // PlayerSkill.Instance.UseSkill(1);
+        }
+
+        /// <summary>
+        /// 스킬 2 버튼 클릭 핸들러
+        /// TODO: 스킬 2 사용 기능 구현
+        /// </summary>
+        public void OnSkill2Clicked()
+        {
+            Debug.Log("[MainMenu] 스킬 2 버튼 클릭");
+            // TODO: 나중에 실제 스킬 2 사용 기능 구현 시
+            // PlayerSkill.Instance.UseSkill(2);
+        }
+
+        /// <summary>
+        /// 스킬 3 버튼 클릭 핸들러
+        /// TODO: 스킬 3 사용 기능 구현
+        /// </summary>
+        public void OnSkill3Clicked()
+        {
+            Debug.Log("[MainMenu] 스킬 3 버튼 클릭");
+            // TODO: 나중에 실제 스킬 3 사용 기능 구현 시
+            // PlayerSkill.Instance.UseSkill(3);
+        }
+
+        /// <summary>
+        /// 스킬 4 버튼 클릭 핸들러
+        /// TODO: 스킬 4 사용 기능 구현
+        /// </summary>
+        public void OnSkill4Clicked()
+        {
+            Debug.Log("[MainMenu] 스킬 4 버튼 클릭");
+            // TODO: 나중에 실제 스킬 4 사용 기능 구현 시
+            // PlayerSkill.Instance.UseSkill(4);
+        }
+
+        /// <summary>
+        /// 스킬 5 버튼 클릭 핸들러
+        /// TODO: 스킬 5 사용 기능 구현
+        /// </summary>
+        public void OnSkill5Clicked()
+        {
+            Debug.Log("[MainMenu] 스킬 5 버튼 클릭");
+            // TODO: 나중에 실제 스킬 5 사용 기능 구현 시
+            // PlayerSkill.Instance.UseSkill(5);
+        }
+
+        /// <summary>
+        /// 스킬 6 버튼 클릭 핸들러
+        /// TODO: 스킬 6 사용 기능 구현
+        /// </summary>
+        public void OnSkill6Clicked()
+        {
+            Debug.Log("[MainMenu] 스킬 6 버튼 클릭");
+            // TODO: 나중에 실제 스킬 6 사용 기능 구현 시
+            // PlayerSkill.Instance.UseSkill(6);
         }
 
         /// <summary>
@@ -344,6 +434,17 @@ namespace MobileGame.UI
             // PlayerInventory.Instance.UseMPPotion();
         }
 
+        /// <summary>
+        /// 포션 설정 버튼 클릭 핸들러 (PotionGroup)
+        /// TODO: 포션 설정 패널 구현
+        /// </summary>
+        public void OnPotionSettingClicked()
+        {
+            Debug.Log("[MainMenu] 포션 설정 버튼 클릭");
+            // TODO: 나중에 실제 포션 설정 패널 구현 시
+            // UIManager.Instance.ShowPanel("PotionSettingsPanel");
+        }
+
         #endregion
 
         #region 게임플레이 컨트롤 버튼 핸들러
@@ -379,6 +480,17 @@ namespace MobileGame.UI
             Debug.Log("[MainMenu] 몬스터 스폰 버튼 클릭");
             // TODO: 나중에 실제 몬스터 스폰 기능 구현 시
             // GameManager.Instance.SpawnMonsters();
+        }
+
+        /// <summary>
+        /// 스폰 설정 버튼 클릭 핸들러 (SpawnGroup)
+        /// TODO: 스폰 설정 패널 구현
+        /// </summary>
+        public void OnSpawnSettingClicked()
+        {
+            Debug.Log("[MainMenu] 스폰 설정 버튼 클릭");
+            // TODO: 나중에 실제 스폰 설정 패널 구현 시
+            // UIManager.Instance.ShowPanel("SpawnSettingsPanel");
         }
 
         #endregion

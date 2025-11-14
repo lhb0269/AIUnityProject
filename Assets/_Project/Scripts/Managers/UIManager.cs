@@ -168,10 +168,10 @@ namespace MobileGame.Managers
         private void Update()
         {
             // Android 뒤로 가기 버튼
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                HandleBackButton();
-            }
+            // if (Input.GetKeyDown(KeyCode.Escape))
+            // {
+            //     HandleBackButton();
+            // }
         }
 
         private void HandleBackButton()
