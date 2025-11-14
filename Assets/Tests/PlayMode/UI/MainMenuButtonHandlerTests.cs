@@ -38,7 +38,7 @@ namespace MobileGame.Tests.UI
 
         /// <summary>
         /// 각 테스트 실행 후 정리
-        /// 생성된 GameObject들 제거
+        /// 생성된 GameObject들 제거 및 싱글톤 인스턴스 초기화
         /// </summary>
         [TearDown]
         public void Teardown()
@@ -52,6 +52,12 @@ namespace MobileGame.Tests.UI
             {
                 Object.DestroyImmediate(uiManagerGameObject);
             }
+
+            // UIManager 싱글톤 인스턴스를 null로 초기화
+            // 다음 테스트에서 새로운 인스턴스를 생성할 수 있도록 함
+            var instanceField = typeof(UIManager).GetField("Instance",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            instanceField?.SetValue(null, null);
         }
 
         #endregion
@@ -65,11 +71,12 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator MainMenuButtonHandler_Initializes_Successfully_With_UIManager()
         {
-            // Arrange: UIManager가 이미 Setup에서 생성됨
-            Assert.IsNotNull(UIManager.Instance, "UIManager 인스턴스가 생성되어야 합니다");
-
-            // Act: 한 프레임 대기하여 Start() 실행
+            // Act: Awake() 및 Start() 실행을 위해 프레임 대기
             yield return null;
+            yield return null;
+
+            // Assert: UIManager 인스턴스가 정상적으로 생성됨
+            Assert.IsNotNull(UIManager.Instance, "UIManager 인스턴스가 생성되어야 합니다");
 
             // Assert: handler가 정상적으로 존재
             Assert.IsNotNull(handler, "MainMenuButtonHandler가 정상적으로 생성되어야 합니다");
