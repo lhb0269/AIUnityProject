@@ -89,10 +89,17 @@ namespace MobileGame.Tests.UI
             GameObject newHandlerObj = new GameObject("TestHandler");
             var newHandler = newHandlerObj.AddComponent<MainMenuButtonHandler>();
 
-            // 경고 로그 예상
+            // Assert: 경고 로그 예상 (Start() 호출 전에 설정)
             LogAssert.Expect(LogType.Warning, "[MainMenuButtonHandler] UIManager 인스턴스를 찾을 수 없습니다!");
 
-            // Act: Start() 실행을 위해 한 프레임 대기
+            // 25개 null 버튼에 대한 경고도 예상
+            for (int i = 0; i < 25; i++)
+            {
+                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+            }
+
+            // Act: Start() 실행을 위해 여러 프레임 대기
+            yield return null;
             yield return null;
 
             // Cleanup
@@ -379,15 +386,14 @@ namespace MobileGame.Tests.UI
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             hamburgerField?.SetValue(handler, testButton);
 
+            // Assert: 로그 예상 (Start() 호출 전에 설정)
+            LogAssert.Expect(LogType.Log, "[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
+
             // Act: Start() 실행으로 RegisterButtonEvents 호출
             yield return null;
+            yield return null;
 
-            // Assert: 버튼에 리스너가 등록되었는지 확인
-            int listenerCount = testButton.onClick.GetPersistentEventCount();
-
-            // 런타임에 등록된 리스너는 GetPersistentEventCount로는 확인 불가
-            // 대신 로그를 통해 등록 완료 확인
-            LogAssert.Expect(LogType.Log, "[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
+            // Assert: LogAssert가 자동으로 검증
 
             // Cleanup
             Object.DestroyImmediate(buttonObj);
@@ -401,10 +407,15 @@ namespace MobileGame.Tests.UI
         {
             // Arrange: 버튼 참조가 없는 상태 (Setup에서 이미 null 상태)
 
-            // Act: Start() 실행으로 RegisterButtonEvents 호출
-            // null 버튼들에 대한 경고 로그 예상
-            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+            // Assert: null 버튼들에 대한 경고 로그 예상 (Start() 호출 전에 설정)
+            // 25개 버튼이 모두 null이므로 25개의 경고가 발생
+            for (int i = 0; i < 25; i++)
+            {
+                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+            }
 
+            // Act: Start() 실행으로 RegisterButtonEvents 호출
+            yield return null;
             yield return null;
 
             // Assert: 경고 로그가 출력됨 (LogAssert가 자동 검증)
@@ -502,7 +513,8 @@ namespace MobileGame.Tests.UI
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             field?.SetValue(handler, hamburgerButton);
 
-            // 이벤트 등록을 위해 한 프레임 대기 (Start 실행)
+            // 이벤트 등록을 위해 여러 프레임 대기 (Start 실행 보장)
+            yield return null;
             yield return null;
 
             // Act: 버튼 클릭 이벤트 발생
