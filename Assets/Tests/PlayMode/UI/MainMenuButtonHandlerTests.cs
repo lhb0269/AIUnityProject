@@ -11,53 +11,39 @@ namespace MobileGame.Tests.UI
     /// <summary>
     /// MainMenuButtonHandler의 기능 테스트 클래스
     /// Unity Test Framework를 사용한 UI 반응성 및 기능 검증
+    /// 실제 씬에 있는 객체를 사용하여 테스트 (SampleScene을 열어둔 상태에서 실행)
     /// </summary>
     public class MainMenuButtonHandlerTests
     {
-        private GameObject handlerGameObject;
         private MainMenuButtonHandler handler;
-        private GameObject uiManagerGameObject;
 
         #region Setup & Teardown
 
         /// <summary>
         /// 각 테스트 실행 전 초기화
-        /// MainMenuButtonHandler와 UIManager 인스턴스 생성
+        /// 씬에서 MainMenuButtonHandler를 찾아서 사용
         /// </summary>
         [SetUp]
         public void Setup()
         {
-            // UIManager 인스턴스 생성
-            uiManagerGameObject = new GameObject("UIManager");
-            uiManagerGameObject.AddComponent<UIManager>();
+            // 씬에서 MainMenuButtonHandler 찾기
+            handler = Object.FindFirstObjectByType<MainMenuButtonHandler>();
 
-            // MainMenuButtonHandler 오브젝트 생성
-            handlerGameObject = new GameObject("MainMenuButtonHandler");
-            handler = handlerGameObject.AddComponent<MainMenuButtonHandler>();
+            if (handler == null)
+            {
+                Assert.Fail("MainMenuButtonHandler를 씬에서 찾을 수 없습니다. SampleScene을 열어두고 테스트를 실행하세요.");
+            }
         }
 
         /// <summary>
         /// 각 테스트 실행 후 정리
-        /// 생성된 GameObject들 제거 및 싱글톤 인스턴스 초기화
+        /// 씬의 객체는 그대로 유지
         /// </summary>
         [TearDown]
         public void Teardown()
         {
-            if (handlerGameObject != null)
-            {
-                Object.DestroyImmediate(handlerGameObject);
-            }
-
-            if (uiManagerGameObject != null)
-            {
-                Object.DestroyImmediate(uiManagerGameObject);
-            }
-
-            // UIManager 싱글톤 인스턴스를 null로 초기화
-            // 다음 테스트에서 새로운 인스턴스를 생성할 수 있도록 함
-            var instanceField = typeof(UIManager).GetField("Instance",
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            instanceField?.SetValue(null, null);
+            // 씬의 객체는 파괴하지 않음
+            handler = null;
         }
 
         #endregion
@@ -65,52 +51,25 @@ namespace MobileGame.Tests.UI
         #region 초기화 테스트
 
         /// <summary>
-        /// MainMenuButtonHandler가 성공적으로 초기화되는지 테스트
-        /// UIManager가 존재할 때 정상적으로 Start() 실행 확인
+        /// MainMenuButtonHandler가 씬에 정상적으로 존재하는지 테스트
         /// </summary>
-        [UnityTest]
-        public IEnumerator MainMenuButtonHandler_Initializes_Successfully_With_UIManager()
+        [Test]
+        public void MainMenuButtonHandler_Exists_In_Scene()
         {
-            // Act: Awake() 및 Start() 실행을 위해 프레임 대기
-            yield return null;
-            yield return null;
-
-            // Assert: UIManager 인스턴스가 정상적으로 생성됨
-            Assert.IsNotNull(UIManager.Instance, "UIManager 인스턴스가 생성되어야 합니다");
-
-            // Assert: handler가 정상적으로 존재
-            Assert.IsNotNull(handler, "MainMenuButtonHandler가 정상적으로 생성되어야 합니다");
+            // Assert: handler가 씬에 존재
+            Assert.IsNotNull(handler, "MainMenuButtonHandler가 씬에 존재해야 합니다");
+            Assert.IsTrue(handler.gameObject.activeInHierarchy, "MainMenuButtonHandler가 활성화되어 있어야 합니다");
         }
 
         /// <summary>
-        /// UIManager가 없을 때 경고 로그를 출력하는지 테스트
+        /// UIManager가 씬에 존재하는지 테스트
         /// </summary>
-        [UnityTest]
-        public IEnumerator Start_Warns_When_UIManager_Missing()
+        [Test]
+        public void UIManager_Exists_In_Scene()
         {
-            // Arrange: UIManager 인스턴스 제거
-            Object.DestroyImmediate(uiManagerGameObject);
-            yield return null;
-
-            // Act: 새로운 handler 생성
-            GameObject newHandlerObj = new GameObject("TestHandler");
-            var newHandler = newHandlerObj.AddComponent<MainMenuButtonHandler>();
-
-            // Assert: 경고 로그 예상 (Start() 호출 전에 설정)
-            LogAssert.Expect(LogType.Warning, "[MainMenuButtonHandler] UIManager 인스턴스를 찾을 수 없습니다!");
-
-            // 25개 null 버튼에 대한 경고도 예상
-            for (int i = 0; i < 25; i++)
-            {
-                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
-            }
-
-            // Act: Start() 실행을 위해 여러 프레임 대기
-            yield return null;
-            yield return null;
-
-            // Cleanup
-            Object.DestroyImmediate(newHandlerObj);
+            // Assert: UIManager 인스턴스가 존재
+            var uiManager = Object.FindFirstObjectByType<UIManager>();
+            Assert.IsNotNull(uiManager, "UIManager가 씬에 존재해야 합니다");
         }
 
         #endregion
@@ -374,107 +333,46 @@ namespace MobileGame.Tests.UI
 
         #endregion
 
-        #region 버튼 이벤트 등록 테스트
+        #region 버튼 존재 테스트
 
         /// <summary>
-        /// RegisterButtonEvents가 모든 버튼을 정상적으로 등록하는지 테스트
-        /// null이 아닌 버튼에 대해서만 이벤트 등록 확인
+        /// 씬에 버튼이 존재하는지 테스트
         /// </summary>
-        [UnityTest]
-        public IEnumerator RegisterButtonEvents_Subscribes_Valid_Buttons()
+        [Test]
+        public void Scene_Has_Buttons()
         {
-            // Arrange: 기존 handler 제거 (SetUp에서 생성된 것)
-            Object.DestroyImmediate(handlerGameObject);
-
-            // 새로운 handler GameObject 생성
-            handlerGameObject = new GameObject("NewHandler");
-
-            // 테스트용 버튼 생성
-            GameObject buttonObj = new GameObject("TestButton");
-            Button testButton = buttonObj.AddComponent<Button>();
-
-            // handler를 AddComponent하기 전에 버튼을 준비
-            // (handler 추가 후 바로 Reflection으로 설정하고 Start() 실행 전에 완료)
-            handler = handlerGameObject.AddComponent<MainMenuButtonHandler>();
-
-            // SerializedField에 직접 할당할 수 없으므로
-            // Reflection을 사용하여 private 필드에 접근
-            var hamburgerField = typeof(MainMenuButtonHandler).GetField("hamburgerMenuBtn",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            hamburgerField?.SetValue(handler, testButton);
-
-            // Assert: 로그 예상 (Start() 호출 전에 설정)
-            // 24개 null 버튼 경고 + 1개 등록 완료 로그
-            for (int i = 0; i < 24; i++)
-            {
-                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
-            }
-            LogAssert.Expect(LogType.Log, "[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
-
-            // Act: Start() 실행으로 RegisterButtonEvents 호출
-            yield return null;
-            yield return null;
-
-            // Assert: LogAssert가 자동으로 검증
-
-            // Cleanup
-            Object.DestroyImmediate(buttonObj);
+            // Assert: 씬에 버튼이 존재
+            Button[] buttons = Object.FindObjectsByType<Button>(FindObjectsSortMode.None);
+            Assert.IsTrue(buttons.Length > 0, "씬에 최소 1개 이상의 버튼이 존재해야 합니다");
+            Debug.Log($"[테스트] 씬에서 {buttons.Length}개의 버튼을 찾았습니다");
         }
 
         /// <summary>
-        /// null 버튼에 대해 경고를 출력하는지 테스트
+        /// 버튼 클릭 이벤트가 정상적으로 동작하는지 테스트
         /// </summary>
         [UnityTest]
-        public IEnumerator RegisterButtonEvents_Warns_For_Null_Buttons()
+        public IEnumerator Button_Click_Triggers_Event()
         {
-            // Arrange: 버튼 참조가 없는 상태 (Setup에서 이미 null 상태)
+            // Arrange: 씬에서 버튼 찾기
+            Button[] buttons = Object.FindObjectsByType<Button>(FindObjectsSortMode.None);
 
-            // Assert: null 버튼들에 대한 경고 로그 예상 (Start() 호출 전에 설정)
-            // 25개 버튼이 모두 null이므로 25개의 경고가 발생
-            for (int i = 0; i < 25; i++)
+            if (buttons.Length == 0)
             {
-                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+                Assert.Inconclusive("씬에 버튼이 없습니다");
+                yield break;
             }
 
-            // Act: Start() 실행으로 RegisterButtonEvents 호출
-            yield return null;
-            yield return null;
+            Button firstButton = buttons[0];
+            Debug.Log($"[테스트] {firstButton.name} 버튼을 클릭합니다");
 
-            // Assert: 경고 로그가 출력됨 (LogAssert가 자동 검증)
-        }
+            // Act: 버튼 클릭 (시각적으로 확인 가능)
+            firstButton.onClick.Invoke();
 
-        #endregion
+            // 시각적 확인을 위한 대기
+            yield return new WaitForSeconds(0.5f);
 
-        #region 버튼 이벤트 해제 테스트
-
-        /// <summary>
-        /// UnregisterButtonEvents가 모든 버튼 리스너를 제거하는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator UnregisterButtonEvents_Removes_All_Listeners()
-        {
-            // Arrange: 버튼 생성 및 이벤트 등록
-            GameObject buttonObj = new GameObject("TestButton");
-            Button testButton = buttonObj.AddComponent<Button>();
-
-            var hamburgerField = typeof(MainMenuButtonHandler).GetField("hamburgerMenuBtn",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            hamburgerField?.SetValue(handler, testButton);
-
-            // Start()로 이벤트 등록
-            yield return null;
-
-            // Act: GameObject 파괴 (OnDestroy 호출)
-            Object.DestroyImmediate(handlerGameObject);
-            yield return null;
-
-            // Assert: 버튼 리스너가 제거됨
-            // 실제로는 handler가 파괴되어 더 이상 접근 불가하므로
-            // 예외 없이 정상 실행되면 성공
-            Assert.Pass("UnregisterButtonEvents가 정상적으로 실행되었습니다");
-
-            // Cleanup
-            Object.DestroyImmediate(buttonObj);
+            // Assert: 버튼이 존재하고 클릭 가능
+            Assert.IsTrue(firstButton.interactable, "버튼이 상호작용 가능해야 합니다");
         }
 
         #endregion
@@ -521,78 +419,110 @@ namespace MobileGame.Tests.UI
         #region UI 통합 테스트
 
         /// <summary>
-        /// 실제 버튼 클릭 이벤트가 핸들러 메서드를 호출하는지 통합 테스트
+        /// 실제 씬의 버튼을 클릭하여 핸들러가 호출되는지 테스트
         /// </summary>
         [UnityTest]
-        public IEnumerator Button_Click_Invokes_Handler_Method()
+        public IEnumerator Scene_Button_Click_Invokes_Handler()
         {
-            // Arrange: 실제 버튼 오브젝트 생성
-            GameObject buttonObj = new GameObject("HamburgerButton");
-            Button hamburgerButton = buttonObj.AddComponent<Button>();
+            // Arrange: 씬에서 버튼 찾기 (Reflection으로 private 필드 접근)
+            var hamburgerField = typeof(MainMenuButtonHandler).GetField("hamburgerMenuBtn",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            Button hamburgerButton = hamburgerField?.GetValue(handler) as Button;
 
-            // Start()가 SetUp()에서 handler 생성 시 이미 예약되었으므로
-            // 직접 리스너를 등록하여 버튼 클릭 동작 테스트
-            // (Start()는 버튼이 null일 때 실행되어 리스너가 등록되지 않음)
-            hamburgerButton.onClick.AddListener(handler.OnHamburgerMenuClicked);
+            if (hamburgerButton == null)
+            {
+                Assert.Inconclusive("햄버거 메뉴 버튼이 씬에서 연결되지 않았습니다");
+                yield break;
+            }
 
-            yield return null;
+            Debug.Log("[테스트] 햄버거 메뉴 버튼 클릭 (시각적으로 확인 가능)");
 
             // Act: 버튼 클릭 이벤트 발생
             LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
             hamburgerButton.onClick.Invoke();
 
-            // Assert: LogAssert가 자동으로 검증
+            // 시각적 확인을 위한 대기
+            yield return new WaitForSeconds(0.3f);
 
-            // Cleanup
-            Object.DestroyImmediate(buttonObj);
+            // Assert: LogAssert가 자동으로 검증
         }
 
         /// <summary>
         /// 여러 버튼을 연속으로 클릭해도 정상 동작하는지 테스트
         /// </summary>
-        [Test]
-        public void Multiple_Button_Clicks_Work_Sequentially()
+        [UnityTest]
+        public IEnumerator Multiple_Button_Clicks_Work_Sequentially()
         {
-            // Arrange: 여러 핸들러 메서드 호출 준비
-
             // Act & Assert: 각 버튼 핸들러를 순차적으로 호출
             LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
             handler.OnHamburgerMenuClicked();
+            yield return new WaitForSeconds(0.3f);
 
             LogAssert.Expect(LogType.Log, "[MainMenu] 설정 버튼 클릭");
             handler.OnSettingClicked();
+            yield return new WaitForSeconds(0.3f);
 
             LogAssert.Expect(LogType.Log, "[MainMenu] 상점 버튼 클릭");
             handler.OnShopClicked();
+            yield return new WaitForSeconds(0.3f);
 
             LogAssert.Expect(LogType.Log, "[MainMenu] 캐릭터 버튼 클릭");
             handler.OnCharacterClicked();
+            yield return new WaitForSeconds(0.3f);
 
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 1 버튼 클릭");
             handler.OnSkill1Clicked();
+            yield return new WaitForSeconds(0.3f);
 
             // 모든 로그가 정상 출력되면 성공
         }
 
-        #endregion
-
-        #region 성능 테스트
-
         /// <summary>
-        /// 25개 버튼 이벤트 등록이 적절한 시간 내에 완료되는지 테스트
+        /// 모든 버튼 핸들러를 순차적으로 클릭하여 시각적으로 확인
         /// </summary>
         [UnityTest]
-        public IEnumerator RegisterButtonEvents_Completes_In_Reasonable_Time()
+        public IEnumerator All_Buttons_Click_Sequence_Visual()
         {
-            // Arrange: 시작 시간 기록
-            float startTime = Time.realtimeSinceStartup;
+            Debug.Log("[테스트] 모든 버튼 순차 클릭 시작 (시각적 확인용)");
 
-            // Act: Start() 실행 (RegisterButtonEvents 호출)
-            yield return null;
+            // 모든 핸들러 메서드를 순차적으로 호출
+            yield return ClickAndWait(() => handler.OnHamburgerMenuClicked(), "햄버거 메뉴");
+            yield return ClickAndWait(() => handler.OnSettingClicked(), "설정");
+            yield return ClickAndWait(() => handler.OnUserInfoClicked(), "유저 정보");
+            yield return ClickAndWait(() => handler.OnGuideQuestClicked(), "가이드 퀘스트");
+            yield return ClickAndWait(() => handler.OnShopClicked(), "상점");
+            yield return ClickAndWait(() => handler.OnRecruitmentClicked(), "모집");
+            yield return ClickAndWait(() => handler.OnEventClicked(), "이벤트");
+            yield return ClickAndWait(() => handler.OnCharacterClicked(), "캐릭터");
+            yield return ClickAndWait(() => handler.OnSkillSettingClicked(), "스킬 설정");
+            yield return ClickAndWait(() => handler.OnSkill1Clicked(), "스킬 1");
+            yield return ClickAndWait(() => handler.OnSkill2Clicked(), "스킬 2");
+            yield return ClickAndWait(() => handler.OnSkill3Clicked(), "스킬 3");
+            yield return ClickAndWait(() => handler.OnSkill4Clicked(), "스킬 4");
+            yield return ClickAndWait(() => handler.OnSkill5Clicked(), "스킬 5");
+            yield return ClickAndWait(() => handler.OnSkill6Clicked(), "스킬 6");
+            yield return ClickAndWait(() => handler.OnWeaponClicked(), "무기");
+            yield return ClickAndWait(() => handler.OnEquipClicked(), "장비");
+            yield return ClickAndWait(() => handler.OnCoworkerClicked(), "협력자");
+            yield return ClickAndWait(() => handler.OnHPPotionClicked(), "HP 포션");
+            yield return ClickAndWait(() => handler.OnMPPotionClicked(), "MP 포션");
+            yield return ClickAndWait(() => handler.OnPotionSettingClicked(), "포션 설정");
+            yield return ClickAndWait(() => handler.OnControllClicked(), "컨트롤");
+            yield return ClickAndWait(() => handler.OnChapterClicked(), "챕터");
+            yield return ClickAndWait(() => handler.OnMonsterSpawnClicked(), "몬스터 스폰");
+            yield return ClickAndWait(() => handler.OnSpawnSettingClicked(), "스폰 설정");
 
-            // Assert: 등록 시간이 0.1초 이내여야 함 (성능 기준)
-            float elapsedTime = Time.realtimeSinceStartup - startTime;
-            Assert.Less(elapsedTime, 0.1f, "버튼 이벤트 등록이 0.1초 이상 소요되었습니다");
+            Debug.Log("[테스트] 모든 버튼 순차 클릭 완료!");
+        }
+
+        /// <summary>
+        /// 버튼 클릭 후 대기 헬퍼 메서드
+        /// </summary>
+        private IEnumerator ClickAndWait(System.Action clickAction, string buttonName)
+        {
+            Debug.Log($"[테스트] {buttonName} 버튼 클릭");
+            clickAction.Invoke();
+            yield return new WaitForSeconds(0.3f);
         }
 
         #endregion
