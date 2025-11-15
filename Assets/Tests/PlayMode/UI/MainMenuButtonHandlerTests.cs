@@ -383,9 +383,19 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator RegisterButtonEvents_Subscribes_Valid_Buttons()
         {
-            // Arrange: 테스트용 버튼 생성
+            // Arrange: 기존 handler 제거 (SetUp에서 생성된 것)
+            Object.DestroyImmediate(handlerGameObject);
+
+            // 새로운 handler GameObject 생성
+            handlerGameObject = new GameObject("NewHandler");
+
+            // 테스트용 버튼 생성
             GameObject buttonObj = new GameObject("TestButton");
             Button testButton = buttonObj.AddComponent<Button>();
+
+            // handler를 AddComponent하기 전에 버튼을 준비
+            // (handler 추가 후 바로 Reflection으로 설정하고 Start() 실행 전에 완료)
+            handler = handlerGameObject.AddComponent<MainMenuButtonHandler>();
 
             // SerializedField에 직접 할당할 수 없으므로
             // Reflection을 사용하여 private 필드에 접근
@@ -394,6 +404,11 @@ namespace MobileGame.Tests.UI
             hamburgerField?.SetValue(handler, testButton);
 
             // Assert: 로그 예상 (Start() 호출 전에 설정)
+            // 24개 null 버튼 경고 + 1개 등록 완료 로그
+            for (int i = 0; i < 24; i++)
+            {
+                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+            }
             LogAssert.Expect(LogType.Log, "[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
 
             // Act: Start() 실행으로 RegisterButtonEvents 호출
@@ -515,13 +530,11 @@ namespace MobileGame.Tests.UI
             GameObject buttonObj = new GameObject("HamburgerButton");
             Button hamburgerButton = buttonObj.AddComponent<Button>();
 
-            // Reflection으로 private 필드에 버튼 할당
-            var field = typeof(MainMenuButtonHandler).GetField("hamburgerMenuBtn",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            field?.SetValue(handler, hamburgerButton);
+            // Start()가 SetUp()에서 handler 생성 시 이미 예약되었으므로
+            // 직접 리스너를 등록하여 버튼 클릭 동작 테스트
+            // (Start()는 버튼이 null일 때 실행되어 리스너가 등록되지 않음)
+            hamburgerButton.onClick.AddListener(handler.OnHamburgerMenuClicked);
 
-            // 이벤트 등록을 위해 여러 프레임 대기 (Start 실행 보장)
-            yield return null;
             yield return null;
 
             // Act: 버튼 클릭 이벤트 발생
