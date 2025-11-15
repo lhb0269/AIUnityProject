@@ -219,6 +219,202 @@ Unity.exe -runTests -batchmode -projectPath "C:\Users\lhb02\OneDrive\Documents\U
 2. Stack Trace를 통해 실패 지점 파악
 3. 해당 테스트를 단독으로 실행하여 격리 테스트
 
+---
+
+## 발생한 문제 및 해결법
+
+### 1. EditMode vs PlayMode 테스트 차이점
+
+**문제**: PlayMode 탭에서 테스트가 보이지 않고, EditMode에서만 표시됨
+
+**원인**: `PlayModeTests.asmdef`의 `includePlatforms` 설정이 잘못됨
+
+| 설정 | EditMode | PlayMode |
+|------|----------|----------|
+| `includePlatforms` | `["Editor"]` | `[]` (빈 배열) |
+| MonoBehaviour 생명주기 | Start/Update 실행 안 됨 | Start/Update 정상 실행 |
+| 테스트 속성 | `[Test]` | `[UnityTest]` + `IEnumerator` |
+
+**해결법**:
+```json
+// PlayModeTests.asmdef
+{
+  "includePlatforms": [],  // 빈 배열로 설정
+  "references": [
+    "MobileGame",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ]
+}
+```
+
+### 2. Burst 컴파일러 Assembly Resolution 에러
+
+**에러 메시지**:
+```
+Mono.Cecil.AssemblyResolutionException: Failed to resolve assembly: 'PlayModeTests'
+```
+
+**원인**: Burst 컴파일러가 테스트 어셈블리를 컴파일하려고 시도함
+
+**해결법**:
+`defineConstraints`에 `UNITY_INCLUDE_TESTS` 추가
+```json
+{
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ]
+}
+```
+
+### 3. 중복 Assembly Reference 에러
+
+**에러 메시지**:
+```
+Assembly has duplicate references: UnityEngine.TestRunner, UnityEditor.TestRunner
+```
+
+**원인**: `optionalUnityReferences`와 `references`에 동시에 TestRunner 추가됨
+
+**해결법**:
+`optionalUnityReferences`를 제거하고 `references`에만 추가
+```json
+{
+  "references": [
+    "MobileGame",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ]
+  // optionalUnityReferences 제거
+}
+```
+
+### 4. InputSystem 네임스페이스 에러
+
+**에러 메시지**:
+```
+CS0234: The type or namespace name 'InputSystem' does not exist in the namespace 'UnityEngine'
+```
+
+**원인**: 메인 게임 코드에서 Input System을 사용하지만 asmdef에 참조가 없음
+
+**해결법**:
+`MobileGame.asmdef`에 Unity.InputSystem 참조 추가
+```json
+// Assets/_Project/Scripts/MobileGame.asmdef
+{
+  "references": [
+    "Unity.InputSystem"
+  ]
+}
+```
+
+### 5. 싱글톤 인스턴스 초기화 문제
+
+**에러 메시지**:
+```
+Expected: not null
+But was: null
+UIManager 인스턴스가 생성되어야 합니다
+```
+
+**원인**:
+- UIManager는 싱글톤 패턴으로 static Instance 변수 사용
+- TearDown()에서 GameObject는 파괴하지만 static Instance는 초기화 안 됨
+- 파괴된 GameObject를 가리키는 Instance로 인해 다음 테스트 실패
+
+**해결법**:
+TearDown()에서 Reflection으로 static Instance를 null로 초기화
+```csharp
+[TearDown]
+public void Teardown()
+{
+    // ... GameObject 파괴 ...
+
+    // 싱글톤 인스턴스 초기화
+    var instanceField = typeof(UIManager).GetField("Instance",
+        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+    instanceField?.SetValue(null, null);
+}
+```
+
+### 6. MonoBehaviour Start() 실행 타이밍 문제
+
+**에러 메시지**:
+```
+Expected log did not appear: [Log] [MainMenu] 햄버거 메뉴 버튼 클릭
+```
+
+**원인**:
+- `yield return null` 한 번으로는 Start() 메서드가 완전히 실행되지 않음
+- LogAssert.Expect()가 로그 발생 후에 호출됨
+
+**해결법**:
+1. 프레임 대기를 2회로 증가
+2. LogAssert.Expect()를 yield return null 이전에 호출
+
+```csharp
+[UnityTest]
+public IEnumerator Button_Click_Invokes_Handler_Method()
+{
+    // 버튼 설정...
+
+    // Start() 완전 실행을 위해 2프레임 대기
+    yield return null;
+    yield return null;
+
+    // LogAssert는 로그 발생 전에 설정
+    LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
+    hamburgerButton.onClick.Invoke();
+}
+```
+
+### 7. Null 버튼 경고 테스트
+
+**문제**: null 버튼 경고가 1개만 예상되지만 25개 발생
+
+**원인**: MainMenuButtonHandler에는 25개 버튼이 있고, 모두 null일 때 각각 경고 출력
+
+**해결법**:
+모든 null 버튼에 대한 경고를 예상하는 루프 추가
+```csharp
+// 25개 버튼에 대한 경고 예상
+for (int i = 0; i < 25; i++)
+{
+    LogAssert.Expect(LogType.Warning,
+        new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+}
+```
+
+---
+
+## 최종 PlayModeTests.asmdef 설정
+
+```json
+{
+  "name": "PlayModeTests",
+  "rootNamespace": "MobileGame.Tests",
+  "references": [
+    "MobileGame",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
+```
+
 ## 참고 자료
 
 - [Unity Test Framework 공식 문서](https://docs.unity3d.com/Packages/com.unity.test-framework@latest)
