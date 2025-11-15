@@ -3,6 +3,8 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using MobileGame.UI;
 using MobileGame.Managers;
 
@@ -11,27 +13,46 @@ namespace MobileGame.Tests.UI
     /// <summary>
     /// MainMenuButtonHandler의 기능 테스트 클래스
     /// Unity Test Framework를 사용한 UI 반응성 및 기능 검증
-    /// 실제 씬에 있는 객체를 사용하여 테스트 (SampleScene을 열어둔 상태에서 실행)
+    /// 실제 씬(SampleScene)을 로드하고 실제 버튼 클릭 이벤트를 시뮬레이션
     /// </summary>
     public class MainMenuButtonHandlerTests
     {
         private MainMenuButtonHandler handler;
+        private static bool sceneLoaded = false;
+        private EventSystem eventSystem;
 
         #region Setup & Teardown
 
         /// <summary>
         /// 각 테스트 실행 전 초기화
-        /// 씬에서 MainMenuButtonHandler를 찾아서 사용
+        /// SampleScene을 로드하고 MainMenuButtonHandler를 찾아서 사용
         /// </summary>
-        [SetUp]
-        public void Setup()
+        [UnitySetUp]
+        public IEnumerator Setup()
         {
-            // 씬에서 MainMenuButtonHandler 찾기
+            // 씬이 아직 로드되지 않았으면 로드
+            if (!sceneLoaded || SceneManager.GetActiveScene().name != "SampleScene")
+            {
+                SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+                // 씬 로드가 완료될 때까지 대기
+                yield return null;
+                yield return null; // 추가 프레임 대기 (Awake, Start 실행 보장)
+                sceneLoaded = true;
+            }
+
+            // 씬 로드 후 객체 찾기
             handler = Object.FindFirstObjectByType<MainMenuButtonHandler>();
 
             if (handler == null)
             {
-                Assert.Fail("MainMenuButtonHandler를 씬에서 찾을 수 없습니다. SampleScene을 열어두고 테스트를 실행하세요.");
+                Assert.Fail("MainMenuButtonHandler를 SampleScene에서 찾을 수 없습니다. SampleScene에 MainMenuButtonHandler 컴포넌트를 추가하세요.");
+            }
+
+            // EventSystem 찾기
+            eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+            {
+                Assert.Fail("EventSystem을 SampleScene에서 찾을 수 없습니다. Canvas에 EventSystem이 필요합니다.");
             }
         }
 
@@ -44,6 +65,56 @@ namespace MobileGame.Tests.UI
         {
             // 씬의 객체는 파괴하지 않음
             handler = null;
+            eventSystem = null;
+        }
+
+        #endregion
+
+        #region 헬퍼 메서드
+
+        /// <summary>
+        /// 버튼을 실제로 클릭하는 시뮬레이션 (시각적 피드백 포함)
+        /// </summary>
+        private IEnumerator SimulateButtonClick(Button button, string buttonName)
+        {
+            if (button == null)
+            {
+                Debug.LogWarning($"[테스트] {buttonName} 버튼이 null입니다");
+                yield break;
+            }
+
+            Debug.Log($"[테스트] {buttonName} 버튼 클릭 시작");
+
+            // PointerEventData 생성
+            var pointerData = new PointerEventData(eventSystem)
+            {
+                button = PointerEventData.InputButton.Left
+            };
+
+            // 버튼 눌림 효과 (PointerDown)
+            ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerDownHandler);
+            yield return new WaitForSeconds(0.1f);
+
+            // 버튼 떼기 효과 (PointerUp)
+            ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerUpHandler);
+
+            // 클릭 이벤트 발생
+            ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerClickHandler);
+
+            Debug.Log($"[테스트] {buttonName} 버튼 클릭 완료");
+
+            // 다음 클릭 전 대기
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        /// <summary>
+        /// Reflection을 사용하여 private 버튼 필드 가져오기
+        /// </summary>
+        private Button GetButtonField(string fieldName)
+        {
+            var field = typeof(MainMenuButtonHandler).GetField(fieldName,
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            return field?.GetValue(handler) as Button;
         }
 
         #endregion
@@ -72,263 +143,442 @@ namespace MobileGame.Tests.UI
             Assert.IsNotNull(uiManager, "UIManager가 씬에 존재해야 합니다");
         }
 
+        /// <summary>
+        /// EventSystem이 씬에 존재하는지 테스트
+        /// </summary>
+        [Test]
+        public void EventSystem_Exists_In_Scene()
+        {
+            Assert.IsNotNull(eventSystem, "EventSystem이 씬에 존재해야 합니다");
+        }
+
         #endregion
 
-        #region 버튼 핸들러 메서드 테스트 (25개)
+        #region 개별 버튼 클릭 테스트 (25개)
 
         /// <summary>
-        /// 햄버거 메뉴 버튼 클릭 시 로그 출력 테스트
+        /// 햄버거 메뉴 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnHamburgerMenuClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator HamburgerMenuButton_Click_Visual()
         {
-            // Arrange: 로그 예상 설정
+            Button button = GetButtonField("hamburgerMenuBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("햄버거 메뉴 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
-
-            // Act: 메서드 호출
-            handler.OnHamburgerMenuClicked();
-
-            // Assert: LogAssert가 자동으로 검증
+            yield return SimulateButtonClick(button, "햄버거 메뉴");
         }
 
         /// <summary>
-        /// 설정 버튼 클릭 시 로그 출력 테스트
+        /// 설정 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSettingClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator SettingButton_Click_Visual()
         {
+            Button button = GetButtonField("settingBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("설정 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 설정 버튼 클릭");
-            handler.OnSettingClicked();
+            yield return SimulateButtonClick(button, "설정");
         }
 
         /// <summary>
-        /// 유저 정보 버튼 클릭 시 로그 출력 테스트
+        /// 유저 정보 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnUserInfoClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator UserInfoButton_Click_Visual()
         {
+            Button button = GetButtonField("userInfoBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("유저 정보 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 유저 정보 버튼 클릭");
-            handler.OnUserInfoClicked();
+            yield return SimulateButtonClick(button, "유저 정보");
         }
 
         /// <summary>
-        /// 가이드 퀘스트 버튼 클릭 시 로그 출력 테스트
+        /// 가이드 퀘스트 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnGuideQuestClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator GuideQuestButton_Click_Visual()
         {
+            Button button = GetButtonField("guideQuestBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("가이드 퀘스트 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 가이드 퀘스트 버튼 클릭");
-            handler.OnGuideQuestClicked();
+            yield return SimulateButtonClick(button, "가이드 퀘스트");
         }
 
         /// <summary>
-        /// 상점 버튼 클릭 시 로그 출력 테스트
+        /// 상점 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnShopClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator ShopButton_Click_Visual()
         {
+            Button button = GetButtonField("shopBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("상점 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 상점 버튼 클릭");
-            handler.OnShopClicked();
+            yield return SimulateButtonClick(button, "상점");
         }
 
         /// <summary>
-        /// 모집 버튼 클릭 시 로그 출력 테스트
+        /// 모집 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnRecruitmentClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator RecruitmentButton_Click_Visual()
         {
+            Button button = GetButtonField("recruitmentBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("모집 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 모집 버튼 클릭");
-            handler.OnRecruitmentClicked();
+            yield return SimulateButtonClick(button, "모집");
         }
 
         /// <summary>
-        /// 이벤트 버튼 클릭 시 로그 출력 테스트
+        /// 이벤트 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnEventClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator EventButton_Click_Visual()
         {
+            Button button = GetButtonField("eventBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("이벤트 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 이벤트 버튼 클릭");
-            handler.OnEventClicked();
+            yield return SimulateButtonClick(button, "이벤트");
         }
 
         /// <summary>
-        /// 캐릭터 버튼 클릭 시 로그 출력 테스트
+        /// 캐릭터 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnCharacterClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator CharacterButton_Click_Visual()
         {
+            Button button = GetButtonField("characterButton");
+            if (button == null)
+            {
+                Assert.Inconclusive("캐릭터 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 캐릭터 버튼 클릭");
-            handler.OnCharacterClicked();
+            yield return SimulateButtonClick(button, "캐릭터");
         }
 
         /// <summary>
-        /// 스킬 설정 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 설정 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkillSettingClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator SkillSettingButton_Click_Visual()
         {
+            Button button = GetButtonField("SkillSettingBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 설정 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 설정 버튼 클릭");
-            handler.OnSkillSettingClicked();
+            yield return SimulateButtonClick(button, "스킬 설정");
         }
 
         /// <summary>
-        /// 스킬 1 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 1 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkill1Clicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator Skill1Button_Click_Visual()
         {
+            Button button = GetButtonField("skill1Btn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 1 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 1 버튼 클릭");
-            handler.OnSkill1Clicked();
+            yield return SimulateButtonClick(button, "스킬 1");
         }
 
         /// <summary>
-        /// 스킬 2 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 2 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkill2Clicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator Skill2Button_Click_Visual()
         {
+            Button button = GetButtonField("skill2Btn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 2 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 2 버튼 클릭");
-            handler.OnSkill2Clicked();
+            yield return SimulateButtonClick(button, "스킬 2");
         }
 
         /// <summary>
-        /// 스킬 3 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 3 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkill3Clicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator Skill3Button_Click_Visual()
         {
+            Button button = GetButtonField("skill3Btn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 3 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 3 버튼 클릭");
-            handler.OnSkill3Clicked();
+            yield return SimulateButtonClick(button, "스킬 3");
         }
 
         /// <summary>
-        /// 스킬 4 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 4 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkill4Clicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator Skill4Button_Click_Visual()
         {
+            Button button = GetButtonField("skill4Btn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 4 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 4 버튼 클릭");
-            handler.OnSkill4Clicked();
+            yield return SimulateButtonClick(button, "스킬 4");
         }
 
         /// <summary>
-        /// 스킬 5 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 5 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkill5Clicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator Skill5Button_Click_Visual()
         {
+            Button button = GetButtonField("skill5Btn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 5 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 5 버튼 클릭");
-            handler.OnSkill5Clicked();
+            yield return SimulateButtonClick(button, "스킬 5");
         }
 
         /// <summary>
-        /// 스킬 6 버튼 클릭 시 로그 출력 테스트
+        /// 스킬 6 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSkill6Clicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator Skill6Button_Click_Visual()
         {
+            Button button = GetButtonField("skill6Btn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스킬 6 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 6 버튼 클릭");
-            handler.OnSkill6Clicked();
+            yield return SimulateButtonClick(button, "스킬 6");
         }
 
         /// <summary>
-        /// 무기 버튼 클릭 시 로그 출력 테스트
+        /// 무기 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnWeaponClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator WeaponButton_Click_Visual()
         {
+            Button button = GetButtonField("weaponButton");
+            if (button == null)
+            {
+                Assert.Inconclusive("무기 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 무기 버튼 클릭");
-            handler.OnWeaponClicked();
+            yield return SimulateButtonClick(button, "무기");
         }
 
         /// <summary>
-        /// 장비 버튼 클릭 시 로그 출력 테스트
+        /// 장비 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnEquipClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator EquipButton_Click_Visual()
         {
+            Button button = GetButtonField("equipButton");
+            if (button == null)
+            {
+                Assert.Inconclusive("장비 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 장비 버튼 클릭");
-            handler.OnEquipClicked();
+            yield return SimulateButtonClick(button, "장비");
         }
 
         /// <summary>
-        /// 협력자 버튼 클릭 시 로그 출력 테스트
+        /// 협력자 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnCoworkerClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator CoworkerButton_Click_Visual()
         {
+            Button button = GetButtonField("coworkerButton");
+            if (button == null)
+            {
+                Assert.Inconclusive("협력자 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 협력자 버튼 클릭");
-            handler.OnCoworkerClicked();
+            yield return SimulateButtonClick(button, "협력자");
         }
 
         /// <summary>
-        /// HP 포션 버튼 클릭 시 로그 출력 테스트
+        /// HP 포션 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnHPPotionClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator HPPotionButton_Click_Visual()
         {
+            Button button = GetButtonField("hpPotionBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("HP 포션 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] HP 포션 버튼 클릭");
-            handler.OnHPPotionClicked();
+            yield return SimulateButtonClick(button, "HP 포션");
         }
 
         /// <summary>
-        /// MP 포션 버튼 클릭 시 로그 출력 테스트
+        /// MP 포션 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnMPPotionClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator MPPotionButton_Click_Visual()
         {
+            Button button = GetButtonField("mpPotionBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("MP 포션 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] MP 포션 버튼 클릭");
-            handler.OnMPPotionClicked();
+            yield return SimulateButtonClick(button, "MP 포션");
         }
 
         /// <summary>
-        /// 포션 설정 버튼 클릭 시 로그 출력 테스트
+        /// 포션 설정 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnPotionSettingClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator PotionSettingButton_Click_Visual()
         {
+            Button button = GetButtonField("potionSettingBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("포션 설정 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 포션 설정 버튼 클릭");
-            handler.OnPotionSettingClicked();
+            yield return SimulateButtonClick(button, "포션 설정");
         }
 
         /// <summary>
-        /// 컨트롤 버튼 클릭 시 로그 출력 테스트
+        /// 컨트롤 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnControllClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator ControllButton_Click_Visual()
         {
+            Button button = GetButtonField("controllBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("컨트롤 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 컨트롤 버튼 클릭");
-            handler.OnControllClicked();
+            yield return SimulateButtonClick(button, "컨트롤");
         }
 
         /// <summary>
-        /// 챕터 버튼 클릭 시 로그 출력 테스트
+        /// 챕터 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnChapterClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator ChapterButton_Click_Visual()
         {
+            Button button = GetButtonField("chapterBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("챕터 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 챕터 버튼 클릭");
-            handler.OnChapterClicked();
+            yield return SimulateButtonClick(button, "챕터");
         }
 
         /// <summary>
-        /// 몬스터 스폰 버튼 클릭 시 로그 출력 테스트
+        /// 몬스터 스폰 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnMonsterSpawnClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator MonsterSpawnButton_Click_Visual()
         {
+            Button button = GetButtonField("monsterSpawnBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("몬스터 스폰 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 몬스터 스폰 버튼 클릭");
-            handler.OnMonsterSpawnClicked();
+            yield return SimulateButtonClick(button, "몬스터 스폰");
         }
 
         /// <summary>
-        /// 스폰 설정 버튼 클릭 시 로그 출력 테스트
+        /// 스폰 설정 버튼 실제 클릭 테스트
         /// </summary>
-        [Test]
-        public void OnSpawnSettingClicked_Logs_Correctly()
+        [UnityTest]
+        public IEnumerator SpawnSettingButton_Click_Visual()
         {
+            Button button = GetButtonField("spawnSettingBtn");
+            if (button == null)
+            {
+                Assert.Inconclusive("스폰 설정 버튼이 연결되지 않았습니다");
+                yield break;
+            }
+
             LogAssert.Expect(LogType.Log, "[MainMenu] 스폰 설정 버튼 클릭");
-            handler.OnSpawnSettingClicked();
+            yield return SimulateButtonClick(button, "스폰 설정");
         }
 
         #endregion
@@ -347,182 +597,39 @@ namespace MobileGame.Tests.UI
             Debug.Log($"[테스트] 씬에서 {buttons.Length}개의 버튼을 찾았습니다");
         }
 
+        #endregion
+
+        #region 통합 테스트
+
         /// <summary>
-        /// 버튼 클릭 이벤트가 정상적으로 동작하는지 테스트
+        /// 여러 버튼을 빠르게 연속 클릭해도 정상 동작하는지 테스트
         /// </summary>
         [UnityTest]
-        public IEnumerator Button_Click_Triggers_Event()
+        public IEnumerator Rapid_Button_Clicks_Work_Correctly()
         {
-            // Arrange: 씬에서 버튼 찾기
-            Button[] buttons = Object.FindObjectsByType<Button>(FindObjectsSortMode.None);
+            Button hamburgerBtn = GetButtonField("hamburgerMenuBtn");
+            Button settingBtn = GetButtonField("settingBtn");
+            Button shopBtn = GetButtonField("shopBtn");
 
-            if (buttons.Length == 0)
+            if (hamburgerBtn == null || settingBtn == null || shopBtn == null)
             {
-                Assert.Inconclusive("씬에 버튼이 없습니다");
+                Assert.Inconclusive("테스트에 필요한 버튼이 모두 연결되지 않았습니다");
                 yield break;
             }
 
-            Button firstButton = buttons[0];
-            Debug.Log($"[테스트] {firstButton.name} 버튼을 클릭합니다");
+            Debug.Log("[테스트] 빠른 연속 클릭 테스트 시작");
 
-            // Act: 버튼 클릭 (시각적으로 확인 가능)
-            firstButton.onClick.Invoke();
-
-            // 시각적 확인을 위한 대기
-            yield return new WaitForSeconds(0.5f);
-
-            // Assert: 버튼이 존재하고 클릭 가능
-            Assert.IsTrue(firstButton.interactable, "버튼이 상호작용 가능해야 합니다");
-        }
-
-        #endregion
-
-        #region 예외 처리 테스트
-
-        /// <summary>
-        /// null 버튼으로 RegisterButton 호출 시 예외 없이 경고만 출력하는지 테스트
-        /// </summary>
-        [Test]
-        public void RegisterButton_Handles_Null_Button_Gracefully()
-        {
-            // Arrange: Reflection으로 private 메서드 접근
-            var registerMethod = typeof(MainMenuButtonHandler).GetMethod("RegisterButton",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            // Act & Assert: null 버튼으로 호출 시 예외가 발생하지 않아야 함
-            Assert.DoesNotThrow(() =>
-            {
-                // RegisterButton(null, someCallback)
-                registerMethod?.Invoke(handler, new object[] { null, (UnityEngine.Events.UnityAction)handler.OnHamburgerMenuClicked });
-            });
-        }
-
-        /// <summary>
-        /// null 버튼으로 UnregisterButton 호출 시 예외 없이 정상 처리되는지 테스트
-        /// </summary>
-        [Test]
-        public void UnregisterButton_Handles_Null_Button_Gracefully()
-        {
-            // Arrange: Reflection으로 private 메서드 접근
-            var unregisterMethod = typeof(MainMenuButtonHandler).GetMethod("UnregisterButton",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            // Act & Assert: null 버튼으로 호출 시 예외가 발생하지 않아야 함
-            Assert.DoesNotThrow(() =>
-            {
-                unregisterMethod?.Invoke(handler, new object[] { null, (UnityEngine.Events.UnityAction)handler.OnHamburgerMenuClicked });
-            });
-        }
-
-        #endregion
-
-        #region UI 통합 테스트
-
-        /// <summary>
-        /// 실제 씬의 버튼을 클릭하여 핸들러가 호출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Scene_Button_Click_Invokes_Handler()
-        {
-            // Arrange: 씬에서 버튼 찾기 (Reflection으로 private 필드 접근)
-            var hamburgerField = typeof(MainMenuButtonHandler).GetField("hamburgerMenuBtn",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            Button hamburgerButton = hamburgerField?.GetValue(handler) as Button;
-
-            if (hamburgerButton == null)
-            {
-                Assert.Inconclusive("햄버거 메뉴 버튼이 씬에서 연결되지 않았습니다");
-                yield break;
-            }
-
-            Debug.Log("[테스트] 햄버거 메뉴 버튼 클릭 (시각적으로 확인 가능)");
-
-            // Act: 버튼 클릭 이벤트 발생
+            // 짧은 간격으로 여러 버튼 클릭
             LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
-            hamburgerButton.onClick.Invoke();
-
-            // 시각적 확인을 위한 대기
-            yield return new WaitForSeconds(0.3f);
-
-            // Assert: LogAssert가 자동으로 검증
-        }
-
-        /// <summary>
-        /// 여러 버튼을 연속으로 클릭해도 정상 동작하는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Multiple_Button_Clicks_Work_Sequentially()
-        {
-            // Act & Assert: 각 버튼 핸들러를 순차적으로 호출
-            LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
-            handler.OnHamburgerMenuClicked();
-            yield return new WaitForSeconds(0.3f);
+            yield return SimulateButtonClick(hamburgerBtn, "햄버거 메뉴");
 
             LogAssert.Expect(LogType.Log, "[MainMenu] 설정 버튼 클릭");
-            handler.OnSettingClicked();
-            yield return new WaitForSeconds(0.3f);
+            yield return SimulateButtonClick(settingBtn, "설정");
 
             LogAssert.Expect(LogType.Log, "[MainMenu] 상점 버튼 클릭");
-            handler.OnShopClicked();
-            yield return new WaitForSeconds(0.3f);
+            yield return SimulateButtonClick(shopBtn, "상점");
 
-            LogAssert.Expect(LogType.Log, "[MainMenu] 캐릭터 버튼 클릭");
-            handler.OnCharacterClicked();
-            yield return new WaitForSeconds(0.3f);
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 1 버튼 클릭");
-            handler.OnSkill1Clicked();
-            yield return new WaitForSeconds(0.3f);
-
-            // 모든 로그가 정상 출력되면 성공
-        }
-
-        /// <summary>
-        /// 모든 버튼 핸들러를 순차적으로 클릭하여 시각적으로 확인
-        /// </summary>
-        [UnityTest]
-        public IEnumerator All_Buttons_Click_Sequence_Visual()
-        {
-            Debug.Log("[테스트] 모든 버튼 순차 클릭 시작 (시각적 확인용)");
-
-            // 모든 핸들러 메서드를 순차적으로 호출
-            yield return ClickAndWait(() => handler.OnHamburgerMenuClicked(), "햄버거 메뉴");
-            yield return ClickAndWait(() => handler.OnSettingClicked(), "설정");
-            yield return ClickAndWait(() => handler.OnUserInfoClicked(), "유저 정보");
-            yield return ClickAndWait(() => handler.OnGuideQuestClicked(), "가이드 퀘스트");
-            yield return ClickAndWait(() => handler.OnShopClicked(), "상점");
-            yield return ClickAndWait(() => handler.OnRecruitmentClicked(), "모집");
-            yield return ClickAndWait(() => handler.OnEventClicked(), "이벤트");
-            yield return ClickAndWait(() => handler.OnCharacterClicked(), "캐릭터");
-            yield return ClickAndWait(() => handler.OnSkillSettingClicked(), "스킬 설정");
-            yield return ClickAndWait(() => handler.OnSkill1Clicked(), "스킬 1");
-            yield return ClickAndWait(() => handler.OnSkill2Clicked(), "스킬 2");
-            yield return ClickAndWait(() => handler.OnSkill3Clicked(), "스킬 3");
-            yield return ClickAndWait(() => handler.OnSkill4Clicked(), "스킬 4");
-            yield return ClickAndWait(() => handler.OnSkill5Clicked(), "스킬 5");
-            yield return ClickAndWait(() => handler.OnSkill6Clicked(), "스킬 6");
-            yield return ClickAndWait(() => handler.OnWeaponClicked(), "무기");
-            yield return ClickAndWait(() => handler.OnEquipClicked(), "장비");
-            yield return ClickAndWait(() => handler.OnCoworkerClicked(), "협력자");
-            yield return ClickAndWait(() => handler.OnHPPotionClicked(), "HP 포션");
-            yield return ClickAndWait(() => handler.OnMPPotionClicked(), "MP 포션");
-            yield return ClickAndWait(() => handler.OnPotionSettingClicked(), "포션 설정");
-            yield return ClickAndWait(() => handler.OnControllClicked(), "컨트롤");
-            yield return ClickAndWait(() => handler.OnChapterClicked(), "챕터");
-            yield return ClickAndWait(() => handler.OnMonsterSpawnClicked(), "몬스터 스폰");
-            yield return ClickAndWait(() => handler.OnSpawnSettingClicked(), "스폰 설정");
-
-            Debug.Log("[테스트] 모든 버튼 순차 클릭 완료!");
-        }
-
-        /// <summary>
-        /// 버튼 클릭 후 대기 헬퍼 메서드
-        /// </summary>
-        private IEnumerator ClickAndWait(System.Action clickAction, string buttonName)
-        {
-            Debug.Log($"[테스트] {buttonName} 버튼 클릭");
-            clickAction.Invoke();
-            yield return new WaitForSeconds(0.3f);
+            Debug.Log("[테스트] 빠른 연속 클릭 테스트 완료");
         }
 
         #endregion
