@@ -13,6 +13,7 @@ Assets/Tests/
 │   │   └── MainMenuButtonHandlerTests.cs  # 메인 테스트 파일
 │   └── TestUtilities/
 │       └── UITestHelper.cs            # 테스트 헬퍼 유틸리티
+├── TEST_REPORT.md                     # 테스트 결과 보고서
 └── README.md                          # 본 문서
 ```
 
@@ -31,7 +32,15 @@ Assets/Tests/
 
 Test Runner 창에서 상단 탭 중 **PlayMode** 탭을 선택합니다.
 
-### 3. 테스트 실행
+### 3. SampleScene 준비 (중요!)
+
+테스트 실행 전에 SampleScene에 다음 컴포넌트들이 설정되어 있어야 합니다:
+- **MainMenuButtonHandler** 컴포넌트
+- **UIManager** 컴포넌트
+- **EventSystem** 컴포넌트
+- **25개 버튼**이 MainMenuButtonHandler Inspector에 연결됨
+
+### 4. 테스트 실행
 
 **모든 테스트 실행:**
 - `Run All` 버튼 클릭
@@ -45,132 +54,229 @@ Test Runner 창에서 상단 탭 중 **PlayMode** 탭을 선택합니다.
 - `MainMenuButtonHandlerTests` 클래스 선택
 - 하위 테스트 그룹 (region) 선택 가능
 
-### 4. 테스트 결과 확인
+### 5. 테스트 결과 확인
 
 - **녹색 체크**: 테스트 통과
 - **빨간색 X**: 테스트 실패
+- **노란색 느낌표**: 테스트 불확정 (Inconclusive)
 - 실패한 테스트를 클릭하면 하단에 오류 메시지 표시
+- Game View에서 버튼 클릭 시각적 피드백 확인 가능
 
 ## 작성된 테스트 목록
 
 ### MainMenuButtonHandlerTests.cs
 
-#### 1. 초기화 테스트 (2개)
-- `MainMenuButtonHandler_Initializes_Successfully_With_UIManager`
-  - UIManager가 존재할 때 정상 초기화 확인
-- `Start_Warns_When_UIManager_Missing`
-  - UIManager가 없을 때 경고 로그 출력 확인
+#### 1. 초기화 테스트 (3개)
+- `MainMenuButtonHandler_Exists_In_Scene`
+  - MainMenuButtonHandler가 씬에 존재하고 활성화되어 있는지 확인
+- `UIManager_Exists_In_Scene`
+  - UIManager가 씬에 존재하는지 확인
+- `EventSystem_Exists_In_Scene`
+  - EventSystem이 씬에 존재하는지 확인
 
-#### 2. 버튼 핸들러 메서드 테스트 (25개)
-모든 버튼 클릭 핸들러가 올바른 로그를 출력하는지 검증:
-- `OnHamburgerMenuClicked_Logs_Correctly`
-- `OnSettingClicked_Logs_Correctly`
-- `OnUserInfoClicked_Logs_Correctly`
-- `OnGuideQuestClicked_Logs_Correctly`
-- `OnShopClicked_Logs_Correctly`
-- `OnRecruitmentClicked_Logs_Correctly`
-- `OnEventClicked_Logs_Correctly`
-- `OnCharacterClicked_Logs_Correctly`
-- `OnSkillSettingClicked_Logs_Correctly`
-- `OnSkill1Clicked_Logs_Correctly`
-- `OnSkill2Clicked_Logs_Correctly`
-- `OnSkill3Clicked_Logs_Correctly`
-- `OnSkill4Clicked_Logs_Correctly`
-- `OnSkill5Clicked_Logs_Correctly`
-- `OnSkill6Clicked_Logs_Correctly`
-- `OnWeaponClicked_Logs_Correctly`
-- `OnEquipClicked_Logs_Correctly`
-- `OnCoworkerClicked_Logs_Correctly`
-- `OnHPPotionClicked_Logs_Correctly`
-- `OnMPPotionClicked_Logs_Correctly`
-- `OnPotionSettingClicked_Logs_Correctly`
-- `OnControllClicked_Logs_Correctly`
-- `OnChapterClicked_Logs_Correctly`
-- `OnMonsterSpawnClicked_Logs_Correctly`
-- `OnSpawnSettingClicked_Logs_Correctly`
+#### 2. 개별 버튼 클릭 테스트 (25개)
+실제 버튼 클릭 이벤트를 시뮬레이션하여 시각적 피드백과 로그 출력을 검증:
+- `HamburgerMenuButton_Click_Visual`
+- `SettingButton_Click_Visual`
+- `UserInfoButton_Click_Visual`
+- `GuideQuestButton_Click_Visual`
+- `ShopButton_Click_Visual`
+- `RecruitmentButton_Click_Visual`
+- `EventButton_Click_Visual`
+- `CharacterButton_Click_Visual`
+- `SkillSettingButton_Click_Visual`
+- `Skill1Button_Click_Visual`
+- `Skill2Button_Click_Visual`
+- `Skill3Button_Click_Visual`
+- `Skill4Button_Click_Visual`
+- `Skill5Button_Click_Visual`
+- `Skill6Button_Click_Visual`
+- `WeaponButton_Click_Visual`
+- `EquipButton_Click_Visual`
+- `CoworkerButton_Click_Visual`
+- `HPPotionButton_Click_Visual`
+- `MPPotionButton_Click_Visual`
+- `PotionSettingButton_Click_Visual`
+- `ControllButton_Click_Visual`
+- `ChapterButton_Click_Visual`
+- `MonsterSpawnButton_Click_Visual`
+- `SpawnSettingButton_Click_Visual`
 
-#### 3. 버튼 이벤트 등록 테스트 (2개)
-- `RegisterButtonEvents_Subscribes_Valid_Buttons`
-  - 유효한 버튼에 대해 이벤트가 등록되는지 확인
-- `RegisterButtonEvents_Warns_For_Null_Buttons`
-  - null 버튼에 대해 경고를 출력하는지 확인
+#### 3. 버튼 존재 테스트 (1개)
+- `Scene_Has_Buttons`
+  - 씬에 최소 1개 이상의 버튼이 존재하는지 확인
 
-#### 4. 버튼 이벤트 해제 테스트 (1개)
-- `UnregisterButtonEvents_Removes_All_Listeners`
-  - OnDestroy 시 모든 리스너가 제거되는지 확인
+#### 4. 통합 테스트 (1개)
+- `Rapid_Button_Clicks_Work_Correctly`
+  - 여러 버튼을 빠르게 연속 클릭해도 정상 동작하는지 확인
 
-#### 5. 예외 처리 테스트 (2개)
-- `RegisterButton_Handles_Null_Button_Gracefully`
-  - null 버튼 등록 시 예외 없이 처리되는지 확인
-- `UnregisterButton_Handles_Null_Button_Gracefully`
-  - null 버튼 해제 시 예외 없이 처리되는지 확인
+**총 테스트 개수: 30개**
 
-#### 6. UI 통합 테스트 (2개)
-- `Button_Click_Invokes_Handler_Method`
-  - 실제 버튼 클릭이 핸들러 메서드를 호출하는지 확인
-- `Multiple_Button_Clicks_Work_Sequentially`
-  - 여러 버튼을 연속으로 클릭해도 정상 동작하는지 확인
+## 테스트 아키텍처
 
-#### 7. 성능 테스트 (1개)
-- `RegisterButtonEvents_Completes_In_Reasonable_Time`
-  - 25개 버튼 이벤트 등록이 0.1초 이내에 완료되는지 확인
+### 씬 기반 테스트 (Scene-Based Testing)
 
-**총 테스트 개수: 35개**
+이전 방식과 달리, 현재 테스트는 **실제 SampleScene을 로드**하여 테스트합니다:
+
+```csharp
+[UnitySetUp]
+public IEnumerator Setup()
+{
+    // SampleScene 로드
+    SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+    yield return null;
+    yield return null; // Awake, Start 실행 보장
+
+    // 씬에서 객체 찾기
+    handler = Object.FindFirstObjectByType<MainMenuButtonHandler>();
+    eventSystem = Object.FindFirstObjectByType<EventSystem>();
+}
+```
+
+### 실제 버튼 클릭 시뮬레이션
+
+ExecuteEvents와 PointerEventData를 사용하여 **실제 UI 이벤트**를 발생시킵니다:
+
+```csharp
+private IEnumerator SimulateButtonClick(Button button, string buttonName)
+{
+    var pointerData = new PointerEventData(eventSystem);
+
+    // 1. 버튼 눌림 효과 (시각적 피드백 시작)
+    ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerDownHandler);
+    yield return new WaitForSeconds(0.1f);
+
+    // 2. 버튼 떼기 효과
+    ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerUpHandler);
+
+    // 3. 클릭 이벤트 발생
+    ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerClickHandler);
+
+    yield return new WaitForSeconds(0.2f);
+}
+```
+
+이 방식의 장점:
+- **시각적 확인**: Game View에서 버튼이 실제로 눌리는 효과 확인
+- **실제 이벤트**: Unity의 EventSystem을 통한 실제 UI 상호작용
+- **통합 테스트**: 씬의 모든 컴포넌트가 실제 환경에서 동작
+
+### 버튼 필드 접근
+
+Reflection을 사용하여 private 버튼 필드에 접근합니다:
+
+```csharp
+private Button GetButtonField(string fieldName)
+{
+    var field = typeof(MainMenuButtonHandler).GetField(fieldName,
+        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+    return field?.GetValue(handler) as Button;
+}
+```
+
+**버튼 필드 이름 매핑**:
+- `hamburgerMenuBtn` - 햄버거 메뉴
+- `settingBtn` - 설정
+- `userInfoBtn` - 유저 정보
+- `guideQuestBtn` - 가이드 퀘스트
+- `shopBtn` - 상점
+- `recruitmentBtn` - 모집
+- `eventBtn` - 이벤트
+- `characterButton` - 캐릭터 (Button으로 끝남)
+- `SkillSettingBtn` - 스킬 설정 (대문자 S로 시작)
+- `skill1Btn` ~ `skill6Btn` - 스킬 1~6
+- `weaponButton` - 무기 (Button으로 끝남)
+- `equipButton` - 장비 (Button으로 끝남)
+- `coworkerButton` - 협력자 (Button으로 끝남)
+- `hpPotionBtn` - HP 포션
+- `mpPotionBtn` - MP 포션
+- `potionSettingBtn` - 포션 설정
+- `controllBtn` - 컨트롤
+- `chapterBtn` - 챕터
+- `monsterSpawnBtn` - 몬스터 스폰
+- `spawnSettingBtn` - 스폰 설정
 
 ## 테스트 커버리지
 
 ### 검증하는 기능
-- MainMenuButtonHandler 초기화 프로세스
-- UIManager 의존성 체크
-- 25개 버튼 핸들러 메서드 동작
-- 버튼 이벤트 등록/해제 메커니즘
-- Null 안정성 (Null Safety)
-- UI 통합 동작
-- 성능 기준 (0.1초 이내 등록)
+- SampleScene 로드 및 초기화
+- MainMenuButtonHandler 씬 존재 확인
+- UIManager 싱글톤 존재 확인
+- EventSystem 존재 확인
+- 25개 버튼 클릭 이벤트 시뮬레이션
+- 버튼 클릭 시 로그 출력 검증
+- 연속 버튼 클릭 안정성
+- UI 시각적 피드백
 
 ### 사용된 테스트 기법
+- **SceneManager**: 실제 씬 로드
+- **ExecuteEvents**: UI 이벤트 시뮬레이션
+- **PointerEventData**: 포인터 이벤트 데이터 생성
 - **LogAssert**: Debug.Log 출력 검증
-- **Reflection**: private 필드/메서드 테스트
-- **UnityTest (Coroutine)**: 비동기 테스트
-- **SetUp/TearDown**: 테스트 전후 처리
-- **Assert 메서드**: NUnit 어설션 사용
+- **Reflection**: private 필드 접근
+- **UnitySetUp/UnityTest**: 비동기 테스트 (IEnumerator)
+- **Assert.Inconclusive**: 조건부 테스트 스킵
+- **Object.FindFirstObjectByType**: 씬 객체 검색
 
 ## 테스트 실행 환경
 
 - **Unity 버전**: 6000.2.9f1 (Unity 6)
 - **Test Framework 버전**: 1.6.0
-- **테스트 타입**: Play Mode Test
-- **실행 플랫폼**: Editor (Standalone 빌드에서도 실행 가능)
+- **테스트 타입**: Play Mode Test (Scene-Based)
+- **실행 플랫폼**: Editor
+- **필요 씬**: SampleScene (자동 로드됨)
 
 ## 주의사항
 
-### 1. Assembly Definition 의존성
-테스트가 정상 실행되려면 다음 파일들이 필요합니다:
-- `Assets/_Project/Scripts/MobileGame.asmdef` (메인 코드 어셈블리)
-- `Assets/Tests/PlayMode/PlayModeTests.asmdef` (테스트 어셈블리)
+### 1. SampleScene 설정 필수
+테스트 실행 전 SampleScene에 다음이 설정되어야 합니다:
+- MainMenuButtonHandler 컴포넌트
+- UIManager 컴포넌트
+- EventSystem (Canvas와 함께)
+- 25개 버튼이 Inspector에 연결됨
 
-### 2. Private 멤버 테스트
-일부 테스트는 Reflection을 사용하여 private 필드/메서드에 접근합니다.
-이는 테스트 목적으로만 사용되며, 실제 코드에서는 사용하지 않습니다.
+버튼이 연결되지 않으면 해당 테스트는 `Inconclusive`로 표시됩니다.
 
-### 3. UIManager 싱글톤
-각 테스트는 독립적으로 UIManager 인스턴스를 생성합니다.
-TearDown에서 정리되므로 테스트 간 간섭이 없습니다.
+### 2. 테스트 실행 시간
+- 각 버튼 클릭에 0.3초 소요 (0.1초 눌림 + 0.2초 대기)
+- 전체 테스트 실행에 약 1-2분 소요
+- Game View에서 시각적 확인 가능
 
-### 4. Play Mode 실행 시간
-Play Mode 테스트는 Unity를 Play 모드로 전환하므로
-Edit Mode 테스트보다 실행 시간이 길 수 있습니다.
+### 3. 필드 이름 주의
+일부 버튼 필드는 일관되지 않은 명명 규칙을 따릅니다:
+- `characterButton` (Btn이 아닌 Button)
+- `SkillSettingBtn` (대문자 S로 시작)
+- `weaponButton`, `equipButton`, `coworkerButton` (Button으로 끝남)
 
-## 테스트 헬퍼 유틸리티
+### 4. 테스트 격리
+- 각 테스트는 [UnitySetUp]에서 씬을 로드
+- 씬이 이미 로드된 경우 재로드하지 않음
+- TearDown에서 참조만 해제 (씬 객체는 유지)
 
-`UITestHelper.cs`는 다음 기능을 제공합니다:
-- 테스트용 버튼/Canvas 생성
-- Reflection 헬퍼 (private 필드/메서드 접근)
-- GameObject 정리 헬퍼
-- 버튼 이벤트 검증 헬퍼
-- 로그 캡처 헬퍼
+### 5. Inconclusive 테스트
+버튼이 연결되지 않은 경우 테스트가 실패하지 않고 `Inconclusive`로 표시됩니다:
+```csharp
+if (button == null)
+{
+    Assert.Inconclusive("버튼이 연결되지 않았습니다");
+    yield break;
+}
+```
 
-다른 UI 테스트 작성 시 재사용 가능합니다.
+## 테스트 헬퍼 메서드
+
+### SimulateButtonClick
+버튼 클릭을 시뮬레이션하고 시각적 피드백을 제공:
+- PointerDown 이벤트 발생
+- 0.1초 대기 (눌림 효과)
+- PointerUp 이벤트 발생
+- PointerClick 이벤트 발생
+- 0.2초 대기 (다음 클릭 전 간격)
+
+### GetButtonField
+Reflection으로 private 버튼 필드에 접근:
+- 필드 이름으로 버튼 참조 획득
+- null 반환 시 버튼 미연결 상태
 
 ## CI/CD 통합
 
@@ -193,119 +299,67 @@ Unity.exe -runTests -batchmode -projectPath "C:\Users\lhb02\OneDrive\Documents\U
     artifactsPath: test-results
 ```
 
-## 추가 개선 사항
-
-향후 테스트 확장 시 고려사항:
-1. **Edit Mode 테스트 추가**: 컴파일 타임 검증
-2. **Mock 프레임워크 도입**: NSubstitute 또는 Moq 사용
-3. **커버리지 분석**: Unity Code Coverage 패키지 사용
-4. **성능 벤치마크**: Performance Testing Extension 사용
-5. **UI 자동화 테스트**: Unity UI Toolkit Test Framework 활용
-
-## 문제 해결
-
-### 테스트가 표시되지 않을 때
-1. Test Runner 창에서 `Reload Tests` 버튼 클릭
-2. Assembly Definition 파일 확인
-3. Unity 에디터 재시작
-
-### 컴파일 오류 발생 시
-1. `MobileGame.asmdef` 파일이 존재하는지 확인
-2. 네임스페이스가 올바른지 확인
-3. Test Framework 패키지가 설치되어 있는지 확인
-
-### 테스트 실패 시
-1. Console 창에서 상세 오류 메시지 확인
-2. Stack Trace를 통해 실패 지점 파악
-3. 해당 테스트를 단독으로 실행하여 격리 테스트
-
----
-
 ## 발생한 문제 및 해결법
 
-### 1. EditMode vs PlayMode 테스트 차이점
+### 1. PlayMode 테스트가 빈 씬에서 실행됨
 
-**문제**: PlayMode 탭에서 테스트가 보이지 않고, EditMode에서만 표시됨
+**문제**: Test Runner가 자동으로 빈 테스트 씬을 로드하여 씬 객체를 찾을 수 없음
 
-**원인**: `PlayModeTests.asmdef`의 `includePlatforms` 설정이 잘못됨
-
-| 설정 | EditMode | PlayMode |
-|------|----------|----------|
-| `includePlatforms` | `["Editor"]` | `[]` (빈 배열) |
-| MonoBehaviour 생명주기 | Start/Update 실행 안 됨 | Start/Update 정상 실행 |
-| 테스트 속성 | `[Test]` | `[UnityTest]` + `IEnumerator` |
+**원인**: Unity Test Framework는 기본적으로 격리된 테스트 환경을 제공
 
 **해결법**:
-```json
-// PlayModeTests.asmdef
+```csharp
+[UnitySetUp]
+public IEnumerator Setup()
 {
-  "includePlatforms": [],  // 빈 배열로 설정
-  "references": [
-    "MobileGame",
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner"
-  ]
+    SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+    yield return null;
+    yield return null; // Awake, Start 실행 보장
 }
 ```
 
-### 2. Burst 컴파일러 Assembly Resolution 에러
+### 2. 메서드 직접 호출은 시각적 피드백이 없음
 
-**에러 메시지**:
-```
-Mono.Cecil.AssemblyResolutionException: Failed to resolve assembly: 'PlayModeTests'
-```
+**문제**: `handler.OnHamburgerMenuClicked()` 직접 호출은 버튼 눌림 효과 없음
 
-**원인**: Burst 컴파일러가 테스트 어셈블리를 컴파일하려고 시도함
+**원인**: UI와 상호작용하지 않고 함수만 실행
 
 **해결법**:
-`defineConstraints`에 `UNITY_INCLUDE_TESTS` 추가
-```json
-{
-  "defineConstraints": [
-    "UNITY_INCLUDE_TESTS"
-  ]
-}
+ExecuteEvents를 사용한 실제 UI 이벤트 시뮬레이션
+```csharp
+ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerDownHandler);
+yield return new WaitForSeconds(0.1f);
+ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerUpHandler);
+ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerClickHandler);
 ```
 
-### 3. 중복 Assembly Reference 에러
+### 3. 버튼 필드 이름 불일치
 
-**에러 메시지**:
-```
-Assembly has duplicate references: UnityEngine.TestRunner, UnityEditor.TestRunner
-```
+**문제**: 테스트에서 사용한 필드 이름이 실제 MainMenuButtonHandler의 필드 이름과 다름
 
-**원인**: `optionalUnityReferences`와 `references`에 동시에 TestRunner 추가됨
+**원인**: 일관되지 않은 명명 규칙 (Btn vs Button, 대소문자)
 
 **해결법**:
-`optionalUnityReferences`를 제거하고 `references`에만 추가
-```json
-{
-  "references": [
-    "MobileGame",
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner"
-  ]
-  // optionalUnityReferences 제거
-}
-```
+MainMenuButtonHandler.cs의 실제 필드 이름 확인 후 수정
+- `characterBtn` → `characterButton`
+- `skillSettingBtn` → `SkillSettingBtn`
+- `weaponBtn` → `weaponButton`
+- `equipBtn` → `equipButton`
+- `coworkerBtn` → `coworkerButton`
 
-### 4. InputSystem 네임스페이스 에러
+### 4. EventSystem 누락
 
-**에러 메시지**:
-```
-CS0234: The type or namespace name 'InputSystem' does not exist in the namespace 'UnityEngine'
-```
+**문제**: UI 이벤트가 동작하지 않음
 
-**원인**: 메인 게임 코드에서 Input System을 사용하지만 asmdef에 참조가 없음
+**원인**: EventSystem이 씬에 없음
 
 **해결법**:
-`MobileGame.asmdef`에 Unity.InputSystem 참조 추가
-```json
-// Assets/_Project/Scripts/MobileGame.asmdef
+Setup에서 EventSystem 존재 확인
+```csharp
+eventSystem = Object.FindFirstObjectByType<EventSystem>();
+if (eventSystem == null)
 {
-  "references": [
-    "Unity.InputSystem"
-  ]
+    Assert.Fail("EventSystem을 SampleScene에서 찾을 수 없습니다.");
 }
 ```
 
@@ -324,65 +378,33 @@ UIManager 인스턴스가 생성되어야 합니다
 - 파괴된 GameObject를 가리키는 Instance로 인해 다음 테스트 실패
 
 **해결법**:
-TearDown()에서 Reflection으로 static Instance를 null로 초기화
+씬 기반 테스트로 전환하여 싱글톤 관리 문제 해결
 ```csharp
 [TearDown]
 public void Teardown()
 {
-    // ... GameObject 파괴 ...
-
-    // 싱글톤 인스턴스 초기화
-    var instanceField = typeof(UIManager).GetField("Instance",
-        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-    instanceField?.SetValue(null, null);
+    // 씬의 객체는 파괴하지 않음
+    handler = null;
+    eventSystem = null;
 }
 ```
 
-### 6. MonoBehaviour Start() 실행 타이밍 문제
+### 6. Burst 컴파일러 Assembly Resolution 에러
 
 **에러 메시지**:
 ```
-Expected log did not appear: [Log] [MainMenu] 햄버거 메뉴 버튼 클릭
+Mono.Cecil.AssemblyResolutionException: Failed to resolve assembly: 'PlayModeTests'
 ```
 
-**원인**:
-- `yield return null` 한 번으로는 Start() 메서드가 완전히 실행되지 않음
-- LogAssert.Expect()가 로그 발생 후에 호출됨
+**원인**: Burst 컴파일러가 테스트 어셈블리를 컴파일하려고 시도함
 
 **해결법**:
-1. 프레임 대기를 2회로 증가
-2. LogAssert.Expect()를 yield return null 이전에 호출
-
-```csharp
-[UnityTest]
-public IEnumerator Button_Click_Invokes_Handler_Method()
+`defineConstraints`에 `UNITY_INCLUDE_TESTS` 추가
+```json
 {
-    // 버튼 설정...
-
-    // Start() 완전 실행을 위해 2프레임 대기
-    yield return null;
-    yield return null;
-
-    // LogAssert는 로그 발생 전에 설정
-    LogAssert.Expect(LogType.Log, "[MainMenu] 햄버거 메뉴 버튼 클릭");
-    hamburgerButton.onClick.Invoke();
-}
-```
-
-### 7. Null 버튼 경고 테스트
-
-**문제**: null 버튼 경고가 1개만 예상되지만 25개 발생
-
-**원인**: MainMenuButtonHandler에는 25개 버튼이 있고, 모두 null일 때 각각 경고 출력
-
-**해결법**:
-모든 null 버튼에 대한 경고를 예상하는 루프 추가
-```csharp
-// 25개 버튼에 대한 경고 예상
-for (int i = 0; i < 25; i++)
-{
-    LogAssert.Expect(LogType.Warning,
-        new System.Text.RegularExpressions.Regex("버튼이 할당되지 않았습니다"));
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ]
 }
 ```
 
@@ -415,14 +437,23 @@ for (int i = 0; i < 25; i++)
 }
 ```
 
+## 향후 개선 사항
+
+1. **터치 입력 시각화**: 버튼 클릭 시 터치 포인트 오버레이 표시
+2. **테스트 시나리오 확장**: 사용자 플로우 시뮬레이션
+3. **성능 벤치마크**: UI 반응 시간 측정
+4. **스크린샷 캡처**: 테스트 실패 시 자동 스크린샷
+5. **테스트 리포트 생성**: HTML/JSON 형식의 상세 보고서
+
 ## 참고 자료
 
 - [Unity Test Framework 공식 문서](https://docs.unity3d.com/Packages/com.unity.test-framework@latest)
+- [Unity EventSystems](https://docs.unity3d.com/Packages/com.unity.ugui@latest/manual/EventSystem.html)
+- [ExecuteEvents API](https://docs.unity3d.com/Packages/com.unity.ugui@latest/api/UnityEngine.EventSystems.ExecuteEvents.html)
 - [NUnit 문서](https://docs.nunit.org/)
-- [Unity 테스트 모범 사례](https://docs.unity3d.com/Manual/testing-editortestsrunner.html)
 
 ---
 
-**작성일**: 2025-11-14
-**버전**: 1.0.0
+**최종 업데이트**: 2025-11-16
+**버전**: 2.0.0
 **작성자**: Claude Code
