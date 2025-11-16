@@ -5,7 +5,7 @@
   jobs:
     buildWindows:
       name: 💻 Windows-64 Bit
-      runs-on: windows-latest
+      runs-on: ubuntu-latest
       steps:
         # Checkout
         - name: Checkout repository
