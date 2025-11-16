@@ -5,7 +5,7 @@
   jobs:
     buildWindows:
       name: 💻 Windows-64 Bit
-      runs-on: windows-latest
+      runs-on: ubuntu-latest
       steps:
         # Checkout
         - name: Checkout repository
@@ -29,8 +29,9 @@
             UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           with:
             targetPlatform: StandaloneWindows64
+            unityVersion: 6000.2.9f1
         # Output
         - uses: actions/upload-artifact@v4
           with:
             name: Windows Build
-            path: build/
+            path: build/StandaloneWindows64
