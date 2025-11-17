@@ -15,7 +15,6 @@ namespace MobileGame.UI
 
         [Header("메뉴 시스템")]
         [SerializeField] private Button hamburgerMenuBtn;    // 햄버거 메뉴 버튼
-        [SerializeField] private Button settingBtn;          // 설정 버튼
 
         [Header("정보 시스템")]
         [SerializeField] private Button userInfoBtn;         // 유저 정보 버튼
@@ -88,7 +87,6 @@ namespace MobileGame.UI
         {
             // 메뉴 시스템
             RegisterButton(hamburgerMenuBtn, OnHamburgerMenuClicked);
-            RegisterButton(settingBtn, OnSettingClicked);
 
             // 정보 시스템
             RegisterButton(userInfoBtn, OnUserInfoClicked);
@@ -133,7 +131,6 @@ namespace MobileGame.UI
         {
             // 메뉴 시스템
             UnregisterButton(hamburgerMenuBtn, OnHamburgerMenuClicked);
-            UnregisterButton(settingBtn, OnSettingClicked);
 
             // 정보 시스템
             UnregisterButton(userInfoBtn, OnUserInfoClicked);

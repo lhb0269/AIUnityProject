@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using MobileGame.UI;
 using MobileGame.Managers;
-using MobileGame.UI.Popups;
 
 namespace MobileGame.Tests.UI
 {
@@ -196,37 +195,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "햄버거 메뉴");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "햄버거 메뉴 버튼 클릭 시 팝업이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 설정 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator SettingButton_Opens_Popup()
-        {
-            Button button = GetButtonField("settingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
-            yield return SimulateButtonClick(button, "설정");
-
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "설정 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 버튼 클릭 시 HamburgerMenuPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -246,12 +219,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "유저 정보");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "유저 정보 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            UserInfoPopup popup = Object.FindFirstObjectByType<UserInfoPopup>();
+            Assert.IsNotNull(popup, "유저 정보 버튼 클릭 시 UserInfoPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -271,12 +243,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "상점");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "상점 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            ShopPopup popup = Object.FindFirstObjectByType<ShopPopup>();
+            Assert.IsNotNull(popup, "상점 버튼 클릭 시 ShopPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -296,12 +267,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "모집");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "모집 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            RecruitmentPopup popup = Object.FindFirstObjectByType<RecruitmentPopup>();
+            Assert.IsNotNull(popup, "모집 버튼 클릭 시 RecruitmentPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -321,12 +291,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "이벤트");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "이벤트 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            EventPopup popup = Object.FindFirstObjectByType<EventPopup>();
+            Assert.IsNotNull(popup, "이벤트 버튼 클릭 시 EventPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -346,12 +315,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "캐릭터");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "캐릭터 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            CharacterPopup popup = Object.FindFirstObjectByType<CharacterPopup>();
+            Assert.IsNotNull(popup, "캐릭터 버튼 클릭 시 CharacterPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -371,12 +339,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "스킬 설정");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "스킬 설정 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            SkillSettingPopup popup = Object.FindFirstObjectByType<SkillSettingPopup>();
+            Assert.IsNotNull(popup, "스킬 설정 버튼 클릭 시 SkillSettingPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -396,12 +363,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "무기");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "무기 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            WeaponPopup popup = Object.FindFirstObjectByType<WeaponPopup>();
+            Assert.IsNotNull(popup, "무기 버튼 클릭 시 WeaponPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -421,12 +387,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "장비");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "장비 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            EquipmentPopup popup = Object.FindFirstObjectByType<EquipmentPopup>();
+            Assert.IsNotNull(popup, "장비 버튼 클릭 시 EquipmentPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -446,12 +411,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "협력자");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "협력자 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            CoworkerPopup popup = Object.FindFirstObjectByType<CoworkerPopup>();
+            Assert.IsNotNull(popup, "협력자 버튼 클릭 시 CoworkerPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -471,12 +435,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "포션 설정");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "포션 설정 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            PotionSettingPopup popup = Object.FindFirstObjectByType<PotionSettingPopup>();
+            Assert.IsNotNull(popup, "포션 설정 버튼 클릭 시 PotionSettingPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -496,12 +459,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "챕터");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "챕터 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            ChapterPopup popup = Object.FindFirstObjectByType<ChapterPopup>();
+            Assert.IsNotNull(popup, "챕터 버튼 클릭 시 ChapterPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -521,12 +483,11 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
-            int initialCount = UIManager.Instance.GetActivePopupCount();
-
             yield return SimulateButtonClick(button, "스폰 설정");
 
-            Assert.AreEqual(initialCount + 1, UIManager.Instance.GetActivePopupCount(),
-                "스폰 설정 버튼 클릭 시 팝업이 열려야 합니다");
+            // 특정 팝업 타입이 열렸는지 확인
+            SpawnSettingPopup popup = Object.FindFirstObjectByType<SpawnSettingPopup>();
+            Assert.IsNotNull(popup, "스폰 설정 버튼 클릭 시 SpawnSettingPopup이 열려야 합니다");
 
             // 테스트 후 정리
             UIManager.Instance.CloseAllActivePopups();
@@ -552,39 +513,6 @@ namespace MobileGame.Tests.UI
 
             // 팝업 열기
             yield return SimulateButtonClick(button, "햄버거 메뉴");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 설정 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator SettingsPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("settingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "설정");
 
             Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
                 "팝업이 열려야 합니다");

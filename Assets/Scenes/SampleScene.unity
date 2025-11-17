@@ -7268,7 +7268,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobileGame.UI.MainMenuButtonHandler
   hamburgerMenuBtn: {fileID: 1201299262}
-  settingBtn: {fileID: 1242946287}
   userInfoBtn: {fileID: 870484156}
   guideQuestBtn: {fileID: 371471544}
   shopBtn: {fileID: 1953433690}
