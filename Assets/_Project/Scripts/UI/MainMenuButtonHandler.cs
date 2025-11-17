@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using MobileGame.Managers;
+using MobileGame.UI;
 
 namespace MobileGame.UI
 {
@@ -14,7 +15,6 @@ namespace MobileGame.UI
 
         [Header("메뉴 시스템")]
         [SerializeField] private Button hamburgerMenuBtn;    // 햄버거 메뉴 버튼
-        [SerializeField] private Button settingBtn;          // 설정 버튼
 
         [Header("정보 시스템")]
         [SerializeField] private Button userInfoBtn;         // 유저 정보 버튼
@@ -87,7 +87,6 @@ namespace MobileGame.UI
         {
             // 메뉴 시스템
             RegisterButton(hamburgerMenuBtn, OnHamburgerMenuClicked);
-            RegisterButton(settingBtn, OnSettingClicked);
 
             // 정보 시스템
             RegisterButton(userInfoBtn, OnUserInfoClicked);
@@ -132,7 +131,6 @@ namespace MobileGame.UI
         {
             // 메뉴 시스템
             UnregisterButton(hamburgerMenuBtn, OnHamburgerMenuClicked);
-            UnregisterButton(settingBtn, OnSettingClicked);
 
             // 정보 시스템
             UnregisterButton(userInfoBtn, OnUserInfoClicked);
@@ -200,24 +198,36 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 햄버거 메뉴 버튼 클릭 핸들러
-        /// TODO: 사이드 메뉴 패널 구현
         /// </summary>
         public void OnHamburgerMenuClicked()
         {
             Debug.Log("[MainMenu] 햄버거 메뉴 버튼 클릭");
-            // TODO: 나중에 실제 사이드 메뉴 패널 구현 시
-            // UIManager.Instance.ShowPanel("SideMenuPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(HamburgerMenuPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
         /// 설정 버튼 클릭 핸들러
-        /// TODO: 설정 패널 구현
         /// </summary>
         public void OnSettingClicked()
         {
             Debug.Log("[MainMenu] 설정 버튼 클릭");
-            // TODO: 나중에 실제 설정 패널 구현 시
-            // UIManager.Instance.ShowPanel("SettingsPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(SettingsPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         #endregion
@@ -226,13 +236,19 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 유저 정보 버튼 클릭 핸들러
-        /// TODO: 유저 프로필 패널 구현
         /// </summary>
         public void OnUserInfoClicked()
         {
             Debug.Log("[MainMenu] 유저 정보 버튼 클릭");
-            // TODO: 나중에 실제 유저 정보 패널 구현 시
-            // UIManager.Instance.ShowPanel("UserProfilePanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(UserInfoPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
@@ -252,35 +268,53 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 상점 버튼 클릭 핸들러
-        /// TODO: 상점 패널 구현
         /// </summary>
         public void OnShopClicked()
         {
             Debug.Log("[MainMenu] 상점 버튼 클릭");
-            // TODO: 나중에 실제 상점 패널 구현 시
-            // UIManager.Instance.ShowPanel("ShopPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(ShopPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
         /// 모집 버튼 클릭 핸들러
-        /// TODO: 모집 패널 구현
         /// </summary>
         public void OnRecruitmentClicked()
         {
             Debug.Log("[MainMenu] 모집 버튼 클릭");
-            // TODO: 나중에 실제 모집 패널 구현 시
-            // UIManager.Instance.ShowPanel("RecruitmentPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(RecruitmentPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
         /// 이벤트 버튼 클릭 핸들러
-        /// TODO: 이벤트 패널 구현
         /// </summary>
         public void OnEventClicked()
         {
             Debug.Log("[MainMenu] 이벤트 버튼 클릭");
-            // TODO: 나중에 실제 이벤트 패널 구현 시
-            // UIManager.Instance.ShowPanel("EventPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(EventPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         #endregion
@@ -289,24 +323,36 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 캐릭터 버튼 클릭 핸들러
-        /// TODO: 캐릭터 관리 패널 구현
         /// </summary>
         public void OnCharacterClicked()
         {
             Debug.Log("[MainMenu] 캐릭터 버튼 클릭");
-            // TODO: 나중에 실제 캐릭터 관리 패널 구현 시
-            // UIManager.Instance.ShowPanel("CharacterPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(CharacterPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
         /// 스킬 설정 버튼 클릭 핸들러
-        /// TODO: 스킬 설정 패널 구현
         /// </summary>
         public void OnSkillSettingClicked()
         {
             Debug.Log("[MainMenu] 스킬 설정 버튼 클릭");
-            // TODO: 나중에 실제 스킬 관리 패널 구현 시
-            // UIManager.Instance.ShowPanel("SkillSettingsPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(SkillSettingPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
@@ -377,35 +423,53 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 무기 버튼 클릭 핸들러
-        /// TODO: 무기 관리 패널 구현
         /// </summary>
         public void OnWeaponClicked()
         {
             Debug.Log("[MainMenu] 무기 버튼 클릭");
-            // TODO: 나중에 실제 무기 관리 패널 구현 시
-            // UIManager.Instance.ShowPanel("WeaponPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(WeaponPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
         /// 장비 버튼 클릭 핸들러
-        /// TODO: 장비 관리 패널 구현
         /// </summary>
         public void OnEquipClicked()
         {
             Debug.Log("[MainMenu] 장비 버튼 클릭");
-            // TODO: 나중에 실제 장비 관리 패널 구현 시
-            // UIManager.Instance.ShowPanel("EquipmentPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(EquipmentPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
         /// 협력자 버튼 클릭 핸들러
-        /// TODO: 협력자 관리 패널 구현
         /// </summary>
         public void OnCoworkerClicked()
         {
             Debug.Log("[MainMenu] 협력자 버튼 클릭");
-            // TODO: 나중에 실제 협력자 관리 패널 구현 시
-            // UIManager.Instance.ShowPanel("CoworkerPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(CoworkerPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         #endregion
@@ -436,13 +500,19 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 포션 설정 버튼 클릭 핸들러 (PotionGroup)
-        /// TODO: 포션 설정 패널 구현
         /// </summary>
         public void OnPotionSettingClicked()
         {
             Debug.Log("[MainMenu] 포션 설정 버튼 클릭");
-            // TODO: 나중에 실제 포션 설정 패널 구현 시
-            // UIManager.Instance.ShowPanel("PotionSettingsPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(PotionSettingPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         #endregion
@@ -462,13 +532,19 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 챕터 버튼 클릭 핸들러
-        /// TODO: 챕터 선택 기능 구현
         /// </summary>
         public void OnChapterClicked()
         {
             Debug.Log("[MainMenu] 챕터 버튼 클릭");
-            // TODO: 나중에 실제 챕터 선택 기능 구현 시
-            // UIManager.Instance.ShowPanel("ChapterSelectionPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(ChapterPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         /// <summary>
@@ -484,13 +560,19 @@ namespace MobileGame.UI
 
         /// <summary>
         /// 스폰 설정 버튼 클릭 핸들러 (SpawnGroup)
-        /// TODO: 스폰 설정 패널 구현
         /// </summary>
         public void OnSpawnSettingClicked()
         {
             Debug.Log("[MainMenu] 스폰 설정 버튼 클릭");
-            // TODO: 나중에 실제 스폰 설정 패널 구현 시
-            // UIManager.Instance.ShowPanel("SpawnSettingsPanel");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(SpawnSettingPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         #endregion
