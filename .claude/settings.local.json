@@ -16,7 +16,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\n[메인 메뉴 UI] 버튼 핸들러 스크립트 구현\n\n상세 설명:\n- MainMenuButtonHandler.cs 생성 (17개 버튼 통합 관리)\n- 메뉴 시스템: 햄버거 메뉴, 설정 버튼\n- 정보 시스템: 유저 정보, 가이드 퀘스트 버튼\n- 상점/협력/이벤트: 상점, 모집, 이벤트 버튼\n- 전투 관련: 캐릭터, 스킬, 무기, 장비, 협력자 버튼\n- 아이템: HP 포션, MP 포션 버튼\n- 게임플레이: 컨트롤, 챕터, 몬스터 스폰 버튼\n- 각 버튼에 Debug.Log 기본 이벤트 연결\n- UIManager 참조 및 향후 확장을 위한 TODO 주석 포함\n- 자동 이벤트 등록/해제 시스템 구현\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit -m \"$(cat <<''EOF''\n[메인 메뉴 UI] 버튼 핸들러 스크립트 구현\n\n상세 설명:\n- MainMenuButtonHandler.cs 생성 (25개 버튼 통합 관리)\n- 메뉴 시스템: HamburgerMenu, Setting (2개)\n- 정보 시스템: UserInfo, GuideQuest (2개)\n- 상점/협력/이벤트: Shop, Recruitment, Event (3개)\n- 전투 관련: Character, SkillSetting, Skill 1~6, Weapon, Equip, Coworker (11개)\n- 아이템: HP/MP Potion, PotionSetting (3개)\n- 게임플레이: Controll, Chapter, MonsterSpawn, SpawnSetting (4개)\n- UIManager.cs: Android 뒤로가기 버튼 처리 임시 비활성화\n- 각 버튼별 Debug.Log 기본 구현\n- 향후 확장을 위한 TODO 주석 포함\n- 모든 스크립트에 한국어 주석 포함\n- 자동 이벤트 등록/해제 시스템 구현\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

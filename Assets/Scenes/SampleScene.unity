@@ -5015,6 +5015,7 @@ GameObject:
   - component: {fileID: 1201299264}
   - component: {fileID: 1201299263}
   - component: {fileID: 1201299262}
+  - component: {fileID: 1201299265}
   m_Layer: 5
   m_Name: HamburgerMenuBtn
   m_TagString: Untagged
@@ -5123,6 +5124,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1201299260}
   m_CullTransparentMesh: 1
+--- !u!114 &1201299265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201299260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27ed6546f41c64a409e54b0cf8061d25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.UI.HamburgerMenuPopup
+  closeButton: {fileID: 0}
+  blockerImage: {fileID: 0}
 --- !u!1 &1241323649
 GameObject:
   m_ObjectHideFlags: 0
@@ -7290,7 +7305,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MobileGame.Managers.UIManager
   mainCanvas: {fileID: 2091279259}
-  popupCanvas: {fileID: 0}
+  popupCanvas: {fileID: 2091279259}
+  initialPopupPrefabs:
+  - popupName: ChapterPopup
+    prefab: {fileID: 2884121858976555704, guid: 21c53f5cadd67f44bb7ecf887adbcb64, type: 3}
+  - popupName: CharacterPopup
+    prefab: {fileID: 2884121858976555704, guid: bf63ed6a5bf559646bf79284eae0143a, type: 3}
+  - popupName: CoworkerPopup
+    prefab: {fileID: 2884121858976555704, guid: 4709bd18e09361540bd1c4a781b999ab, type: 3}
+  - popupName: EquipmentPopup
+    prefab: {fileID: 2884121858976555704, guid: d1de8e66c7b12b147b0aafd8108ea9f9, type: 3}
+  - popupName: EventPopup
+    prefab: {fileID: 2884121858976555704, guid: d01d52b58caa5dc46951e17553d84ec9, type: 3}
+  - popupName: HamburgerMenuPopup
+    prefab: {fileID: 2884121858976555704, guid: 16a9f9f785eab2842b21c5d061a9e646, type: 3}
+  - popupName: PotionSettingPopup
+    prefab: {fileID: 2884121858976555704, guid: bcf54140f5e061346895f24f46780c86, type: 3}
+  - popupName: RecruitmentPopup
+    prefab: {fileID: 2884121858976555704, guid: bf9c1390e4e89a84a8542355fcb46489, type: 3}
+  - popupName: SettingsPopup
+    prefab: {fileID: 2884121858976555704, guid: 02ec556a7fc0e0c449c12f57f193cd08, type: 3}
+  - popupName: ShopPopup
+    prefab: {fileID: 2884121858976555704, guid: 3348dcadb6ffcf749b6d048e153dcc9b, type: 3}
+  - popupName: SkillSettingPopup
+    prefab: {fileID: 2884121858976555704, guid: 9bd19eb90f806554485af66af15ab369, type: 3}
+  - popupName: SpawnSettingPopup
+    prefab: {fileID: 2884121858976555704, guid: 1fdfb5bfb04e2d6468399a0f81d30e62, type: 3}
+  - popupName: UserInfoPopup
+    prefab: {fileID: 2884121858976555704, guid: 7489eb923b50c8a4185ec5adb72e2c87, type: 3}
+  - popupName: WeaponPopup
+    prefab: {fileID: 2884121858976555704, guid: 31ba3d3184e9f884dba14cb332405856, type: 3}
 --- !u!1 &2091279256
 GameObject:
   m_ObjectHideFlags: 0
