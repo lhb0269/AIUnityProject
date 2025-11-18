@@ -61,13 +61,15 @@ namespace MobileGame.Tests.UI
         /// 각 테스트 실행 후 정리
         /// 씬의 객체는 그대로 유지
         /// </summary>
-        [TearDown]
-        public void Teardown()
+        [UnityTearDown]
+        public IEnumerator Teardown()
         {
             // 모든 팝업 정리
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.CloseAllActivePopups();
+                yield return null; // 팝업이 완전히 파괴될 때까지 대기
+                yield return null; // 추가 프레임 대기로 완전한 정리 보장
             }
 
             eventSystem = null;
@@ -190,6 +192,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         #endregion
@@ -226,6 +229,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -258,6 +262,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -290,6 +295,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -322,6 +328,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -354,6 +361,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -386,6 +394,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -418,6 +427,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -450,6 +460,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -482,6 +493,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -514,6 +526,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -546,6 +559,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -578,6 +592,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         #endregion
@@ -626,6 +641,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         /// <summary>
@@ -679,6 +695,7 @@ namespace MobileGame.Tests.UI
             // 팝업 닫기
             UIManager.Instance.CloseAllActivePopups();
             yield return null;
+            yield return null; // 팝업 파괴 완료 대기
         }
 
         #endregion
