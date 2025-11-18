@@ -75,6 +75,16 @@ namespace MobileGame.Tests.UI
             eventSystem = null;
         }
 
+        /// <summary>
+        /// 모든 테스트 종료 후 UIManager 완전 정리
+        /// DontDestroyOnLoad 객체를 파괴하여 다음 테스트 클래스에 영향 없도록 함
+        /// </summary>
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            UIManager.ResetForTesting();
+        }
+
         #endregion
 
         #region 헬퍼 메서드
