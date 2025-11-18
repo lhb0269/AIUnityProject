@@ -3,8 +3,8 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using MobileGame.UI;
 using MobileGame.Managers;
 
@@ -13,64 +13,64 @@ namespace MobileGame.Tests.UI
     /// <summary>
     /// HamburgerMenuPopup의 12개 버튼 기능 테스트 클래스
     /// Unity Test Framework를 사용한 UI 반응성 및 기능 검증
+    /// 실제 씬(SampleScene)을 로드하고 실제 버튼 클릭 이벤트를 시뮬레이션
     /// </summary>
     public class HamburgerMenuPopupTests
     {
-        private HamburgerMenuPopup popup;
-        private GameObject popupObject;
+        private static bool sceneLoaded = false;
         private EventSystem eventSystem;
 
         #region Setup & Teardown
 
         /// <summary>
         /// 각 테스트 실행 전 초기화
-        /// UIManager와 EventSystem 설정
+        /// SampleScene을 로드하고 실제 UI 환경에서 테스트
         /// </summary>
         [UnitySetUp]
         public IEnumerator Setup()
         {
-            // UIManager가 있는지 확인하고 없으면 생성
-            if (UIManager.Instance == null)
+            // 씬이 아직 로드되지 않았으면 로드
+            if (!sceneLoaded || SceneManager.GetActiveScene().name != "SampleScene")
             {
-                GameObject uiManagerObj = new GameObject("UIManager");
-                uiManagerObj.AddComponent<UIManager>();
+                SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+                // 씬 로드가 완료될 때까지 대기
                 yield return null;
+                yield return null; // 추가 프레임 대기 (Awake, Start 실행 보장)
+                sceneLoaded = true;
             }
 
-            // EventSystem 생성 (New Input System 사용)
-            GameObject eventSystemObj = new GameObject("EventSystem");
-            eventSystem = eventSystemObj.AddComponent<EventSystem>();
-            eventSystemObj.AddComponent<InputSystemUIInputModule>();
+            // EventSystem 찾기
+            eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            if (eventSystem == null)
+            {
+                Assert.Fail("EventSystem을 SampleScene에서 찾을 수 없습니다.");
+            }
 
+            // UIManager 확인
+            if (UIManager.Instance == null)
+            {
+                Assert.Fail("UIManager.Instance를 찾을 수 없습니다.");
+            }
+
+            // 모든 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
             yield return null;
         }
 
         /// <summary>
         /// 각 테스트 실행 후 정리
+        /// 씬의 객체는 그대로 유지
         /// </summary>
         [TearDown]
         public void Teardown()
         {
-            // 팝업 정리
+            // 모든 팝업 정리
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.CloseAllActivePopups();
             }
 
-            // EventSystem 정리
-            if (eventSystem != null)
-            {
-                Object.Destroy(eventSystem.gameObject);
-            }
-
-            // 팝업 객체 정리
-            if (popupObject != null)
-            {
-                Object.Destroy(popupObject);
-            }
-
-            popup = null;
-            popupObject = null;
+            eventSystem = null;
         }
 
         #endregion
@@ -78,7 +78,7 @@ namespace MobileGame.Tests.UI
         #region 헬퍼 메서드
 
         /// <summary>
-        /// 버튼을 클릭하는 시뮬레이션
+        /// 버튼을 실제로 클릭하는 시뮬레이션 (시각적 피드백 포함)
         /// </summary>
         private IEnumerator SimulateButtonClick(Button button, string buttonName)
         {
@@ -88,19 +88,47 @@ namespace MobileGame.Tests.UI
                 yield break;
             }
 
+            Debug.Log($"[테스트] {buttonName} 버튼 클릭 시작");
+
+            // PointerEventData 생성
             var pointerData = new PointerEventData(eventSystem)
             {
                 button = PointerEventData.InputButton.Left
             };
 
+            // 버튼 눌림 효과 (PointerDown)
+            ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerDownHandler);
+            yield return new WaitForSeconds(0.1f);
+
+            // 버튼 떼기 효과 (PointerUp)
+            ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerUpHandler);
+
+            // 클릭 이벤트 발생
             ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerClickHandler);
-            yield return null;
+
+            Debug.Log($"[테스트] {buttonName} 버튼 클릭 완료");
+
+            // 다음 클릭 전 대기
+            yield return new WaitForSeconds(0.2f);
         }
 
         /// <summary>
-        /// Reflection을 사용하여 private 버튼 필드 가져오기
+        /// Reflection을 사용하여 MainMenuButtonHandler의 private 버튼 필드 가져오기
         /// </summary>
-        private Button GetButtonField(string fieldName)
+        private Button GetMainMenuButtonField(string fieldName)
+        {
+            var handler = Object.FindFirstObjectByType<MainMenuButtonHandler>();
+            if (handler == null) return null;
+
+            var field = typeof(MainMenuButtonHandler).GetField(fieldName,
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            return field?.GetValue(handler) as Button;
+        }
+
+        /// <summary>
+        /// Reflection을 사용하여 HamburgerMenuPopup의 private 버튼 필드 가져오기
+        /// </summary>
+        private Button GetPopupButtonField(HamburgerMenuPopup popup, string fieldName)
         {
             var field = typeof(HamburgerMenuPopup).GetField(fieldName,
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -108,47 +136,24 @@ namespace MobileGame.Tests.UI
         }
 
         /// <summary>
-        /// 햄버거 팝업을 여는 헬퍼 메서드
+        /// 햄버거 메뉴 팝업을 실제로 여는 헬퍼 메서드
         /// </summary>
         private IEnumerator OpenHamburgerPopup()
         {
-            // 팝업 프리팹 생성 (테스트용 간단 버전)
-            popupObject = new GameObject("HamburgerMenuPopup");
-            popupObject.AddComponent<RectTransform>();
-            popup = popupObject.AddComponent<HamburgerMenuPopup>();
+            // MainMenuButtonHandler의 햄버거 메뉴 버튼 찾기
+            Button hamburgerBtn = GetMainMenuButtonField("hamburgerMenuBtn");
 
-            // 12개 버튼 생성 및 할당
-            CreateAndAssignButton("missionBtn", "MissionButton");
-            CreateAndAssignButton("passBtn", "PassButton");
-            CreateAndAssignButton("mailboxBtn", "MailboxButton");
-            CreateAndAssignButton("costumeBtn", "CostumeButton");
-            CreateAndAssignButton("heroPowerBtn", "HeroPowerButton");
-            CreateAndAssignButton("equipSlotEnhanceBtn", "EquipSlotEnhanceButton");
-            CreateAndAssignButton("relicBtn", "RelicButton");
-            CreateAndAssignButton("friendBtn", "FriendButton");
-            CreateAndAssignButton("rankingBtn", "RankingButton");
-            CreateAndAssignButton("guildBtn", "GuildButton");
-            CreateAndAssignButton("growthDungeonBtn", "GrowthDungeonButton");
-            CreateAndAssignButton("worldBossBtn", "WorldBossButton");
+            if (hamburgerBtn == null)
+            {
+                Assert.Fail("햄버거 메뉴 버튼을 찾을 수 없습니다.");
+                yield break;
+            }
 
-            // Start 메서드 실행을 위한 활성화
-            popupObject.SetActive(true);
-            yield return null; // Start 실행 대기
-        }
+            // 햄버거 메뉴 버튼 클릭
+            yield return SimulateButtonClick(hamburgerBtn, "햄버거 메뉴");
 
-        /// <summary>
-        /// 버튼을 생성하고 팝업 필드에 할당
-        /// </summary>
-        private void CreateAndAssignButton(string fieldName, string buttonName)
-        {
-            GameObject buttonObj = new GameObject(buttonName);
-            buttonObj.transform.SetParent(popupObject.transform);
-            buttonObj.AddComponent<RectTransform>();
-            Button button = buttonObj.AddComponent<Button>();
-
-            var field = typeof(HamburgerMenuPopup).GetField(fieldName,
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            field?.SetValue(popup, button);
+            // 팝업이 열릴 때까지 대기
+            yield return null;
         }
 
         #endregion
@@ -156,29 +161,35 @@ namespace MobileGame.Tests.UI
         #region 팝업 열기 테스트
 
         /// <summary>
-        /// 햄버거 팝업이 정상적으로 열리는지 테스트
+        /// 햄버거 메뉴 팝업이 정상적으로 열리는지 테스트
         /// </summary>
         [UnityTest]
         public IEnumerator HamburgerMenuPopup_Opens_Successfully()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Assert.IsNotNull(popup, "HamburgerMenuPopup이 생성되어야 합니다");
-            Assert.IsTrue(popup.gameObject.activeInHierarchy, "HamburgerMenuPopup이 활성화되어야 합니다");
+            // 팝업이 열렸는지 확인
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
 
             // 12개 버튼이 모두 할당되었는지 확인
-            Assert.IsNotNull(GetButtonField("missionBtn"), "미션 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("passBtn"), "패스 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("mailboxBtn"), "우편함 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("costumeBtn"), "코스튬 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("heroPowerBtn"), "용사의 힘 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("equipSlotEnhanceBtn"), "장비 슬롯 강화 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("relicBtn"), "유물 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("friendBtn"), "친구 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("rankingBtn"), "랭킹 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("guildBtn"), "길드 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("growthDungeonBtn"), "성장 던전 버튼이 할당되어야 합니다");
-            Assert.IsNotNull(GetButtonField("worldBossBtn"), "월드 보스 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "missionBtn"), "미션 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "passBtn"), "패스 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "mailboxBtn"), "우편함 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "costumeBtn"), "코스튬 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "heroPowerBtn"), "용사의 힘 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "equipSlotEnhanceBtn"), "장비 슬롯 강화 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "relicBtn"), "유물 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "friendBtn"), "친구 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "rankingBtn"), "랭킹 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "guildBtn"), "길드 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "growthDungeonBtn"), "성장 던전 버튼이 할당되어야 합니다");
+            Assert.IsNotNull(GetPopupButtonField(popup, "worldBossBtn"), "월드 보스 버튼이 할당되어야 합니다");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         #endregion
@@ -191,17 +202,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator MissionButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("missionBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 미션 버튼 찾기
+            Button missionBtn = GetPopupButtonField(popup, "missionBtn");
+            if (missionBtn == null)
             {
                 Assert.Inconclusive("미션 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 미션 버튼 클릭");
-            yield return SimulateButtonClick(button, "미션");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(missionBtn, "미션");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -210,17 +234,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator PassButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("passBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 패스 버튼 찾기
+            Button passBtn = GetPopupButtonField(popup, "passBtn");
+            if (passBtn == null)
             {
                 Assert.Inconclusive("패스 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 패스 버튼 클릭");
-            yield return SimulateButtonClick(button, "패스");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(passBtn, "패스");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -229,17 +266,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator MailboxButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("mailboxBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 우편함 버튼 찾기
+            Button mailboxBtn = GetPopupButtonField(popup, "mailboxBtn");
+            if (mailboxBtn == null)
             {
                 Assert.Inconclusive("우편함 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 우편함 버튼 클릭");
-            yield return SimulateButtonClick(button, "우편함");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(mailboxBtn, "우편함");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -248,17 +298,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator CostumeButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("costumeBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 코스튬 버튼 찾기
+            Button costumeBtn = GetPopupButtonField(popup, "costumeBtn");
+            if (costumeBtn == null)
             {
                 Assert.Inconclusive("코스튬 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 코스튬 버튼 클릭");
-            yield return SimulateButtonClick(button, "코스튬");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(costumeBtn, "코스튬");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -267,17 +330,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator HeroPowerButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("heroPowerBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 용사의 힘 버튼 찾기
+            Button heroPowerBtn = GetPopupButtonField(popup, "heroPowerBtn");
+            if (heroPowerBtn == null)
             {
                 Assert.Inconclusive("용사의 힘 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 용사의 힘 버튼 클릭");
-            yield return SimulateButtonClick(button, "용사의 힘");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(heroPowerBtn, "용사의 힘");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -286,17 +362,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator EquipSlotEnhanceButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("equipSlotEnhanceBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 장비 슬롯 강화 버튼 찾기
+            Button equipSlotEnhanceBtn = GetPopupButtonField(popup, "equipSlotEnhanceBtn");
+            if (equipSlotEnhanceBtn == null)
             {
                 Assert.Inconclusive("장비 슬롯 강화 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 장비 슬롯 강화 버튼 클릭");
-            yield return SimulateButtonClick(button, "장비 슬롯 강화");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(equipSlotEnhanceBtn, "장비 슬롯 강화");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -305,17 +394,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator RelicButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("relicBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 유물 버튼 찾기
+            Button relicBtn = GetPopupButtonField(popup, "relicBtn");
+            if (relicBtn == null)
             {
                 Assert.Inconclusive("유물 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 유물 버튼 클릭");
-            yield return SimulateButtonClick(button, "유물");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(relicBtn, "유물");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -324,17 +426,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator FriendButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("friendBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 친구 버튼 찾기
+            Button friendBtn = GetPopupButtonField(popup, "friendBtn");
+            if (friendBtn == null)
             {
                 Assert.Inconclusive("친구 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 친구 버튼 클릭");
-            yield return SimulateButtonClick(button, "친구");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(friendBtn, "친구");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -343,17 +458,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator RankingButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("rankingBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 랭킹 버튼 찾기
+            Button rankingBtn = GetPopupButtonField(popup, "rankingBtn");
+            if (rankingBtn == null)
             {
                 Assert.Inconclusive("랭킹 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 랭킹 버튼 클릭");
-            yield return SimulateButtonClick(button, "랭킹");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(rankingBtn, "랭킹");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -362,17 +490,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator GuildButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("guildBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 길드 버튼 찾기
+            Button guildBtn = GetPopupButtonField(popup, "guildBtn");
+            if (guildBtn == null)
             {
                 Assert.Inconclusive("길드 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 길드 버튼 클릭");
-            yield return SimulateButtonClick(button, "길드");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(guildBtn, "길드");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -381,17 +522,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator GrowthDungeonButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("growthDungeonBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 성장 던전 버튼 찾기
+            Button growthDungeonBtn = GetPopupButtonField(popup, "growthDungeonBtn");
+            if (growthDungeonBtn == null)
             {
                 Assert.Inconclusive("성장 던전 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 성장 던전 버튼 클릭");
-            yield return SimulateButtonClick(button, "성장 던전");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(growthDungeonBtn, "성장 던전");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -400,17 +554,30 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator WorldBossButton_Click_Triggers_Handler()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button button = GetButtonField("worldBossBtn");
-            if (button == null)
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            // 월드 보스 버튼 찾기
+            Button worldBossBtn = GetPopupButtonField(popup, "worldBossBtn");
+            if (worldBossBtn == null)
             {
                 Assert.Inconclusive("월드 보스 버튼이 할당되지 않았습니다");
                 yield break;
             }
 
+            // 로그 예상 설정
             LogAssert.Expect(LogType.Log, "[HamburgerMenu] 월드 보스 버튼 클릭");
-            yield return SimulateButtonClick(button, "월드 보스");
+
+            // 버튼 클릭
+            yield return SimulateButtonClick(worldBossBtn, "월드 보스");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         #endregion
@@ -423,11 +590,16 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator Multiple_Button_Clicks_Work_Correctly()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
 
-            Button missionBtn = GetButtonField("missionBtn");
-            Button friendBtn = GetButtonField("friendBtn");
-            Button guildBtn = GetButtonField("guildBtn");
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
+
+            Button missionBtn = GetPopupButtonField(popup, "missionBtn");
+            Button friendBtn = GetPopupButtonField(popup, "friendBtn");
+            Button guildBtn = GetPopupButtonField(popup, "guildBtn");
 
             if (missionBtn == null || friendBtn == null || guildBtn == null)
             {
@@ -450,6 +622,10 @@ namespace MobileGame.Tests.UI
             yield return SimulateButtonClick(guildBtn, "길드");
 
             Debug.Log("[테스트] 연속 클릭 테스트 완료");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         /// <summary>
@@ -458,34 +634,39 @@ namespace MobileGame.Tests.UI
         [UnityTest]
         public IEnumerator All_Buttons_Can_Be_Clicked_Sequentially()
         {
+            // 햄버거 메뉴 팝업 열기
             yield return OpenHamburgerPopup();
+
+            // 팝업 찾기
+            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려야 합니다");
 
             // 12개 버튼 정보 배열
             var buttonInfos = new[]
             {
-                new { FieldName = "missionBtn", LogMessage = "[HamburgerMenu] 미션 버튼 클릭" },
-                new { FieldName = "passBtn", LogMessage = "[HamburgerMenu] 패스 버튼 클릭" },
-                new { FieldName = "mailboxBtn", LogMessage = "[HamburgerMenu] 우편함 버튼 클릭" },
-                new { FieldName = "costumeBtn", LogMessage = "[HamburgerMenu] 코스튬 버튼 클릭" },
-                new { FieldName = "heroPowerBtn", LogMessage = "[HamburgerMenu] 용사의 힘 버튼 클릭" },
-                new { FieldName = "equipSlotEnhanceBtn", LogMessage = "[HamburgerMenu] 장비 슬롯 강화 버튼 클릭" },
-                new { FieldName = "relicBtn", LogMessage = "[HamburgerMenu] 유물 버튼 클릭" },
-                new { FieldName = "friendBtn", LogMessage = "[HamburgerMenu] 친구 버튼 클릭" },
-                new { FieldName = "rankingBtn", LogMessage = "[HamburgerMenu] 랭킹 버튼 클릭" },
-                new { FieldName = "guildBtn", LogMessage = "[HamburgerMenu] 길드 버튼 클릭" },
-                new { FieldName = "growthDungeonBtn", LogMessage = "[HamburgerMenu] 성장 던전 버튼 클릭" },
-                new { FieldName = "worldBossBtn", LogMessage = "[HamburgerMenu] 월드 보스 버튼 클릭" }
+                new { FieldName = "missionBtn", LogMessage = "[HamburgerMenu] 미션 버튼 클릭", DisplayName = "미션" },
+                new { FieldName = "passBtn", LogMessage = "[HamburgerMenu] 패스 버튼 클릭", DisplayName = "패스" },
+                new { FieldName = "mailboxBtn", LogMessage = "[HamburgerMenu] 우편함 버튼 클릭", DisplayName = "우편함" },
+                new { FieldName = "costumeBtn", LogMessage = "[HamburgerMenu] 코스튬 버튼 클릭", DisplayName = "코스튬" },
+                new { FieldName = "heroPowerBtn", LogMessage = "[HamburgerMenu] 용사의 힘 버튼 클릭", DisplayName = "용사의 힘" },
+                new { FieldName = "equipSlotEnhanceBtn", LogMessage = "[HamburgerMenu] 장비 슬롯 강화 버튼 클릭", DisplayName = "장비 슬롯 강화" },
+                new { FieldName = "relicBtn", LogMessage = "[HamburgerMenu] 유물 버튼 클릭", DisplayName = "유물" },
+                new { FieldName = "friendBtn", LogMessage = "[HamburgerMenu] 친구 버튼 클릭", DisplayName = "친구" },
+                new { FieldName = "rankingBtn", LogMessage = "[HamburgerMenu] 랭킹 버튼 클릭", DisplayName = "랭킹" },
+                new { FieldName = "guildBtn", LogMessage = "[HamburgerMenu] 길드 버튼 클릭", DisplayName = "길드" },
+                new { FieldName = "growthDungeonBtn", LogMessage = "[HamburgerMenu] 성장 던전 버튼 클릭", DisplayName = "성장 던전" },
+                new { FieldName = "worldBossBtn", LogMessage = "[HamburgerMenu] 월드 보스 버튼 클릭", DisplayName = "월드 보스" }
             };
 
             Debug.Log("[테스트] 전체 버튼 순차 클릭 테스트 시작");
 
             foreach (var info in buttonInfos)
             {
-                Button button = GetButtonField(info.FieldName);
+                Button button = GetPopupButtonField(popup, info.FieldName);
                 if (button != null)
                 {
                     LogAssert.Expect(LogType.Log, info.LogMessage);
-                    yield return SimulateButtonClick(button, info.FieldName);
+                    yield return SimulateButtonClick(button, info.DisplayName);
                 }
                 else
                 {
@@ -494,6 +675,10 @@ namespace MobileGame.Tests.UI
             }
 
             Debug.Log("[테스트] 전체 버튼 순차 클릭 테스트 완료");
+
+            // 팝업 닫기
+            UIManager.Instance.CloseAllActivePopups();
+            yield return null;
         }
 
         #endregion
