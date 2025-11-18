@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using MobileGame.UI;
 using MobileGame.Managers;
 
@@ -36,10 +37,10 @@ namespace MobileGame.Tests.UI
                 yield return null;
             }
 
-            // EventSystem 생성
+            // EventSystem 생성 (New Input System 사용)
             GameObject eventSystemObj = new GameObject("EventSystem");
             eventSystem = eventSystemObj.AddComponent<EventSystem>();
-            eventSystemObj.AddComponent<StandaloneInputModule>();
+            eventSystemObj.AddComponent<InputSystemUIInputModule>();
 
             yield return null;
         }
