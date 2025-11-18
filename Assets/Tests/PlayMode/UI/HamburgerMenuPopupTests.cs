@@ -210,8 +210,7 @@ namespace MobileGame.Tests.UI
             Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
                 "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
 
-            yield return null; // 팝업 파괴 완료 대기
-            yield return null; // 추가 프레임 대기로 완전한 정리 보장
+            yield return new WaitForSeconds(1f); // 팝업 파괴 완료 대기
         }
 
         #endregion
@@ -271,8 +270,7 @@ namespace MobileGame.Tests.UI
             Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
                 "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
 
-            yield return null; // 팝업 파괴 완료 대기
-            yield return null; // 추가 프레임 대기로 완전한 정리 보장
+            yield return new WaitForSeconds(1f); // 팝업 파괴 완료 대기
         }
 
         //#endregion
