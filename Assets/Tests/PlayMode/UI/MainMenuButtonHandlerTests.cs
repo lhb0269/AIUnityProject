@@ -11,1168 +11,611 @@ using MobileGame.Managers;
 namespace MobileGame.Tests.UI
 {
     /// <summary>
-    /// MainMenuButtonHandler의 기능 테스트 클래스
-    /// Unity Test Framework를 사용한 UI 반응성 및 기능 검증
-    /// 실제 씬(SampleScene)을 로드하고 실제 버튼 클릭 이벤트를 시뮬레이션
+    /// MainMenuButtonHandler 기능 테스트
+    /// - 메인 메뉴 버튼 팝업 열기 검증
+    /// - 팝업 닫기 버튼 동작 검증
+    /// - UI 싱글톤 격리 및 독립성 보장
     /// </summary>
     public class MainMenuButtonHandlerTests
     {
-        private MainMenuButtonHandler handler;
+        #region Constants
+
+        private const float POPUP_SPAWN_TIMEOUT = 2f;
+        private const float POPUP_DESTROY_TIMEOUT = 2f;
+        private const float BUTTON_INTERACTION_DELAY = 0.1f;
+        private const string TEST_SCENE_NAME = "SampleScene";
+
+        #endregion
+
+        #region Fields
+
         private static bool sceneLoaded = false;
+        private MainMenuButtonHandler handler;
         private EventSystem eventSystem;
+
+        #endregion
 
         #region Setup & Teardown
 
         /// <summary>
-        /// 각 테스트 실행 전 초기화
-        /// SampleScene을 로드하고 MainMenuButtonHandler를 찾아서 사용
+        /// 각 테스트 전 초기화
+        /// - 씬 로드 및 필수 컴포넌트 대기
+        /// - 깨끗한 UI 상태로 시작
         /// </summary>
         [UnitySetUp]
         public IEnumerator Setup()
         {
-            // 씬이 아직 로드되지 않았으면 로드
-            if (!sceneLoaded || SceneManager.GetActiveScene().name != "SampleScene")
+            // 씬 로드
+            if (!sceneLoaded || SceneManager.GetActiveScene().name != TEST_SCENE_NAME)
             {
-                SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-                // 씬 로드가 완료될 때까지 대기
+                SceneManager.LoadScene(TEST_SCENE_NAME, LoadSceneMode.Single);
                 yield return null;
-                yield return null; // 추가 프레임 대기 (Awake, Start 실행 보장)
+                yield return null; // Awake, Start 실행 보장
                 sceneLoaded = true;
             }
 
-            // 씬 로드 후 객체 찾기
+            // 필수 컴포넌트 대기
+            yield return WaitForComponent<MainMenuButtonHandler>();
             handler = Object.FindFirstObjectByType<MainMenuButtonHandler>();
+            Assert.IsNotNull(handler, "MainMenuButtonHandler가 씬에 존재해야 합니다");
 
-            if (handler == null)
-            {
-                Assert.Fail("MainMenuButtonHandler를 SampleScene에서 찾을 수 없습니다. SampleScene에 MainMenuButtonHandler 컴포넌트를 추가하세요.");
-            }
-
-            // EventSystem 찾기
+            yield return WaitForComponent<EventSystem>();
             eventSystem = Object.FindFirstObjectByType<EventSystem>();
-            if (eventSystem == null)
-            {
-                Assert.Fail("EventSystem을 SampleScene에서 찾을 수 없습니다. Canvas에 EventSystem이 필요합니다.");
-            }
+            Assert.IsNotNull(eventSystem, "EventSystem이 씬에 존재해야 합니다");
 
-            // UIManager 인스턴스 확인
-            if (UIManager.Instance == null)
-            {
-                Assert.Fail("UIManager.Instance를 찾을 수 없습니다. SampleScene에 UIManager가 필요합니다.");
-            }
+            yield return WaitForComponent<UIManager>();
+            Assert.IsNotNull(UIManager.Instance, "UIManager 인스턴스가 존재해야 합니다");
 
-            // 테스트 시작 전 모든 팝업 닫기
+            // 팝업 정리
             UIManager.Instance.CloseAllActivePopups();
-            yield return null;
+            yield return WaitUntilNoActivePopups();
         }
 
         /// <summary>
-        /// 각 테스트 실행 후 정리
-        /// 씬의 객체는 그대로 유지
+        /// 각 테스트 후 정리
+        /// - 열린 팝업 닫기
+        /// - 상태 초기화
         /// </summary>
-        [TearDown]
-        public void Teardown()
+        [UnityTearDown]
+        public IEnumerator Teardown()
         {
-            // 모든 팝업 정리
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.CloseAllActivePopups();
+                yield return WaitUntilNoActivePopups();
             }
 
-            // 씬의 객체는 파괴하지 않음
             handler = null;
             eventSystem = null;
         }
 
+        /// <summary>
+        /// 모든 테스트 종료 후 싱글톤 정리
+        /// - DontDestroyOnLoad 객체 파괴
+        /// - 다음 테스트 클래스에 영향 방지
+        /// </summary>
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            UIManager.ResetForTesting();
+            sceneLoaded = false;
+        }
+
         #endregion
 
-        #region 헬퍼 메서드
+        #region Tests - Popup Opening
 
         /// <summary>
-        /// 버튼을 실제로 클릭하는 시뮬레이션 (시각적 피드백 포함)
+        /// 테스트: 햄버거 메뉴 버튼 클릭 시 HamburgerMenuPopup 열림
+        /// Given: 깨끗한 UI 상태
+        /// When: 햄버거 메뉴 버튼 클릭
+        /// Then: HamburgerMenuPopup이 열림
         /// </summary>
-        private IEnumerator SimulateButtonClick(Button button, string buttonName)
+        [UnityTest]
+        public IEnumerator WhenHamburgerMenuButtonClicked_ThenHamburgerMenuPopupOpens()
         {
-            if (button == null)
+            yield return TestButtonOpensPopup<HamburgerMenuPopup>("hamburgerMenuBtn", "햄버거 메뉴");
+        }
+
+        /// <summary>
+        /// 테스트: 유저 정보 버튼 클릭 시 UserInfoPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenUserInfoButtonClicked_ThenUserInfoPopupOpens()
+        {
+            yield return TestButtonOpensPopup<UserInfoPopup>("userInfoBtn", "유저 정보");
+        }
+
+        /// <summary>
+        /// 테스트: 상점 버튼 클릭 시 ShopPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenShopButtonClicked_ThenShopPopupOpens()
+        {
+            yield return TestButtonOpensPopup<ShopPopup>("shopBtn", "상점");
+        }
+
+        /// <summary>
+        /// 테스트: 모집 버튼 클릭 시 RecruitmentPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenRecruitmentButtonClicked_ThenRecruitmentPopupOpens()
+        {
+            yield return TestButtonOpensPopup<RecruitmentPopup>("recruitmentBtn", "모집");
+        }
+
+        /// <summary>
+        /// 테스트: 이벤트 버튼 클릭 시 EventPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenEventButtonClicked_ThenEventPopupOpens()
+        {
+            yield return TestButtonOpensPopup<EventPopup>("eventBtn", "이벤트");
+        }
+
+        /// <summary>
+        /// 테스트: 캐릭터 버튼 클릭 시 CharacterPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenCharacterButtonClicked_ThenCharacterPopupOpens()
+        {
+            yield return TestButtonOpensPopup<CharacterPopup>("characterButton", "캐릭터");
+        }
+
+        /// <summary>
+        /// 테스트: 스킬 설정 버튼 클릭 시 SkillSettingPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenSkillSettingButtonClicked_ThenSkillSettingPopupOpens()
+        {
+            yield return TestButtonOpensPopup<SkillSettingPopup>("SkillSettingBtn", "스킬 설정");
+        }
+
+        /// <summary>
+        /// 테스트: 무기 버튼 클릭 시 WeaponPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenWeaponButtonClicked_ThenWeaponPopupOpens()
+        {
+            yield return TestButtonOpensPopup<WeaponPopup>("weaponButton", "무기");
+        }
+
+        /// <summary>
+        /// 테스트: 장비 버튼 클릭 시 EquipmentPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenEquipButtonClicked_ThenEquipmentPopupOpens()
+        {
+            yield return TestButtonOpensPopup<EquipmentPopup>("equipButton", "장비");
+        }
+
+        /// <summary>
+        /// 테스트: 협력자 버튼 클릭 시 CoworkerPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenCoworkerButtonClicked_ThenCoworkerPopupOpens()
+        {
+            yield return TestButtonOpensPopup<CoworkerPopup>("coworkerButton", "협력자");
+        }
+
+        /// <summary>
+        /// 테스트: 포션 설정 버튼 클릭 시 PotionSettingPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenPotionSettingButtonClicked_ThenPotionSettingPopupOpens()
+        {
+            yield return TestButtonOpensPopup<PotionSettingPopup>("potionSettingBtn", "포션 설정");
+        }
+
+        /// <summary>
+        /// 테스트: 챕터 버튼 클릭 시 ChapterPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenChapterButtonClicked_ThenChapterPopupOpens()
+        {
+            yield return TestButtonOpensPopup<ChapterPopup>("chapterBtn", "챕터");
+        }
+
+        /// <summary>
+        /// 테스트: 스폰 설정 버튼 클릭 시 SpawnSettingPopup 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenSpawnSettingButtonClicked_ThenSpawnSettingPopupOpens()
+        {
+            yield return TestButtonOpensPopup<SpawnSettingPopup>("spawnSettingBtn", "스폰 설정");
+        }
+
+        #endregion
+
+        #region Tests - Popup Closing
+
+        /// <summary>
+        /// 테스트: 햄버거 메뉴 팝업 닫기 버튼 클릭 시 팝업 닫힘
+        /// Given: HamburgerMenuPopup이 열린 상태
+        /// When: 닫기 버튼 클릭
+        /// Then: 팝업이 닫힘
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenHamburgerMenuPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<HamburgerMenuPopup>("hamburgerMenuBtn", "햄버거 메뉴");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenUserInfoPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<UserInfoPopup>("userInfoBtn", "유저 정보");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenShopPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<ShopPopup>("shopBtn", "상점");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenRecruitmentPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<RecruitmentPopup>("recruitmentBtn", "모집");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenEventPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<EventPopup>("eventBtn", "이벤트");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenCharacterPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<CharacterPopup>("characterButton", "캐릭터");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkillSettingPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<SkillSettingPopup>("SkillSettingBtn", "스킬 설정");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenWeaponPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<WeaponPopup>("weaponButton", "무기");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenEquipmentPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<EquipmentPopup>("equipButton", "장비");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenCoworkerPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<CoworkerPopup>("coworkerButton", "협력자");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenPotionSettingPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<PotionSettingPopup>("potionSettingBtn", "포션 설정");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenChapterPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<ChapterPopup>("chapterBtn", "챕터");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSpawnSettingPopupCloseButtonClicked_ThenPopupCloses()
+        {
+            yield return TestPopupCloseButton<SpawnSettingPopup>("spawnSettingBtn", "스폰 설정");
+        }
+
+        #endregion
+
+        #region Tests - Non-Popup Buttons
+
+        /// <summary>
+        /// 테스트: 가이드 퀘스트 버튼 클릭 시 핸들러 호출
+        /// Given: 깨끗한 UI 상태
+        /// When: 가이드 퀘스트 버튼 클릭
+        /// Then: 올바른 로그 메시지 출력
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenGuideQuestButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("guideQuestBtn", "[MainMenu] 가이드 퀘스트 버튼 클릭", "가이드 퀘스트");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkill1ButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("skill1Btn", "[MainMenu] 스킬 1 버튼 클릭", "스킬 1");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkill2ButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("skill2Btn", "[MainMenu] 스킬 2 버튼 클릭", "스킬 2");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkill3ButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("skill3Btn", "[MainMenu] 스킬 3 버튼 클릭", "스킬 3");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkill4ButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("skill4Btn", "[MainMenu] 스킬 4 버튼 클릭", "스킬 4");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkill5ButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("skill5Btn", "[MainMenu] 스킬 5 버튼 클릭", "스킬 5");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenSkill6ButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("skill6Btn", "[MainMenu] 스킬 6 버튼 클릭", "스킬 6");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenHPPotionButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("hpPotionBtn", "[MainMenu] HP 포션 버튼 클릭", "HP 포션");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenMPPotionButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("mpPotionBtn", "[MainMenu] MP 포션 버튼 클릭", "MP 포션");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenControllButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("controllBtn", "[MainMenu] 컨트롤 버튼 클릭", "컨트롤");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenMonsterSpawnButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("monsterSpawnBtn", "[MainMenu] 몬스터 스폰 버튼 클릭", "몬스터 스폰");
+        }
+
+        #endregion
+
+        #region Tests - Integration
+
+        /// <summary>
+        /// 테스트: 여러 팝업 연속 열기
+        /// Given: 깨끗한 UI 상태
+        /// When: 3개 팝업 버튼 연속 클릭
+        /// Then: 각 팝업이 스택에 쌓임
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenMultiplePopupButtonsClicked_ThenPopupsStackCorrectly()
+        {
+            // Arrange
+            Button hamburgerBtn = GetButtonField("hamburgerMenuBtn");
+            Button shopBtn = GetButtonField("shopBtn");
+            Button characterBtn = GetButtonField("characterButton");
+
+            if (hamburgerBtn == null || shopBtn == null || characterBtn == null)
             {
-                Debug.LogWarning($"[테스트] {buttonName} 버튼이 null입니다");
+                Assert.Inconclusive("테스트에 필요한 버튼이 모두 할당되지 않았습니다");
                 yield break;
             }
 
-            Debug.Log($"[테스트] {buttonName} 버튼 클릭 시작");
+            // Act & Assert - 첫 번째 팝업
+            yield return ClickButton(hamburgerBtn, "햄버거 메뉴");
+            yield return WaitUntilPopupAppears<HamburgerMenuPopup>();
+            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(), "첫 번째 팝업이 열려야 합니다");
 
-            // PointerEventData 생성
+            // Act & Assert - 두 번째 팝업
+            yield return ClickButton(shopBtn, "상점");
+            yield return WaitUntilPopupAppears<ShopPopup>();
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(), "두 번째 팝업이 스택에 추가되어야 합니다");
+
+            // Act & Assert - 세 번째 팝업
+            yield return ClickButton(characterBtn, "캐릭터");
+            yield return WaitUntilPopupAppears<CharacterPopup>();
+            Assert.AreEqual(3, UIManager.Instance.GetActivePopupCount(), "세 번째 팝업이 스택에 추가되어야 합니다");
+
+            // Cleanup
+            UIManager.Instance.CloseAllActivePopups();
+            yield return WaitUntilNoActivePopups();
+        }
+
+        #endregion
+
+        #region Helper Methods - Test Patterns
+
+        /// <summary>
+        /// 버튼 클릭 시 팝업이 열리는 테스트 패턴
+        /// </summary>
+        private IEnumerator TestButtonOpensPopup<TPopup>(string buttonFieldName, string buttonDisplayName)
+            where TPopup : BasePopup
+        {
+            // Arrange
+            Button button = GetButtonField(buttonFieldName);
+            if (button == null)
+            {
+                Assert.Inconclusive($"{buttonDisplayName} 버튼이 MainMenuButtonHandler에 할당되지 않았습니다");
+                yield break;
+            }
+
+            // Act
+            yield return ClickButton(button, buttonDisplayName);
+            yield return WaitUntilPopupAppears<TPopup>();
+
+            // Assert
+            TPopup popup = Object.FindFirstObjectByType<TPopup>();
+            Assert.IsNotNull(popup, $"{typeof(TPopup).Name}이 나타나야 합니다");
+            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(), "활성 팝업 개수는 1이어야 합니다");
+
+            // Cleanup
+            UIManager.Instance.CloseAllActivePopups();
+            yield return WaitUntilNoActivePopups();
+        }
+
+        /// <summary>
+        /// 팝업 닫기 버튼 테스트 패턴
+        /// </summary>
+        private IEnumerator TestPopupCloseButton<TPopup>(string buttonFieldName, string buttonDisplayName)
+            where TPopup : BasePopup
+        {
+            // Arrange - 팝업 열기
+            Button button = GetButtonField(buttonFieldName);
+            if (button == null)
+            {
+                Assert.Inconclusive($"{buttonDisplayName} 버튼이 MainMenuButtonHandler에 할당되지 않았습니다");
+                yield break;
+            }
+
+            yield return ClickButton(button, buttonDisplayName);
+            yield return WaitUntilPopupAppears<TPopup>();
+            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(), "팝업이 열려 있어야 합니다");
+
+            // Arrange - 닫기 버튼 찾기
+            BasePopup popup = Object.FindFirstObjectByType<BasePopup>();
+            Assert.IsNotNull(popup, "활성 팝업이 존재해야 합니다");
+
+            Button closeButton = GetCloseButton(popup);
+            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
+
+            // Act
+            yield return ClickButton(closeButton, "닫기");
+
+            // Assert - 팝업이 닫힐 때까지 대기
+            yield return new WaitUntil(() => UIManager.Instance.GetActivePopupCount() == 0);
+            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(), "닫기 버튼 클릭 후 팝업이 닫혀야 합니다");
+
+            // Cleanup
+            yield return WaitUntilNoActivePopups();
+        }
+
+        /// <summary>
+        /// 버튼 클릭 시 로그 메시지 출력 테스트 패턴
+        /// </summary>
+        private IEnumerator TestButtonClickLogsMessage(string buttonFieldName, string expectedLog, string buttonDisplayName)
+        {
+            // Arrange
+            Button button = GetButtonField(buttonFieldName);
+            if (button == null)
+            {
+                Assert.Inconclusive($"{buttonDisplayName} 버튼이 MainMenuButtonHandler에 할당되지 않았습니다");
+                yield break;
+            }
+
+            // Act & Assert
+            LogAssert.Expect(LogType.Log, expectedLog);
+            yield return ClickButton(button, buttonDisplayName);
+        }
+
+        #endregion
+
+        #region Helper Methods - Component Waiting
+
+        /// <summary>
+        /// 특정 컴포넌트가 씬에 나타날 때까지 대기
+        /// </summary>
+        private IEnumerator WaitForComponent<T>() where T : Object
+        {
+            float elapsed = 0f;
+            while (elapsed < POPUP_SPAWN_TIMEOUT)
+            {
+                if (Object.FindFirstObjectByType<T>() != null)
+                    yield break;
+
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+
+            Assert.Fail($"{typeof(T).Name}이 {POPUP_SPAWN_TIMEOUT}초 내에 나타나지 않았습니다");
+        }
+
+        /// <summary>
+        /// 특정 팝업이 나타날 때까지 대기
+        /// </summary>
+        private IEnumerator WaitUntilPopupAppears<T>() where T : BasePopup
+        {
+            yield return new WaitUntil(() => Object.FindFirstObjectByType<T>() != null);
+        }
+
+        /// <summary>
+        /// 모든 팝업이 닫힐 때까지 대기
+        /// </summary>
+        private IEnumerator WaitUntilNoActivePopups()
+        {
+            float elapsed = 0f;
+            while (elapsed < POPUP_DESTROY_TIMEOUT)
+            {
+                if (UIManager.Instance == null || UIManager.Instance.GetActivePopupCount() == 0)
+                    yield break;
+
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods - Button Interaction
+
+        /// <summary>
+        /// 버튼 클릭 시뮬레이션
+        /// </summary>
+        private IEnumerator ClickButton(Button button, string buttonName)
+        {
+            Assert.IsNotNull(button, $"{buttonName} 버튼이 null이 아니어야 합니다");
+
             var pointerData = new PointerEventData(eventSystem)
             {
                 button = PointerEventData.InputButton.Left
             };
 
-            // 버튼 눌림 효과 (PointerDown)
+            // PointerDown
             ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerDownHandler);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(BUTTON_INTERACTION_DELAY);
 
-            // 버튼 떼기 효과 (PointerUp)
+            // PointerUp & Click
             ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerUpHandler);
-
-            // 클릭 이벤트 발생
             ExecuteEvents.Execute(button.gameObject, pointerData, ExecuteEvents.pointerClickHandler);
 
-            Debug.Log($"[테스트] {buttonName} 버튼 클릭 완료");
-
-            // 다음 클릭 전 대기
-            yield return new WaitForSeconds(0.2f);
+            yield return null; // 이벤트 처리 대기
         }
 
+        #endregion
+
+        #region Helper Methods - Reflection
+
         /// <summary>
-        /// Reflection을 사용하여 private 버튼 필드 가져오기
+        /// MainMenuButtonHandler의 버튼 필드 가져오기
         /// </summary>
         private Button GetButtonField(string fieldName)
         {
+            if (handler == null) return null;
+
             var field = typeof(MainMenuButtonHandler).GetField(fieldName,
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             return field?.GetValue(handler) as Button;
         }
 
         /// <summary>
-        /// Reflection을 사용하여 팝업의 closeButton 필드 가져오기
+        /// BasePopup의 닫기 버튼 가져오기
         /// </summary>
-        private Button GetCloseButtonFromPopup(BasePopup popup)
+        private Button GetCloseButton(BasePopup popup)
         {
             var field = typeof(BasePopup).GetField("closeButton",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             return field?.GetValue(popup) as Button;
-        }
-
-        #endregion
-
-        #region 초기화 테스트
-
-        /// <summary>
-        /// MainMenuButtonHandler가 씬에 정상적으로 존재하는지 테스트
-        /// </summary>
-        [Test]
-        public void MainMenuButtonHandler_Exists_In_Scene()
-        {
-            // Assert: handler가 씬에 존재
-            Assert.IsNotNull(handler, "MainMenuButtonHandler가 씬에 존재해야 합니다");
-            Assert.IsTrue(handler.gameObject.activeInHierarchy, "MainMenuButtonHandler가 활성화되어 있어야 합니다");
-        }
-
-        /// <summary>
-        /// UIManager가 씬에 존재하는지 테스트
-        /// </summary>
-        [Test]
-        public void UIManager_Exists_In_Scene()
-        {
-            // Assert: UIManager 인스턴스가 존재
-            var uiManager = Object.FindFirstObjectByType<UIManager>();
-            Assert.IsNotNull(uiManager, "UIManager가 씬에 존재해야 합니다");
-        }
-
-        /// <summary>
-        /// EventSystem이 씬에 존재하는지 테스트
-        /// </summary>
-        [Test]
-        public void EventSystem_Exists_In_Scene()
-        {
-            Assert.IsNotNull(eventSystem, "EventSystem이 씬에 존재해야 합니다");
-        }
-
-        #endregion
-
-        #region 팝업 열기 테스트 (14개)
-
-        /// <summary>
-        /// 햄버거 메뉴 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator HamburgerMenuButton_Opens_Popup()
-        {
-            Button button = GetButtonField("hamburgerMenuBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("햄버거 메뉴 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "햄버거 메뉴");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
-            Assert.IsNotNull(popup, "햄버거 메뉴 버튼 클릭 시 HamburgerMenuPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 유저 정보 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator UserInfoButton_Opens_Popup()
-        {
-            Button button = GetButtonField("userInfoBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("유저 정보 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "유저 정보");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            UserInfoPopup popup = Object.FindFirstObjectByType<UserInfoPopup>();
-            Assert.IsNotNull(popup, "유저 정보 버튼 클릭 시 UserInfoPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 상점 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator ShopButton_Opens_Popup()
-        {
-            Button button = GetButtonField("shopBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("상점 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "상점");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            ShopPopup popup = Object.FindFirstObjectByType<ShopPopup>();
-            Assert.IsNotNull(popup, "상점 버튼 클릭 시 ShopPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 모집 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator RecruitmentButton_Opens_Popup()
-        {
-            Button button = GetButtonField("recruitmentBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("모집 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "모집");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            RecruitmentPopup popup = Object.FindFirstObjectByType<RecruitmentPopup>();
-            Assert.IsNotNull(popup, "모집 버튼 클릭 시 RecruitmentPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 이벤트 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator EventButton_Opens_Popup()
-        {
-            Button button = GetButtonField("eventBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("이벤트 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "이벤트");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            EventPopup popup = Object.FindFirstObjectByType<EventPopup>();
-            Assert.IsNotNull(popup, "이벤트 버튼 클릭 시 EventPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 캐릭터 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator CharacterButton_Opens_Popup()
-        {
-            Button button = GetButtonField("characterButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("캐릭터 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "캐릭터");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            CharacterPopup popup = Object.FindFirstObjectByType<CharacterPopup>();
-            Assert.IsNotNull(popup, "캐릭터 버튼 클릭 시 CharacterPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 스킬 설정 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator SkillSettingButton_Opens_Popup()
-        {
-            Button button = GetButtonField("SkillSettingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "스킬 설정");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            SkillSettingPopup popup = Object.FindFirstObjectByType<SkillSettingPopup>();
-            Assert.IsNotNull(popup, "스킬 설정 버튼 클릭 시 SkillSettingPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 무기 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator WeaponButton_Opens_Popup()
-        {
-            Button button = GetButtonField("weaponButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("무기 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "무기");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            WeaponPopup popup = Object.FindFirstObjectByType<WeaponPopup>();
-            Assert.IsNotNull(popup, "무기 버튼 클릭 시 WeaponPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 장비 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator EquipButton_Opens_Popup()
-        {
-            Button button = GetButtonField("equipButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("장비 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "장비");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            EquipmentPopup popup = Object.FindFirstObjectByType<EquipmentPopup>();
-            Assert.IsNotNull(popup, "장비 버튼 클릭 시 EquipmentPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 협력자 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator CoworkerButton_Opens_Popup()
-        {
-            Button button = GetButtonField("coworkerButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("협력자 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "협력자");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            CoworkerPopup popup = Object.FindFirstObjectByType<CoworkerPopup>();
-            Assert.IsNotNull(popup, "협력자 버튼 클릭 시 CoworkerPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 포션 설정 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator PotionSettingButton_Opens_Popup()
-        {
-            Button button = GetButtonField("potionSettingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("포션 설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "포션 설정");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            PotionSettingPopup popup = Object.FindFirstObjectByType<PotionSettingPopup>();
-            Assert.IsNotNull(popup, "포션 설정 버튼 클릭 시 PotionSettingPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 챕터 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator ChapterButton_Opens_Popup()
-        {
-            Button button = GetButtonField("chapterBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("챕터 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "챕터");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            ChapterPopup popup = Object.FindFirstObjectByType<ChapterPopup>();
-            Assert.IsNotNull(popup, "챕터 버튼 클릭 시 ChapterPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        /// <summary>
-        /// 스폰 설정 버튼 클릭 시 팝업이 노출되는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator SpawnSettingButton_Opens_Popup()
-        {
-            Button button = GetButtonField("spawnSettingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스폰 설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            yield return SimulateButtonClick(button, "스폰 설정");
-
-            // 특정 팝업 타입이 열렸는지 확인
-            SpawnSettingPopup popup = Object.FindFirstObjectByType<SpawnSettingPopup>();
-            Assert.IsNotNull(popup, "스폰 설정 버튼 클릭 시 SpawnSettingPopup이 열려야 합니다");
-
-            // 테스트 후 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
-        }
-
-        #endregion
-
-        #region 팝업 닫기 버튼 테스트 (14개)
-
-        /// <summary>
-        /// 햄버거 메뉴 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator HamburgerMenuPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("hamburgerMenuBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("햄버거 메뉴 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "햄버거 메뉴");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 유저 정보 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator UserInfoPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("userInfoBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("유저 정보 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "유저 정보");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 상점 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator ShopPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("shopBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("상점 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "상점");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 모집 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator RecruitmentPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("recruitmentBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("모집 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "모집");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 이벤트 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator EventPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("eventBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("이벤트 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "이벤트");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 캐릭터 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator CharacterPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("characterButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("캐릭터 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "캐릭터");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 스킬 설정 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator SkillSettingPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("SkillSettingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "스킬 설정");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 무기 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator WeaponPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("weaponButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("무기 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "무기");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 장비 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator EquipmentPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("equipButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("장비 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "장비");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 협력자 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator CoworkerPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("coworkerButton");
-            if (button == null)
-            {
-                Assert.Inconclusive("협력자 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "협력자");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 포션 설정 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator PotionSettingPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("potionSettingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("포션 설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "포션 설정");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 챕터 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator ChapterPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("chapterBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("챕터 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "챕터");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        /// <summary>
-        /// 스폰 설정 팝업의 닫기 버튼 클릭 시 팝업이 닫히는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator SpawnSettingPopup_CloseButton_Closes_Popup()
-        {
-            Button button = GetButtonField("spawnSettingBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스폰 설정 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            // 팝업 열기
-            yield return SimulateButtonClick(button, "스폰 설정");
-
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
-                "팝업이 열려야 합니다");
-
-            // 팝업의 닫기 버튼 찾기
-            BasePopup activePopup = Object.FindFirstObjectByType<BasePopup>();
-            Assert.IsNotNull(activePopup, "활성화된 팝업이 있어야 합니다");
-
-            Button closeButton = GetCloseButtonFromPopup(activePopup);
-            Assert.IsNotNull(closeButton, "팝업에 닫기 버튼이 있어야 합니다");
-
-            // 닫기 버튼 클릭
-            yield return SimulateButtonClick(closeButton, "닫기");
-
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 시 팝업이 닫혀야 합니다");
-        }
-
-        #endregion
-
-        #region 비팝업 버튼 클릭 테스트 (11개)
-
-        /// <summary>
-        /// 가이드 퀘스트 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator GuideQuestButton_Click_Visual()
-        {
-            Button button = GetButtonField("guideQuestBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("가이드 퀘스트 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 가이드 퀘스트 버튼 클릭");
-            yield return SimulateButtonClick(button, "가이드 퀘스트");
-        }
-
-        /// <summary>
-        /// 스킬 1 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Skill1Button_Click_Visual()
-        {
-            Button button = GetButtonField("skill1Btn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 1 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 1 버튼 클릭");
-            yield return SimulateButtonClick(button, "스킬 1");
-        }
-
-        /// <summary>
-        /// 스킬 2 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Skill2Button_Click_Visual()
-        {
-            Button button = GetButtonField("skill2Btn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 2 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 2 버튼 클릭");
-            yield return SimulateButtonClick(button, "스킬 2");
-        }
-
-        /// <summary>
-        /// 스킬 3 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Skill3Button_Click_Visual()
-        {
-            Button button = GetButtonField("skill3Btn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 3 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 3 버튼 클릭");
-            yield return SimulateButtonClick(button, "스킬 3");
-        }
-
-        /// <summary>
-        /// 스킬 4 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Skill4Button_Click_Visual()
-        {
-            Button button = GetButtonField("skill4Btn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 4 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 4 버튼 클릭");
-            yield return SimulateButtonClick(button, "스킬 4");
-        }
-
-        /// <summary>
-        /// 스킬 5 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Skill5Button_Click_Visual()
-        {
-            Button button = GetButtonField("skill5Btn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 5 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 5 버튼 클릭");
-            yield return SimulateButtonClick(button, "스킬 5");
-        }
-
-        /// <summary>
-        /// 스킬 6 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Skill6Button_Click_Visual()
-        {
-            Button button = GetButtonField("skill6Btn");
-            if (button == null)
-            {
-                Assert.Inconclusive("스킬 6 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 스킬 6 버튼 클릭");
-            yield return SimulateButtonClick(button, "스킬 6");
-        }
-
-        /// <summary>
-        /// HP 포션 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator HPPotionButton_Click_Visual()
-        {
-            Button button = GetButtonField("hpPotionBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("HP 포션 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] HP 포션 버튼 클릭");
-            yield return SimulateButtonClick(button, "HP 포션");
-        }
-
-        /// <summary>
-        /// MP 포션 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator MPPotionButton_Click_Visual()
-        {
-            Button button = GetButtonField("mpPotionBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("MP 포션 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] MP 포션 버튼 클릭");
-            yield return SimulateButtonClick(button, "MP 포션");
-        }
-
-        /// <summary>
-        /// 컨트롤 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator ControllButton_Click_Visual()
-        {
-            Button button = GetButtonField("controllBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("컨트롤 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 컨트롤 버튼 클릭");
-            yield return SimulateButtonClick(button, "컨트롤");
-        }
-
-        /// <summary>
-        /// 몬스터 스폰 버튼 실제 클릭 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator MonsterSpawnButton_Click_Visual()
-        {
-            Button button = GetButtonField("monsterSpawnBtn");
-            if (button == null)
-            {
-                Assert.Inconclusive("몬스터 스폰 버튼이 연결되지 않았습니다");
-                yield break;
-            }
-
-            LogAssert.Expect(LogType.Log, "[MainMenu] 몬스터 스폰 버튼 클릭");
-            yield return SimulateButtonClick(button, "몬스터 스폰");
-        }
-
-        #endregion
-
-        #region 버튼 존재 테스트
-
-        /// <summary>
-        /// 씬에 버튼이 존재하는지 테스트
-        /// </summary>
-        [Test]
-        public void Scene_Has_Buttons()
-        {
-            // Assert: 씬에 버튼이 존재
-            Button[] buttons = Object.FindObjectsByType<Button>(FindObjectsSortMode.None);
-            Assert.IsTrue(buttons.Length > 0, "씬에 최소 1개 이상의 버튼이 존재해야 합니다");
-            Debug.Log($"[테스트] 씬에서 {buttons.Length}개의 버튼을 찾았습니다");
-        }
-
-        #endregion
-
-        #region 통합 테스트
-
-        /// <summary>
-        /// 여러 버튼을 빠르게 연속 클릭해도 정상 동작하는지 테스트
-        /// </summary>
-        [UnityTest]
-        public IEnumerator Rapid_Button_Clicks_Work_Correctly()
-        {
-            Button hamburgerBtn = GetButtonField("hamburgerMenuBtn");
-            Button settingBtn = GetButtonField("settingBtn");
-            Button shopBtn = GetButtonField("shopBtn");
-
-            if (hamburgerBtn == null || settingBtn == null || shopBtn == null)
-            {
-                Assert.Inconclusive("테스트에 필요한 버튼이 모두 연결되지 않았습니다");
-                yield break;
-            }
-
-            Debug.Log("[테스트] 빠른 연속 클릭 테스트 시작");
-
-            // 첫 번째 팝업 열기
-            yield return SimulateButtonClick(hamburgerBtn, "햄버거 메뉴");
-            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(), "첫 번째 팝업이 열려야 합니다");
-
-            // 두 번째 팝업 열기
-            yield return SimulateButtonClick(settingBtn, "설정");
-            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(), "두 번째 팝업이 열려야 합니다");
-
-            // 세 번째 팝업 열기
-            yield return SimulateButtonClick(shopBtn, "상점");
-            Assert.AreEqual(3, UIManager.Instance.GetActivePopupCount(), "세 번째 팝업이 열려야 합니다");
-
-            Debug.Log("[테스트] 빠른 연속 클릭 테스트 완료");
-
-            // 정리
-            UIManager.Instance.CloseAllActivePopups();
-            yield return null;
         }
 
         #endregion

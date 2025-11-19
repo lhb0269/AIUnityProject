@@ -421,6 +421,31 @@ namespace MobileGame.Managers
             return popupPrefabs.ContainsKey(popupName);
         }
 
+        /// <summary>
+        /// 테스트 환경에서 UIManager를 완전히 정리합니다.
+        /// DontDestroyOnLoad 객체를 파괴하고 Instance를 null로 리셋합니다.
+        /// </summary>
+        public static void ResetForTesting()
+        {
+            if (Instance != null)
+            {
+                // 모든 팝업 닫기
+                Instance.CloseAllActivePopups();
+
+                // Instance를 null로 설정
+                var instanceToDestroy = Instance;
+                Instance = null;
+
+                // GameObject 파괴
+                if (instanceToDestroy != null)
+                {
+                    Destroy(instanceToDestroy.gameObject);
+                }
+
+                Debug.Log("[UIManager] 테스트를 위해 UIManager 인스턴스가 리셋되었습니다.");
+            }
+        }
+
         #endregion
 
         /// <summary>
