@@ -2,6 +2,12 @@
 
 Unity Test Framework를 활용한 UI 자동화 테스트 시스템 구현 사례입니다.
 
+
+https://github.com/user-attachments/assets/83b44ec7-cbaf-4fde-af47-2ad530e944cc
+
+
+
+
 ---
 
 ## 🎮 게임 자동화 테스트 시스템
