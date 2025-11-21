@@ -688,6 +688,72 @@ namespace MobileGame.Tests.UI
             yield return TestPopupCloseButton<BoosterPopup>("boosterBtn", "부스터");
         }
 
+        /// <summary>
+        /// Given: 지속 스폰 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: ContinuousSpawnPopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenContinuousSpawnButtonClicked_ThenContinuousSpawnPopupOpens()
+        {
+            yield return TestButtonOpensPopup<ContinuousSpawnPopup>("continuousSpawnBtn", "지속 스폰");
+        }
+
+        /// <summary>
+        /// Given: ContinuousSpawnPopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenContinuousSpawnPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<ContinuousSpawnPopup>("continuousSpawnBtn", "지속 스폰");
+        }
+
+        /// <summary>
+        /// Given: 성장 가이드 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: GrowUpGuidePopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenGrowUpGuideButtonClicked_ThenGrowUpGuidePopupOpens()
+        {
+            yield return TestButtonOpensPopup<GrowUpGuidePopup>("growUpGuideBtn", "성장 가이드");
+        }
+
+        /// <summary>
+        /// Given: GrowUpGuidePopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenGrowUpGuidePopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<GrowUpGuidePopup>("growUpGuideBtn", "성장 가이드");
+        }
+
+        /// <summary>
+        /// Given: 퀘스트 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: QuestPopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenQuestButtonClicked_ThenQuestPopupOpens()
+        {
+            yield return TestButtonOpensPopup<QuestPopup>("questBtn", "퀘스트");
+        }
+
+        /// <summary>
+        /// Given: QuestPopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenQuestPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<QuestPopup>("questBtn", "퀘스트");
+        }
+
         #endregion
     }
 }

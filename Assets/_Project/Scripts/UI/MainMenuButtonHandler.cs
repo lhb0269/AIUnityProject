@@ -53,6 +53,9 @@ namespace MobileGame.UI
         [SerializeField] private Button quickHuntBtn;        // 퀵 헌트 버튼
         [SerializeField] private Button autoResultBtn;       // 자동 결과 버튼
         [SerializeField] private Button boosterBtn;          // 부스터 버튼
+        [SerializeField] private Button continuousSpawnBtn;  // 지속 스폰 버튼
+        [SerializeField] private Button growUpGuideBtn;      // 성장 가이드 버튼
+        [SerializeField] private Button questBtn;            // 퀘스트 버튼
 
         #endregion
 
@@ -130,6 +133,9 @@ namespace MobileGame.UI
             RegisterButton(quickHuntBtn, OnQuickHuntClicked);
             RegisterButton(autoResultBtn, OnAutoResultClicked);
             RegisterButton(boosterBtn, OnBoosterClicked);
+            RegisterButton(continuousSpawnBtn, OnContinuousSpawnClicked);
+            RegisterButton(growUpGuideBtn, OnGrowUpGuideClicked);
+            RegisterButton(questBtn, OnQuestClicked);
 
             Debug.Log("[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
         }
@@ -179,6 +185,9 @@ namespace MobileGame.UI
             UnregisterButton(quickHuntBtn, OnQuickHuntClicked);
             UnregisterButton(autoResultBtn, OnAutoResultClicked);
             UnregisterButton(boosterBtn, OnBoosterClicked);
+            UnregisterButton(continuousSpawnBtn, OnContinuousSpawnClicked);
+            UnregisterButton(growUpGuideBtn, OnGrowUpGuideClicked);
+            UnregisterButton(questBtn, OnQuestClicked);
         }
 
         /// <summary>
@@ -638,6 +647,57 @@ namespace MobileGame.UI
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.ShowPopup(BoosterPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 지속 스폰 버튼 클릭 핸들러
+        /// </summary>
+        public void OnContinuousSpawnClicked()
+        {
+            Debug.Log("[MainMenu] 지속 스폰 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(ContinuousSpawnPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 성장 가이드 버튼 클릭 핸들러
+        /// </summary>
+        public void OnGrowUpGuideClicked()
+        {
+            Debug.Log("[MainMenu] 성장 가이드 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(GrowUpGuidePopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 퀘스트 버튼 클릭 핸들러
+        /// </summary>
+        public void OnQuestClicked()
+        {
+            Debug.Log("[MainMenu] 퀘스트 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(QuestPopup.PopupName);
             }
             else
             {
