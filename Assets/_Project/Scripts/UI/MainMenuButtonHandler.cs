@@ -48,12 +48,12 @@ namespace MobileGame.UI
         [SerializeField] private Button chapterBtn;          // 챕터 버튼 (ChapterGroup 내)
         [SerializeField] private Button monsterSpawnBtn;     // 몬스터 스폰 버튼 (MonsterSpawnGroup 관련)
         [SerializeField] private Button spawnSettingBtn;     // 스폰 설정 버튼 (SpawnGroup)
+        [SerializeField] private Button continuousSpawnBtn;  // 지속 스폰 버튼
 
         [Header("추가 기능")]
         [SerializeField] private Button quickHuntBtn;        // 퀵 헌트 버튼
         [SerializeField] private Button autoResultBtn;       // 자동 결과 버튼
         [SerializeField] private Button boosterBtn;          // 부스터 버튼
-        [SerializeField] private Button continuousSpawnBtn;  // 지속 스폰 버튼
         [SerializeField] private Button growUpGuideBtn;      // 성장 가이드 버튼
         [SerializeField] private Button questBtn;            // 퀘스트 버튼
 
