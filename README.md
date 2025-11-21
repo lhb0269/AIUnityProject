@@ -1,6 +1,7 @@
 # Unity 게임 UI 자동화 테스트 포트폴리오
 
 Unity Test Framework를 활용한 UI 자동화 테스트 시스템 구현 사례입니다.
+
 프로젝트 구축 및 자동화 스크립트 작성에 Claude AI를 사용하였습니다.
 
 
