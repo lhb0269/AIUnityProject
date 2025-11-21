@@ -619,5 +619,75 @@ namespace MobileGame.Tests.UI
         }
 
         #endregion
+
+        #region 추가 기능 버튼 테스트
+
+        /// <summary>
+        /// Given: 퀵 헌트 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: QuickHuntPopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenQuickHuntButtonClicked_ThenQuickHuntPopupOpens()
+        {
+            yield return TestButtonOpensPopup<QuickHuntPopup>("quickHuntBtn", "퀵 헌트");
+        }
+
+        /// <summary>
+        /// Given: QuickHuntPopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenQuickHuntPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<QuickHuntPopup>("quickHuntBtn", "퀵 헌트");
+        }
+
+        /// <summary>
+        /// Given: 자동 결과 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: AutoResultPopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenAutoResultButtonClicked_ThenAutoResultPopupOpens()
+        {
+            yield return TestButtonOpensPopup<AutoResultPopup>("autoResultBtn", "자동 결과");
+        }
+
+        /// <summary>
+        /// Given: AutoResultPopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenAutoResultPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<AutoResultPopup>("autoResultBtn", "자동 결과");
+        }
+
+        /// <summary>
+        /// Given: 부스터 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: BoosterPopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenBoosterButtonClicked_ThenBoosterPopupOpens()
+        {
+            yield return TestButtonOpensPopup<BoosterPopup>("boosterBtn", "부스터");
+        }
+
+        /// <summary>
+        /// Given: BoosterPopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenBoosterPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<BoosterPopup>("boosterBtn", "부스터");
+        }
+
+        #endregion
     }
 }

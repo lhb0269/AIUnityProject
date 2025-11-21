@@ -49,6 +49,11 @@ namespace MobileGame.UI
         [SerializeField] private Button monsterSpawnBtn;     // 몬스터 스폰 버튼 (MonsterSpawnGroup 관련)
         [SerializeField] private Button spawnSettingBtn;     // 스폰 설정 버튼 (SpawnGroup)
 
+        [Header("추가 기능")]
+        [SerializeField] private Button quickHuntBtn;        // 퀵 헌트 버튼
+        [SerializeField] private Button autoResultBtn;       // 자동 결과 버튼
+        [SerializeField] private Button boosterBtn;          // 부스터 버튼
+
         #endregion
 
         #region Unity 생명주기
@@ -121,6 +126,11 @@ namespace MobileGame.UI
             RegisterButton(monsterSpawnBtn, OnMonsterSpawnClicked);
             RegisterButton(spawnSettingBtn, OnSpawnSettingClicked);
 
+            // 추가 기능
+            RegisterButton(quickHuntBtn, OnQuickHuntClicked);
+            RegisterButton(autoResultBtn, OnAutoResultClicked);
+            RegisterButton(boosterBtn, OnBoosterClicked);
+
             Debug.Log("[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
         }
 
@@ -164,6 +174,11 @@ namespace MobileGame.UI
             UnregisterButton(chapterBtn, OnChapterClicked);
             UnregisterButton(monsterSpawnBtn, OnMonsterSpawnClicked);
             UnregisterButton(spawnSettingBtn, OnSpawnSettingClicked);
+
+            // 추가 기능
+            UnregisterButton(quickHuntBtn, OnQuickHuntClicked);
+            UnregisterButton(autoResultBtn, OnAutoResultClicked);
+            UnregisterButton(boosterBtn, OnBoosterClicked);
         }
 
         /// <summary>
@@ -568,6 +583,61 @@ namespace MobileGame.UI
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.ShowPopup(SpawnSettingPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        #endregion
+
+        #region 추가 기능 버튼 핸들러
+
+        /// <summary>
+        /// 퀵 헌트 버튼 클릭 핸들러
+        /// </summary>
+        public void OnQuickHuntClicked()
+        {
+            Debug.Log("[MainMenu] 퀵 헌트 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(QuickHuntPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 자동 결과 버튼 클릭 핸들러
+        /// </summary>
+        public void OnAutoResultClicked()
+        {
+            Debug.Log("[MainMenu] 자동 결과 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(AutoResultPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 부스터 버튼 클릭 핸들러
+        /// </summary>
+        public void OnBoosterClicked()
+        {
+            Debug.Log("[MainMenu] 부스터 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(BoosterPopup.PopupName);
             }
             else
             {
