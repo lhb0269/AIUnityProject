@@ -38,7 +38,7 @@ Test Runner 창에서 상단 탭 중 **PlayMode** 탭을 선택합니다.
 - **MainMenuButtonHandler** 컴포넌트
 - **UIManager** 컴포넌트
 - **EventSystem** 컴포넌트
-- **25개 버튼**이 MainMenuButtonHandler Inspector에 연결됨
+- **30개 버튼**이 MainMenuButtonHandler Inspector에 연결됨
 
 ### 4. 테스트 실행
 
@@ -66,51 +66,72 @@ Test Runner 창에서 상단 탭 중 **PlayMode** 탭을 선택합니다.
 
 ### MainMenuButtonHandlerTests.cs
 
-#### 1. 초기화 테스트 (3개)
-- `MainMenuButtonHandler_Exists_In_Scene`
-  - MainMenuButtonHandler가 씬에 존재하고 활성화되어 있는지 확인
-- `UIManager_Exists_In_Scene`
-  - UIManager가 씬에 존재하는지 확인
-- `EventSystem_Exists_In_Scene`
-  - EventSystem이 씬에 존재하는지 확인
+#### 1. 팝업 열기 테스트 (13개)
+버튼 클릭 시 해당 팝업이 정상적으로 열리는지 검증:
+- `WhenHamburgerMenuButtonClicked_ThenHamburgerMenuPopupOpens`
+- `WhenUserInfoButtonClicked_ThenUserInfoPopupOpens`
+- `WhenShopButtonClicked_ThenShopPopupOpens`
+- `WhenRecruitmentButtonClicked_ThenRecruitmentPopupOpens`
+- `WhenEventButtonClicked_ThenEventPopupOpens`
+- `WhenCharacterButtonClicked_ThenCharacterPopupOpens`
+- `WhenSkillSettingButtonClicked_ThenSkillSettingPopupOpens`
+- `WhenWeaponButtonClicked_ThenWeaponPopupOpens`
+- `WhenEquipButtonClicked_ThenEquipmentPopupOpens`
+- `WhenCoworkerButtonClicked_ThenCoworkerPopupOpens`
+- `WhenPotionSettingButtonClicked_ThenPotionSettingPopupOpens`
+- `WhenChapterButtonClicked_ThenChapterPopupOpens`
+- `WhenSpawnSettingButtonClicked_ThenSpawnSettingPopupOpens`
 
-#### 2. 개별 버튼 클릭 테스트 (25개)
-실제 버튼 클릭 이벤트를 시뮬레이션하여 시각적 피드백과 로그 출력을 검증:
-- `HamburgerMenuButton_Click_Visual`
-- `SettingButton_Click_Visual`
-- `UserInfoButton_Click_Visual`
-- `GuideQuestButton_Click_Visual`
-- `ShopButton_Click_Visual`
-- `RecruitmentButton_Click_Visual`
-- `EventButton_Click_Visual`
-- `CharacterButton_Click_Visual`
-- `SkillSettingButton_Click_Visual`
-- `Skill1Button_Click_Visual`
-- `Skill2Button_Click_Visual`
-- `Skill3Button_Click_Visual`
-- `Skill4Button_Click_Visual`
-- `Skill5Button_Click_Visual`
-- `Skill6Button_Click_Visual`
-- `WeaponButton_Click_Visual`
-- `EquipButton_Click_Visual`
-- `CoworkerButton_Click_Visual`
-- `HPPotionButton_Click_Visual`
-- `MPPotionButton_Click_Visual`
-- `PotionSettingButton_Click_Visual`
-- `ControllButton_Click_Visual`
-- `ChapterButton_Click_Visual`
-- `MonsterSpawnButton_Click_Visual`
-- `SpawnSettingButton_Click_Visual`
+#### 2. 팝업 닫기 테스트 (13개)
+팝업의 닫기 버튼 클릭 시 정상적으로 닫히는지 검증:
+- `WhenHamburgerMenuPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenUserInfoPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenShopPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenRecruitmentPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenEventPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenCharacterPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenSkillSettingPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenWeaponPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenEquipmentPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenCoworkerPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenPotionSettingPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenChapterPopupCloseButtonClicked_ThenPopupCloses`
+- `WhenSpawnSettingPopupCloseButtonClicked_ThenPopupCloses`
 
-#### 3. 버튼 존재 테스트 (1개)
-- `Scene_Has_Buttons`
-  - 씬에 최소 1개 이상의 버튼이 존재하는지 확인
+#### 3. 팝업 없는 버튼 테스트 (11개)
+팝업을 열지 않는 버튼의 로그 메시지 출력 검증:
+- `WhenGuideQuestButtonClicked_ThenHandlerCalled`
+- `WhenSkill1ButtonClicked_ThenHandlerCalled`
+- `WhenSkill2ButtonClicked_ThenHandlerCalled`
+- `WhenSkill3ButtonClicked_ThenHandlerCalled`
+- `WhenSkill4ButtonClicked_ThenHandlerCalled`
+- `WhenSkill5ButtonClicked_ThenHandlerCalled`
+- `WhenSkill6ButtonClicked_ThenHandlerCalled`
+- `WhenHPPotionButtonClicked_ThenHandlerCalled`
+- `WhenMPPotionButtonClicked_ThenHandlerCalled`
+- `WhenControllButtonClicked_ThenHandlerCalled`
+- `WhenMonsterSpawnButtonClicked_ThenHandlerCalled`
 
 #### 4. 통합 테스트 (1개)
-- `Rapid_Button_Clicks_Work_Correctly`
-  - 여러 버튼을 빠르게 연속 클릭해도 정상 동작하는지 확인
+- `WhenMultiplePopupButtonsClicked_ThenPopupsStackCorrectly`
+  - 여러 팝업을 연속으로 열 때 스택에 정상적으로 쌓이는지 확인
 
-**총 테스트 개수: 30개**
+#### 5. 추가 기능 버튼 테스트 (12개)
+새로 추가된 6개 버튼의 팝업 열기/닫기 검증:
+- `WhenQuickHuntButtonClicked_ThenQuickHuntPopupOpens`
+- `WhenQuickHuntPopupOpened_ThenCloseButtonClosesPopup`
+- `WhenAutoResultButtonClicked_ThenAutoResultPopupOpens`
+- `WhenAutoResultPopupOpened_ThenCloseButtonClosesPopup`
+- `WhenBoosterButtonClicked_ThenBoosterPopupOpens`
+- `WhenBoosterPopupOpened_ThenCloseButtonClosesPopup`
+- `WhenContinuousSpawnButtonClicked_ThenContinuousSpawnPopupOpens`
+- `WhenContinuousSpawnPopupOpened_ThenCloseButtonClosesPopup`
+- `WhenGrowUpGuideButtonClicked_ThenGrowUpGuidePopupOpens`
+- `WhenGrowUpGuidePopupOpened_ThenCloseButtonClosesPopup`
+- `WhenQuestButtonClicked_ThenQuestPopupOpens`
+- `WhenQuestPopupOpened_ThenCloseButtonClosesPopup`
+
+**총 테스트 개수: 50개**
 
 ## 테스트 아키텍처
 
@@ -174,9 +195,8 @@ private Button GetButtonField(string fieldName)
 }
 ```
 
-**버튼 필드 이름 매핑**:
+**버튼 필드 이름 매핑** (총 30개):
 - `hamburgerMenuBtn` - 햄버거 메뉴
-- `settingBtn` - 설정
 - `userInfoBtn` - 유저 정보
 - `guideQuestBtn` - 가이드 퀘스트
 - `shopBtn` - 상점
@@ -184,7 +204,7 @@ private Button GetButtonField(string fieldName)
 - `eventBtn` - 이벤트
 - `characterButton` - 캐릭터 (Button으로 끝남)
 - `SkillSettingBtn` - 스킬 설정 (대문자 S로 시작)
-- `skill1Btn` ~ `skill6Btn` - 스킬 1~6
+- `skill1Btn` ~ `skill6Btn` - 스킬 1~6 (6개)
 - `weaponButton` - 무기 (Button으로 끝남)
 - `equipButton` - 장비 (Button으로 끝남)
 - `coworkerButton` - 협력자 (Button으로 끝남)
@@ -195,6 +215,12 @@ private Button GetButtonField(string fieldName)
 - `chapterBtn` - 챕터
 - `monsterSpawnBtn` - 몬스터 스폰
 - `spawnSettingBtn` - 스폰 설정
+- `continuousSpawnBtn` - 지속 스폰
+- `quickHuntBtn` - 퀵 헌트
+- `autoResultBtn` - 자동 결과
+- `boosterBtn` - 부스터
+- `growUpGuideBtn` - 성장 가이드
+- `questBtn` - 퀘스트
 
 ## 테스트 커버리지
 
@@ -203,10 +229,12 @@ private Button GetButtonField(string fieldName)
 - MainMenuButtonHandler 씬 존재 확인
 - UIManager 싱글톤 존재 확인
 - EventSystem 존재 확인
-- 25개 버튼 클릭 이벤트 시뮬레이션
-- 버튼 클릭 시 로그 출력 검증
-- 연속 버튼 클릭 안정성
+- 30개 버튼 클릭 이벤트 시뮬레이션
+- 19개 팝업 열기/닫기 동작 검증 (13개 기본 + 6개 추가 기능)
+- 11개 비팝업 버튼의 로그 출력 검증
+- 팝업 스택 관리 안정성
 - UI 시각적 피드백
+- 싱글톤 격리 및 테스트 독립성
 
 ### 사용된 테스트 기법
 - **SceneManager**: 실제 씬 로드
@@ -233,13 +261,14 @@ private Button GetButtonField(string fieldName)
 - MainMenuButtonHandler 컴포넌트
 - UIManager 컴포넌트
 - EventSystem (Canvas와 함께)
-- 25개 버튼이 Inspector에 연결됨
+- 30개 버튼이 Inspector에 연결됨
 
 버튼이 연결되지 않으면 해당 테스트는 `Inconclusive`로 표시됩니다.
 
 ### 2. 테스트 실행 시간
-- 각 버튼 클릭에 0.3초 소요 (0.1초 눌림 + 0.2초 대기)
-- 전체 테스트 실행에 약 1-2분 소요
+- 각 버튼 클릭에 0.1초 소요 (버튼 상호작용)
+- 팝업 열기/닫기에 추가 대기 시간 소요
+- 전체 50개 테스트 실행에 약 2-3분 소요
 - Game View에서 시각적 확인 가능
 
 ### 3. 필드 이름 주의
@@ -454,6 +483,12 @@ Mono.Cecil.AssemblyResolutionException: Failed to resolve assembly: 'PlayModeTes
 
 ---
 
-**최종 업데이트**: 2025-11-16
-**버전**: 2.0.0
+**최종 업데이트**: 2025-11-22
+**버전**: 3.0.0
 **작성자**: Claude Code
+**주요 변경사항**:
+- 6개 추가 기능 버튼 테스트 추가 (퀵 헌트, 자동 결과, 부스터, 지속 스폰, 성장 가이드, 퀘스트)
+- 총 버튼 수: 30개
+- 총 테스트 수: 50개 (기존 30개 → 50개)
+- 팝업 열기/닫기 테스트 패턴 완성
+- 싱글톤 테스트 격리 구현 (UIManager.ResetForTesting)
