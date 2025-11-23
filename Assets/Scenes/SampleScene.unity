@@ -5910,6 +5910,9 @@ MonoBehaviour:
   guildBtn: {fileID: 0}
   growthDungeonBtn: {fileID: 0}
   worldBossBtn: {fileID: 0}
+  townBtn: {fileID: 0}
+  noticeBtn: {fileID: 0}
+  gameSettingBtn: {fileID: 0}
 --- !u!1 &1241323649
 GameObject:
   m_ObjectHideFlags: 0
@@ -8527,6 +8530,12 @@ MonoBehaviour:
     prefab: {fileID: 2884121858976555704, guid: cb6d2ca7602b09d46a15ebd79cb043ac, type: 3}
   - popupName: ChattingPopup
     prefab: {fileID: 2884121858976555704, guid: ad00b0fe0abd103458ad929a3631aa1c, type: 3}
+  - popupName: TownPopup
+    prefab: {fileID: 2884121858976555704, guid: 761a72f4a423d294c9518352af3e4190, type: 3}
+  - popupName: GameSettingPopup
+    prefab: {fileID: 2884121858976555704, guid: e2df297e5903df9479a06109cf8f83e3, type: 3}
+  - popupName: NoticePopup
+    prefab: {fileID: 2884121858976555704, guid: 4a75ea4faaab73b44a81ce6b2b76b3b0, type: 3}
 --- !u!1 &2091279256
 GameObject:
   m_ObjectHideFlags: 0

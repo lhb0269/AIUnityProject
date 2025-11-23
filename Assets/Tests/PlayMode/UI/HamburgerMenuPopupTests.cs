@@ -148,10 +148,11 @@ namespace MobileGame.Tests.UI
         }
 
         /// <summary>
-        /// 테스트: 팝업 내 모든 버튼 클릭 시 각각 올바른 핸들러 호출
+        /// 테스트: 팝업 내 일반 버튼 클릭 시 각각 올바른 핸들러 호출
         /// Given: 햄버거 메뉴 팝업이 열린 상태
-        /// When: 12개 버튼을 순차적으로 클릭
+        /// When: 12개 일반 버튼을 순차적으로 클릭
         /// Then: 각 버튼마다 올바른 로그 메시지 출력
+        /// Note: 팝업 버튼(town, notice, gameSetting)은 별도 테스트에서 검증
         /// </summary>
         [UnityTest]
         public IEnumerator WhenAllPopupButtonsClicked_ThenEachTriggersCorrectHandler()
@@ -161,7 +162,7 @@ namespace MobileGame.Tests.UI
             HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
             Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려 있어야 합니다");
 
-            // Act & Assert - 각 버튼 클릭 및 로그 검증
+            // Act & Assert - 일반 버튼만 클릭 및 로그 검증 (팝업 버튼 제외)
             var buttonTests = new[]
             {
                 ("missionBtn", "[HamburgerMenu] 미션 버튼 클릭", "미션"),
@@ -175,10 +176,7 @@ namespace MobileGame.Tests.UI
                 ("rankingBtn", "[HamburgerMenu] 랭킹 버튼 클릭", "랭킹"),
                 ("guildBtn", "[HamburgerMenu] 길드 버튼 클릭", "길드"),
                 ("growthDungeonBtn", "[HamburgerMenu] 성장 던전 버튼 클릭", "성장 던전"),
-                ("worldBossBtn", "[HamburgerMenu] 월드 보스 버튼 클릭", "월드 보스"),
-                ("townBtn", "[HamburgerMenu] 마을 버튼 클릭", "마을"),
-                ("noticeBtn", "[HamburgerMenu] 공지사항 버튼 클릭", "공지사항"),
-                ("gameSettingBtn", "[HamburgerMenu] 게임 설정 버튼 클릭", "게임 설정")
+                ("worldBossBtn", "[HamburgerMenu] 월드 보스 버튼 클릭", "월드 보스")
             };
 
             foreach (var (fieldName, expectedLog, displayName) in buttonTests)
