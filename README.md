@@ -13,8 +13,8 @@ Unity Test Framework를 활용한 UI 자동화 테스트 시스템입니다. 메
 | 테스트 클래스 | 테스트 케이스 | 검증 대상 | 코드 라인 |
 |-------------|------------|----------|---------|
 | **MainMenuButtonHandlerTests** | 54개 | 33개 버튼 (20개 팝업 + 13개 일반 + 1개 통합) | 793줄 |
-| **HamburgerMenuPopupTests** | 2개 | 12개 버튼 (햄버거 메뉴 팝업) | 355줄 |
-| **합계** | **56개** | **45개 버튼** | **1,148줄** |
+| **HamburgerMenuPopupTests** | 8개 | 15개 버튼 (12개 일반 + 3개 팝업) | 555줄 |
+| **합계** | **62개** | **48개 버튼** | **1,348줄** |
 
 ### 🏗️ 테스트 아키텍처
 
@@ -50,9 +50,11 @@ Assets/Tests/PlayMode/UI/
 │   ├── 13개 일반 버튼 테스트
 │   └── 1개 통합 테스트 (팝업 스택)
 │
-└── HamburgerMenuPopupTests.cs         # 햄버거 메뉴 팝업 테스트
-    ├── 팝업 열기 및 버튼 할당 검증
-    └── 12개 버튼 순차 클릭 검증
+└── HamburgerMenuPopupTests.cs         # 햄버거 메뉴 팝업 15개 버튼 테스트
+    ├── 팝업 열기 및 15개 버튼 할당 검증
+    ├── 12개 일반 버튼 순차 클릭 검증
+    ├── 3개 팝업 버튼 열기 테스트 (마을, 공지사항, 게임 설정)
+    └── 3개 팝업 버튼 닫기 테스트 (중첩 팝업 지원)
 ```
 
 ### 💻 테스트 코드 가이드
@@ -528,8 +530,8 @@ Assets/
 │       └── UI/
 │           ├── BasePopup.cs           # 팝업 기본 클래스
 │           ├── MainMenuButtonHandler.cs  # 33개 버튼 관리
-│           ├── HamburgerMenuPopup.cs
-│           └── Popups/                # 20개 팝업 클래스
+│           ├── HamburgerMenuPopup.cs      # 15개 버튼 (12개 일반 + 3개 팝업)
+│           └── Popups/                # 23개 팝업 클래스
 │               ├── QuickHuntPopup.cs
 │               ├── AutoResultPopup.cs
 │               ├── BoosterPopup.cs
@@ -537,17 +539,42 @@ Assets/
 │               ├── GrowUpGuidePopup.cs
 │               ├── QuestPopup.cs
 │               ├── ChattingPopup.cs
+│               ├── TownPopup.cs       # 햄버거 메뉴 팝업
+│               ├── NoticePopup.cs     # 햄버거 메뉴 팝업
+│               ├── GameSettingPopup.cs # 햄버거 메뉴 팝업
 │               └── ... (기타 13개)
 └── Tests/
     └── PlayMode/
         └── UI/
             ├── MainMenuButtonHandlerTests.cs    # 793줄, 54개 테스트
-            └── HamburgerMenuPopupTests.cs       # 355줄, 2개 테스트
+            └── HamburgerMenuPopupTests.cs       # 555줄, 8개 테스트
 ```
 
 ---
 
 ## 📝 최근 업데이트
+
+**2025-11-23 - v3.2**
+- ✅ 햄버거 메뉴 팝업에 3개 팝업 버튼 추가
+  - 마을 버튼 (TownPopup)
+  - 공지사항 버튼 (NoticePopup)
+  - 게임 설정 버튼 (GameSettingPopup)
+- ✅ **팝업 중복 열기 방지 로직 구현**
+  - 햄버거 메뉴에서 팝업이 열린 상태에서는 다른 팝업 버튼 클릭 차단
+  - `UIManager.GetActivePopupCount()` 체크로 중복 방지
+  - 중첩 팝업 구조 지원: 부모 팝업 유지, 자식 팝업만 닫기
+- ✅ **중첩 팝업 테스트 구현**
+  - 6개 테스트 추가: 3개 팝업 열기 + 3개 팝업 닫기
+  - `ClosePopupWithButton` 메소드 개선으로 중첩 팝업 지원
+- ✅ 버튼 수: 33개 → 48개 (45% 증가)
+  - MainMenu: 33개 유지
+  - HamburgerMenu: 12개 → 15개
+- ✅ 테스트 수: 56개 → 62개 (10.7% 증가)
+  - MainMenuButtonHandlerTests: 54개 유지
+  - HamburgerMenuPopupTests: 2개 → 8개
+- ✅ 팝업 개수: 20개 → 23개
+- ✅ 코드 라인: 1,148줄 → 1,348줄 (17.4% 증가)
+- ✅ 일반 버튼과 팝업 버튼 명확히 구분 (Header 추가)
 
 **2025-11-23 - v3.1**
 - ✅ 3개 버튼 추가 구현 및 테스트 추가
