@@ -4,8 +4,9 @@ Unity Test Framework를 활용한 UI 자동화 테스트 시스템 구현 사례
 
 프로젝트 구축 및 자동화 스크립트 작성에 Claude AI를 사용하였습니다.
 
+https://github.com/user-attachments/assets/1a6c169f-ee4a-4394-bbea-d16502ba09fa
 
-https://github.com/user-attachments/assets/83b44ec7-cbaf-4fde-af47-2ad530e944cc
+
 
 
 
