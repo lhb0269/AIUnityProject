@@ -191,8 +191,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4e282cf3e4b5e74b9050f509785c42b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MobileGame::MobileGame.UI.BoosterPopup
-  closeButton: {fileID: 0}
-  blockerImage: {fileID: 0}
+  closeButton: {fileID: 5657654969020685112}
+  blockerImage: {fileID: 8739237961597270419}
 --- !u!1 &6109571697955740060
 GameObject:
   m_ObjectHideFlags: 0
