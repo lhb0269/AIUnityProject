@@ -37,6 +37,8 @@ namespace MobileGame.UI
         [SerializeField] private Button weaponButton;        // 무기 버튼
         [SerializeField] private Button equipButton;         // 장비 버튼
         [SerializeField] private Button coworkerButton;      // 협력자 버튼
+        [SerializeField] private Button jumpBtn;             // 점프 버튼
+        [SerializeField] private Button coworkerSpawnBtn;    // 협력자 스폰 버튼
 
         [Header("아이템")]
         [SerializeField] private Button hpPotionBtn;         // HP 포션 버튼
@@ -56,6 +58,7 @@ namespace MobileGame.UI
         [SerializeField] private Button boosterBtn;          // 부스터 버튼
         [SerializeField] private Button growUpGuideBtn;      // 성장 가이드 버튼
         [SerializeField] private Button questBtn;            // 퀘스트 버튼
+        [SerializeField] private Button chattingBtn;         // 채팅 버튼
 
         #endregion
 
@@ -117,6 +120,8 @@ namespace MobileGame.UI
             RegisterButton(weaponButton, OnWeaponClicked);
             RegisterButton(equipButton, OnEquipClicked);
             RegisterButton(coworkerButton, OnCoworkerClicked);
+            RegisterButton(jumpBtn, OnJumpClicked);
+            RegisterButton(coworkerSpawnBtn, OnCoworkerSpawnClicked);
 
             // 아이템
             RegisterButton(hpPotionBtn, OnHPPotionClicked);
@@ -136,6 +141,7 @@ namespace MobileGame.UI
             RegisterButton(continuousSpawnBtn, OnContinuousSpawnClicked);
             RegisterButton(growUpGuideBtn, OnGrowUpGuideClicked);
             RegisterButton(questBtn, OnQuestClicked);
+            RegisterButton(chattingBtn, OnChattingClicked);
 
             Debug.Log("[MainMenuButtonHandler] 모든 버튼 이벤트 등록 완료");
         }
@@ -169,6 +175,8 @@ namespace MobileGame.UI
             UnregisterButton(weaponButton, OnWeaponClicked);
             UnregisterButton(equipButton, OnEquipClicked);
             UnregisterButton(coworkerButton, OnCoworkerClicked);
+            UnregisterButton(jumpBtn, OnJumpClicked);
+            UnregisterButton(coworkerSpawnBtn, OnCoworkerSpawnClicked);
 
             // 아이템
             UnregisterButton(hpPotionBtn, OnHPPotionClicked);
@@ -188,6 +196,7 @@ namespace MobileGame.UI
             UnregisterButton(continuousSpawnBtn, OnContinuousSpawnClicked);
             UnregisterButton(growUpGuideBtn, OnGrowUpGuideClicked);
             UnregisterButton(questBtn, OnQuestClicked);
+            UnregisterButton(chattingBtn, OnChattingClicked);
         }
 
         /// <summary>
@@ -496,6 +505,28 @@ namespace MobileGame.UI
             }
         }
 
+        /// <summary>
+        /// 점프 버튼 클릭 핸들러
+        /// TODO: 점프 기능 구현
+        /// </summary>
+        public void OnJumpClicked()
+        {
+            Debug.Log("[MainMenu] 점프 버튼 클릭");
+            // TODO: 나중에 실제 점프 기능 구현 시
+            // PlayerController.Instance.Jump();
+        }
+
+        /// <summary>
+        /// 협력자 스폰 버튼 클릭 핸들러
+        /// TODO: 협력자 스폰 기능 구현
+        /// </summary>
+        public void OnCoworkerSpawnClicked()
+        {
+            Debug.Log("[MainMenu] 협력자 스폰 버튼 클릭");
+            // TODO: 나중에 실제 협력자 스폰 기능 구현 시
+            // CoworkerManager.Instance.SpawnCoworker();
+        }
+
         #endregion
 
         #region 아이템 버튼 핸들러
@@ -698,6 +729,23 @@ namespace MobileGame.UI
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.ShowPopup(QuestPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 채팅 버튼 클릭 핸들러
+        /// </summary>
+        public void OnChattingClicked()
+        {
+            Debug.Log("[MainMenu] 채팅 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(ChattingPopup.PopupName);
             }
             else
             {

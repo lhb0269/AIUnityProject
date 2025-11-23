@@ -4,8 +4,9 @@ Unity Test Framework를 활용한 UI 자동화 테스트 시스템 구현 사례
 
 프로젝트 구축 및 자동화 스크립트 작성에 Claude AI를 사용하였습니다.
 
+https://github.com/user-attachments/assets/1a6c169f-ee4a-4394-bbea-d16502ba09fa
 
-https://github.com/user-attachments/assets/83b44ec7-cbaf-4fde-af47-2ad530e944cc
+
 
 
 
@@ -20,9 +21,9 @@ Unity Test Framework를 활용한 UI 자동화 테스트 시스템입니다. 메
 
 | 테스트 클래스 | 테스트 케이스 | 검증 대상 | 코드 라인 |
 |-------------|------------|----------|---------|
-| **MainMenuButtonHandlerTests** | 50개 | 30개 버튼 (19개 팝업 + 11개 일반 + 1개 통합) | 759줄 |
-| **HamburgerMenuPopupTests** | 2개 | 12개 버튼 (햄버거 메뉴 팝업) | 355줄 |
-| **합계** | **52개** | **42개 버튼** | **1,114줄** |
+| **MainMenuButtonHandlerTests** | 54개 | 33개 버튼 (20개 팝업 + 13개 일반 + 1개 통합) | 793줄 |
+| **HamburgerMenuPopupTests** | 8개 | 15개 버튼 (12개 일반 + 3개 팝업) | 555줄 |
+| **합계** | **62개** | **48개 버튼** | **1,348줄** |
 
 ### 🏗️ 테스트 아키텍처
 
@@ -52,15 +53,17 @@ Unity Test Framework를 활용한 UI 자동화 테스트 시스템입니다. 메
 
 ```
 Assets/Tests/PlayMode/UI/
-├── MainMenuButtonHandlerTests.cs      # 메인 메뉴 30개 버튼 테스트
-│   ├── 19개 팝업 열기 테스트 (13개 기본 + 6개 추가)
-│   ├── 19개 팝업 닫기 테스트 (13개 기본 + 6개 추가)
-│   ├── 11개 일반 버튼 테스트
+├── MainMenuButtonHandlerTests.cs      # 메인 메뉴 33개 버튼 테스트
+│   ├── 20개 팝업 열기 테스트 (13개 기본 + 7개 추가)
+│   ├── 20개 팝업 닫기 테스트 (13개 기본 + 7개 추가)
+│   ├── 13개 일반 버튼 테스트
 │   └── 1개 통합 테스트 (팝업 스택)
 │
-└── HamburgerMenuPopupTests.cs         # 햄버거 메뉴 팝업 테스트
-    ├── 팝업 열기 및 버튼 할당 검증
-    └── 12개 버튼 순차 클릭 검증
+└── HamburgerMenuPopupTests.cs         # 햄버거 메뉴 팝업 15개 버튼 테스트
+    ├── 팝업 열기 및 15개 버튼 할당 검증
+    ├── 12개 일반 버튼 순차 클릭 검증
+    ├── 3개 팝업 버튼 열기 테스트 (마을, 공지사항, 게임 설정)
+    └── 3개 팝업 버튼 닫기 테스트 (중첩 팝업 지원)
 ```
 
 ### 💻 테스트 코드 가이드
@@ -73,7 +76,7 @@ Assets/Tests/PlayMode/UI/
 ```csharp
 /// <summary>
 /// 버튼 클릭 시 팝업이 열리는 테스트 패턴
-/// 재사용: 19개 팝업 열기 테스트에서 사용 (13개 기본 + 6개 추가)
+/// 재사용: 20개 팝업 열기 테스트에서 사용 (13개 기본 + 7개 추가)
 /// </summary>
 private IEnumerator TestButtonOpensPopup<TPopup>(
     string buttonFieldName,
@@ -114,7 +117,7 @@ public IEnumerator WhenHamburgerMenuButtonClicked_ThenHamburgerMenuPopupOpens()
 ```csharp
 /// <summary>
 /// 팝업 닫기 버튼 테스트 패턴
-/// 재사용: 19개 팝업 닫기 테스트에서 사용 (13개 기본 + 6개 추가)
+/// 재사용: 20개 팝업 닫기 테스트에서 사용 (13개 기본 + 7개 추가)
 /// </summary>
 private IEnumerator TestPopupCloseButton<TPopup>(
     string buttonFieldName,
@@ -152,7 +155,7 @@ private IEnumerator TestPopupCloseButton<TPopup>(
 ```csharp
 /// <summary>
 /// 버튼 클릭 시 로그 메시지 출력 테스트 패턴
-/// 재사용: 11개 일반 버튼 테스트에서 사용
+/// 재사용: 13개 일반 버튼 테스트에서 사용
 /// </summary>
 private IEnumerator TestButtonClickLogsMessage(
     string buttonFieldName,
@@ -174,8 +177,8 @@ private IEnumerator TestButtonClickLogsMessage(
 ```
 
 **코드 중복 제거 효과:**
-- **이전**: 1,500줄+ (개별 테스트마다 중복 코드 예상)
-- **이후**: 759줄 (패턴 메서드 재사용)
+- **이전**: 1,600줄+ (개별 테스트마다 중복 코드 예상)
+- **이후**: 793줄 (패턴 메서드 재사용)
 - **감소율**: 약 50% (패턴 메서드로 코드 재사용)
 
 #### 2. 조건 기반 대기 헬퍼 메서드
@@ -414,10 +417,10 @@ private IEnumerator WaitForComponent<T>() where T : Object
 
 **문제 상황:**
 
-50개의 테스트 케이스가 비슷한 패턴을 반복하여 방대한 코드 발생:
+54개의 테스트 케이스가 비슷한 패턴을 반복하여 방대한 코드 발생:
 
 ```csharp
-// 중복 패턴 예시 (50개 테스트에서 반복)
+// 중복 패턴 예시 (54개 테스트에서 반복)
 [UnityTest]
 public IEnumerator SettingButton_OpensSettingPopup()
 {
@@ -443,19 +446,19 @@ public IEnumerator SettingButton_OpensSettingPopup()
 재사용 가능한 제네릭 패턴 메서드 3개 설계:
 
 ```csharp
-// 1. 팝업 열기 패턴 (19개 테스트에 재사용)
+// 1. 팝업 열기 패턴 (20개 테스트에 재사용)
 private IEnumerator TestButtonOpensPopup<TPopup>(
     string buttonFieldName, string buttonDisplayName)
     where TPopup : BasePopup
 { /* 구현 */ }
 
-// 2. 팝업 닫기 패턴 (19개 테스트에 재사용)
+// 2. 팝업 닫기 패턴 (20개 테스트에 재사용)
 private IEnumerator TestPopupCloseButton<TPopup>(
     string buttonFieldName, string buttonDisplayName)
     where TPopup : BasePopup
 { /* 구현 */ }
 
-// 3. 로그 출력 패턴 (11개 테스트에 재사용)
+// 3. 로그 출력 패턴 (13개 테스트에 재사용)
 private IEnumerator TestButtonClickLogsMessage(
     string buttonFieldName, string expectedLog, string buttonDisplayName)
 { /* 구현 */ }
@@ -475,8 +478,8 @@ public IEnumerator WhenSettingButtonClicked_ThenSettingPopupOpens()
 
 | 지표 | 이전 | 이후 | 개선 |
 |-----|-----|-----|------|
-| 코드 라인 수 | 1,500줄+ | 759줄 | **약 50% 감소** |
-| 테스트 케이스 수 | 50개 | 50개 | 유지 |
+| 코드 라인 수 | 1,600줄+ | 793줄 | **약 50% 감소** |
+| 테스트 케이스 수 | 54개 | 54개 | 유지 |
 | 평균 테스트 길이 | 30줄+ | 3-5줄 | **85%+ 감소** |
 | 유지보수성 | 낮음 | 높음 | ⬆️ |
 
@@ -535,26 +538,63 @@ Assets/
 │       │   └── UIManager.cs           # 싱글톤 UI 매니저
 │       └── UI/
 │           ├── BasePopup.cs           # 팝업 기본 클래스
-│           ├── MainMenuButtonHandler.cs  # 30개 버튼 관리
-│           ├── HamburgerMenuPopup.cs
-│           └── Popups/                # 19개 팝업 클래스
+│           ├── MainMenuButtonHandler.cs  # 33개 버튼 관리
+│           ├── HamburgerMenuPopup.cs      # 15개 버튼 (12개 일반 + 3개 팝업)
+│           └── Popups/                # 23개 팝업 클래스
 │               ├── QuickHuntPopup.cs
 │               ├── AutoResultPopup.cs
 │               ├── BoosterPopup.cs
 │               ├── ContinuousSpawnPopup.cs
 │               ├── GrowUpGuidePopup.cs
 │               ├── QuestPopup.cs
+│               ├── ChattingPopup.cs
+│               ├── TownPopup.cs       # 햄버거 메뉴 팝업
+│               ├── NoticePopup.cs     # 햄버거 메뉴 팝업
+│               ├── GameSettingPopup.cs # 햄버거 메뉴 팝업
 │               └── ... (기타 13개)
 └── Tests/
     └── PlayMode/
         └── UI/
-            ├── MainMenuButtonHandlerTests.cs    # 759줄, 50개 테스트
-            └── HamburgerMenuPopupTests.cs       # 355줄, 2개 테스트
+            ├── MainMenuButtonHandlerTests.cs    # 793줄, 54개 테스트
+            └── HamburgerMenuPopupTests.cs       # 555줄, 8개 테스트
 ```
 
 ---
 
 ## 📝 최근 업데이트
+
+**2025-11-23 - v3.2**
+- ✅ 햄버거 메뉴 팝업에 3개 팝업 버튼 추가
+  - 마을 버튼 (TownPopup)
+  - 공지사항 버튼 (NoticePopup)
+  - 게임 설정 버튼 (GameSettingPopup)
+- ✅ **팝업 중복 열기 방지 로직 구현**
+  - 햄버거 메뉴에서 팝업이 열린 상태에서는 다른 팝업 버튼 클릭 차단
+  - `UIManager.GetActivePopupCount()` 체크로 중복 방지
+  - 중첩 팝업 구조 지원: 부모 팝업 유지, 자식 팝업만 닫기
+- ✅ **중첩 팝업 테스트 구현**
+  - 6개 테스트 추가: 3개 팝업 열기 + 3개 팝업 닫기
+  - `ClosePopupWithButton` 메소드 개선으로 중첩 팝업 지원
+- ✅ 버튼 수: 33개 → 48개 (45% 증가)
+  - MainMenu: 33개 유지
+  - HamburgerMenu: 12개 → 15개
+- ✅ 테스트 수: 56개 → 62개 (10.7% 증가)
+  - MainMenuButtonHandlerTests: 54개 유지
+  - HamburgerMenuPopupTests: 2개 → 8개
+- ✅ 팝업 개수: 20개 → 23개
+- ✅ 코드 라인: 1,148줄 → 1,348줄 (17.4% 증가)
+- ✅ 일반 버튼과 팝업 버튼 명확히 구분 (Header 추가)
+
+**2025-11-23 - v3.1**
+- ✅ 3개 버튼 추가 구현 및 테스트 추가
+  - 채팅 버튼 (ChattingPopup) - 추가 기능
+  - 점프 버튼 (로그 출력) - 전투 관련
+  - 협력자 스폰 버튼 (로그 출력) - 전투 관련
+- ✅ 버튼 수: 30개 → 33개 (10% 증가)
+- ✅ 테스트 수: 52개 → 56개 (7.7% 증가)
+- ✅ 팝업 개수: 19개 → 20개
+- ✅ 코드 라인: 1,114줄 → 1,148줄
+- ✅ 테스트 패턴 메서드 재사용으로 높은 유지보수성 유지
 
 **2025-11-22 - v3.0**
 - ✅ 6개 추가 기능 버튼 구현 및 테스트 추가
