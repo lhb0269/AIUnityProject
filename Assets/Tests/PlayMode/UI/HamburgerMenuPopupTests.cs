@@ -482,6 +482,7 @@ namespace MobileGame.Tests.UI
 
         /// <summary>
         /// 팝업 닫기 버튼으로 팝업 닫기
+        /// 중첩 팝업 구조를 지원하여 해당 팝업만 닫히는지 확인
         /// </summary>
         private IEnumerator ClosePopupWithButton(BasePopup popup)
         {
@@ -491,14 +492,12 @@ namespace MobileGame.Tests.UI
             int initialCount = UIManager.Instance.GetActivePopupCount();
             yield return ClickButton(closeButton, "닫기");
 
-            // 팝업이 닫힐 때까지 대기
+            // 팝업이 닫힐 때까지 대기 (1개만 줄어들면 성공)
             yield return new WaitUntil(() =>
                 UIManager.Instance.GetActivePopupCount() < initialCount);
 
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 후 모든 팝업이 닫혀야 합니다");
-
-            yield return WaitUntilNoActivePopups();
+            Assert.AreEqual(initialCount - 1, UIManager.Instance.GetActivePopupCount(),
+                "닫기 버튼 클릭 후 해당 팝업이 닫혀야 합니다");
         }
 
         #endregion
