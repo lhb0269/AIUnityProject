@@ -389,6 +389,18 @@ namespace MobileGame.Tests.UI
             yield return TestButtonClickLogsMessage("monsterSpawnBtn", "[MainMenu] 몬스터 스폰 버튼 클릭", "몬스터 스폰");
         }
 
+        [UnityTest]
+        public IEnumerator WhenJumpButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("jumpBtn", "[MainMenu] 점프 버튼 클릭", "점프");
+        }
+
+        [UnityTest]
+        public IEnumerator WhenCoworkerSpawnButtonClicked_ThenHandlerCalled()
+        {
+            yield return TestButtonClickLogsMessage("coworkerSpawnBtn", "[MainMenu] 협력자 스폰 버튼 클릭", "협력자 스폰");
+        }
+
         #endregion
 
         #region Tests - Integration
@@ -752,6 +764,28 @@ namespace MobileGame.Tests.UI
         public IEnumerator WhenQuestPopupOpened_ThenCloseButtonClosesPopup()
         {
             yield return TestPopupCloseButton<QuestPopup>("questBtn", "퀘스트");
+        }
+
+        /// <summary>
+        /// Given: 채팅 버튼이 할당되어 있을 때
+        /// When: 버튼을 클릭하면
+        /// Then: ChattingPopup이 열려야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenChattingButtonClicked_ThenChattingPopupOpens()
+        {
+            yield return TestButtonOpensPopup<ChattingPopup>("chattingBtn", "채팅");
+        }
+
+        /// <summary>
+        /// Given: ChattingPopup이 열려 있을 때
+        /// When: 닫기 버튼을 클릭하면
+        /// Then: 팝업이 닫혀야 한다
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenChattingPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            yield return TestPopupCloseButton<ChattingPopup>("chattingBtn", "채팅");
         }
 
         #endregion

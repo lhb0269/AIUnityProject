@@ -126,7 +126,7 @@ namespace MobileGame.Tests.UI
             Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
                 "활성 팝업 개수는 1이어야 합니다");
 
-            // 12개 버튼 할당 검증
+            // 15개 버튼 할당 검증
             AssertPopupButtonAssigned(popup, "missionBtn", "미션");
             AssertPopupButtonAssigned(popup, "passBtn", "패스");
             AssertPopupButtonAssigned(popup, "mailboxBtn", "우편함");
@@ -139,16 +139,20 @@ namespace MobileGame.Tests.UI
             AssertPopupButtonAssigned(popup, "guildBtn", "길드");
             AssertPopupButtonAssigned(popup, "growthDungeonBtn", "성장 던전");
             AssertPopupButtonAssigned(popup, "worldBossBtn", "월드 보스");
+            AssertPopupButtonAssigned(popup, "townBtn", "마을");
+            AssertPopupButtonAssigned(popup, "noticeBtn", "공지사항");
+            AssertPopupButtonAssigned(popup, "gameSettingBtn", "게임 설정");
 
             // Cleanup
             yield return ClosePopupWithButton(popup);
         }
 
         /// <summary>
-        /// 테스트: 팝업 내 모든 버튼 클릭 시 각각 올바른 핸들러 호출
+        /// 테스트: 팝업 내 일반 버튼 클릭 시 각각 올바른 핸들러 호출
         /// Given: 햄버거 메뉴 팝업이 열린 상태
-        /// When: 12개 버튼을 순차적으로 클릭
+        /// When: 12개 일반 버튼을 순차적으로 클릭
         /// Then: 각 버튼마다 올바른 로그 메시지 출력
+        /// Note: 팝업 버튼(town, notice, gameSetting)은 별도 테스트에서 검증
         /// </summary>
         [UnityTest]
         public IEnumerator WhenAllPopupButtonsClicked_ThenEachTriggersCorrectHandler()
@@ -158,7 +162,7 @@ namespace MobileGame.Tests.UI
             HamburgerMenuPopup popup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
             Assert.IsNotNull(popup, "햄버거 메뉴 팝업이 열려 있어야 합니다");
 
-            // Act & Assert - 각 버튼 클릭 및 로그 검증
+            // Act & Assert - 일반 버튼만 클릭 및 로그 검증 (팝업 버튼 제외)
             var buttonTests = new[]
             {
                 ("missionBtn", "[HamburgerMenu] 미션 버튼 클릭", "미션"),
@@ -191,6 +195,204 @@ namespace MobileGame.Tests.UI
 
             // Cleanup
             yield return ClosePopupWithButton(popup);
+        }
+
+        /// <summary>
+        /// 테스트: 마을 버튼 클릭 시 마을 팝업 열림
+        /// Given: 햄버거 메뉴 팝업이 열린 상태
+        /// When: 마을 버튼 클릭
+        /// Then: TownPopup이 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenTownButtonClicked_ThenTownPopupOpens()
+        {
+            // Arrange
+            yield return OpenHamburgerPopup();
+            HamburgerMenuPopup hamburgerPopup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(hamburgerPopup, "햄버거 메뉴 팝업이 열려 있어야 합니다");
+
+            Button townBtn = GetPopupButton(hamburgerPopup, "townBtn");
+            Assert.IsNotNull(townBtn, "마을 버튼이 할당되어 있어야 합니다");
+
+            // Act
+            yield return ClickButton(townBtn, "마을");
+            yield return WaitUntilPopupAppears<TownPopup>();
+
+            // Assert
+            TownPopup townPopup = Object.FindFirstObjectByType<TownPopup>();
+            Assert.IsNotNull(townPopup, "마을 팝업이 열려야 합니다");
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(),
+                "햄버거 메뉴 팝업과 마을 팝업 2개가 활성화되어야 합니다");
+
+            // Cleanup
+            yield return ClosePopupWithButton(townPopup);
+            yield return ClosePopupWithButton(hamburgerPopup);
+        }
+
+        /// <summary>
+        /// 테스트: 마을 팝업 닫기 버튼 동작 검증
+        /// Given: 마을 팝업이 열린 상태
+        /// When: 닫기 버튼 클릭
+        /// Then: 마을 팝업만 닫히고 햄버거 메뉴는 유지
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenTownPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            // Arrange
+            yield return OpenHamburgerPopup();
+            HamburgerMenuPopup hamburgerPopup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Button townBtn = GetPopupButton(hamburgerPopup, "townBtn");
+            yield return ClickButton(townBtn, "마을");
+            yield return WaitUntilPopupAppears<TownPopup>();
+
+            TownPopup townPopup = Object.FindFirstObjectByType<TownPopup>();
+            Assert.IsNotNull(townPopup, "마을 팝업이 열려 있어야 합니다");
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(), "2개의 팝업이 열려 있어야 합니다");
+
+            // Act
+            Button closeButton = GetCloseButton(townPopup);
+            yield return ClickButton(closeButton, "마을 팝업 닫기");
+
+            // Assert
+            yield return new WaitUntil(() => Object.FindFirstObjectByType<TownPopup>() == null);
+            Assert.IsNull(Object.FindFirstObjectByType<TownPopup>(), "마을 팝업이 닫혀야 합니다");
+            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
+                "햄버거 메뉴 팝업만 남아있어야 합니다");
+
+            // Cleanup
+            yield return ClosePopupWithButton(hamburgerPopup);
+        }
+
+        /// <summary>
+        /// 테스트: 공지사항 버튼 클릭 시 공지사항 팝업 열림
+        /// Given: 햄버거 메뉴 팝업이 열린 상태
+        /// When: 공지사항 버튼 클릭
+        /// Then: NoticePopup이 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenNoticeButtonClicked_ThenNoticePopupOpens()
+        {
+            // Arrange
+            yield return OpenHamburgerPopup();
+            HamburgerMenuPopup hamburgerPopup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(hamburgerPopup, "햄버거 메뉴 팝업이 열려 있어야 합니다");
+
+            Button noticeBtn = GetPopupButton(hamburgerPopup, "noticeBtn");
+            Assert.IsNotNull(noticeBtn, "공지사항 버튼이 할당되어 있어야 합니다");
+
+            // Act
+            yield return ClickButton(noticeBtn, "공지사항");
+            yield return WaitUntilPopupAppears<NoticePopup>();
+
+            // Assert
+            NoticePopup noticePopup = Object.FindFirstObjectByType<NoticePopup>();
+            Assert.IsNotNull(noticePopup, "공지사항 팝업이 열려야 합니다");
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(),
+                "햄버거 메뉴 팝업과 공지사항 팝업 2개가 활성화되어야 합니다");
+
+            // Cleanup
+            yield return ClosePopupWithButton(noticePopup);
+            yield return ClosePopupWithButton(hamburgerPopup);
+        }
+
+        /// <summary>
+        /// 테스트: 공지사항 팝업 닫기 버튼 동작 검증
+        /// Given: 공지사항 팝업이 열린 상태
+        /// When: 닫기 버튼 클릭
+        /// Then: 공지사항 팝업만 닫히고 햄버거 메뉴는 유지
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenNoticePopupOpened_ThenCloseButtonClosesPopup()
+        {
+            // Arrange
+            yield return OpenHamburgerPopup();
+            HamburgerMenuPopup hamburgerPopup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Button noticeBtn = GetPopupButton(hamburgerPopup, "noticeBtn");
+            yield return ClickButton(noticeBtn, "공지사항");
+            yield return WaitUntilPopupAppears<NoticePopup>();
+
+            NoticePopup noticePopup = Object.FindFirstObjectByType<NoticePopup>();
+            Assert.IsNotNull(noticePopup, "공지사항 팝업이 열려 있어야 합니다");
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(), "2개의 팝업이 열려 있어야 합니다");
+
+            // Act
+            Button closeButton = GetCloseButton(noticePopup);
+            yield return ClickButton(closeButton, "공지사항 팝업 닫기");
+
+            // Assert
+            yield return new WaitUntil(() => Object.FindFirstObjectByType<NoticePopup>() == null);
+            Assert.IsNull(Object.FindFirstObjectByType<NoticePopup>(), "공지사항 팝업이 닫혀야 합니다");
+            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
+                "햄버거 메뉴 팝업만 남아있어야 합니다");
+
+            // Cleanup
+            yield return ClosePopupWithButton(hamburgerPopup);
+        }
+
+        /// <summary>
+        /// 테스트: 게임 설정 버튼 클릭 시 게임 설정 팝업 열림
+        /// Given: 햄버거 메뉴 팝업이 열린 상태
+        /// When: 게임 설정 버튼 클릭
+        /// Then: GameSettingPopup이 열림
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenGameSettingButtonClicked_ThenGameSettingPopupOpens()
+        {
+            // Arrange
+            yield return OpenHamburgerPopup();
+            HamburgerMenuPopup hamburgerPopup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Assert.IsNotNull(hamburgerPopup, "햄버거 메뉴 팝업이 열려 있어야 합니다");
+
+            Button gameSettingBtn = GetPopupButton(hamburgerPopup, "gameSettingBtn");
+            Assert.IsNotNull(gameSettingBtn, "게임 설정 버튼이 할당되어 있어야 합니다");
+
+            // Act
+            yield return ClickButton(gameSettingBtn, "게임 설정");
+            yield return WaitUntilPopupAppears<GameSettingPopup>();
+
+            // Assert
+            GameSettingPopup gameSettingPopup = Object.FindFirstObjectByType<GameSettingPopup>();
+            Assert.IsNotNull(gameSettingPopup, "게임 설정 팝업이 열려야 합니다");
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(),
+                "햄버거 메뉴 팝업과 게임 설정 팝업 2개가 활성화되어야 합니다");
+
+            // Cleanup
+            yield return ClosePopupWithButton(gameSettingPopup);
+            yield return ClosePopupWithButton(hamburgerPopup);
+        }
+
+        /// <summary>
+        /// 테스트: 게임 설정 팝업 닫기 버튼 동작 검증
+        /// Given: 게임 설정 팝업이 열린 상태
+        /// When: 닫기 버튼 클릭
+        /// Then: 게임 설정 팝업만 닫히고 햄버거 메뉴는 유지
+        /// </summary>
+        [UnityTest]
+        public IEnumerator WhenGameSettingPopupOpened_ThenCloseButtonClosesPopup()
+        {
+            // Arrange
+            yield return OpenHamburgerPopup();
+            HamburgerMenuPopup hamburgerPopup = Object.FindFirstObjectByType<HamburgerMenuPopup>();
+            Button gameSettingBtn = GetPopupButton(hamburgerPopup, "gameSettingBtn");
+            yield return ClickButton(gameSettingBtn, "게임 설정");
+            yield return WaitUntilPopupAppears<GameSettingPopup>();
+
+            GameSettingPopup gameSettingPopup = Object.FindFirstObjectByType<GameSettingPopup>();
+            Assert.IsNotNull(gameSettingPopup, "게임 설정 팝업이 열려 있어야 합니다");
+            Assert.AreEqual(2, UIManager.Instance.GetActivePopupCount(), "2개의 팝업이 열려 있어야 합니다");
+
+            // Act
+            Button closeButton = GetCloseButton(gameSettingPopup);
+            yield return ClickButton(closeButton, "게임 설정 팝업 닫기");
+
+            // Assert
+            yield return new WaitUntil(() => Object.FindFirstObjectByType<GameSettingPopup>() == null);
+            Assert.IsNull(Object.FindFirstObjectByType<GameSettingPopup>(), "게임 설정 팝업이 닫혀야 합니다");
+            Assert.AreEqual(1, UIManager.Instance.GetActivePopupCount(),
+                "햄버거 메뉴 팝업만 남아있어야 합니다");
+
+            // Cleanup
+            yield return ClosePopupWithButton(hamburgerPopup);
         }
 
         #endregion
@@ -280,6 +482,7 @@ namespace MobileGame.Tests.UI
 
         /// <summary>
         /// 팝업 닫기 버튼으로 팝업 닫기
+        /// 중첩 팝업 구조를 지원하여 해당 팝업만 닫히는지 확인
         /// </summary>
         private IEnumerator ClosePopupWithButton(BasePopup popup)
         {
@@ -289,14 +492,12 @@ namespace MobileGame.Tests.UI
             int initialCount = UIManager.Instance.GetActivePopupCount();
             yield return ClickButton(closeButton, "닫기");
 
-            // 팝업이 닫힐 때까지 대기
+            // 팝업이 닫힐 때까지 대기 (1개만 줄어들면 성공)
             yield return new WaitUntil(() =>
                 UIManager.Instance.GetActivePopupCount() < initialCount);
 
-            Assert.AreEqual(0, UIManager.Instance.GetActivePopupCount(),
-                "닫기 버튼 클릭 후 모든 팝업이 닫혀야 합니다");
-
-            yield return WaitUntilNoActivePopups();
+            Assert.AreEqual(initialCount - 1, UIManager.Instance.GetActivePopupCount(),
+                "닫기 버튼 클릭 후 해당 팝업이 닫혀야 합니다");
         }
 
         #endregion
