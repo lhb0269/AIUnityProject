@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using MobileGame.Managers;
 
 namespace MobileGame.UI
 {
@@ -29,6 +30,9 @@ namespace MobileGame.UI
         [SerializeField] private Button guildBtn;             // 길드 버튼
         [SerializeField] private Button growthDungeonBtn;     // 성장 던전 버튼
         [SerializeField] private Button worldBossBtn;         // 월드 보스 버튼
+        [SerializeField] private Button townBtn;              // 마을 버튼
+        [SerializeField] private Button noticeBtn;            // 공지사항 버튼
+        [SerializeField] private Button gameSettingBtn;       // 게임 설정 버튼
 
         #endregion
 
@@ -73,6 +77,9 @@ namespace MobileGame.UI
             RegisterButton(guildBtn, OnGuildClicked);
             RegisterButton(growthDungeonBtn, OnGrowthDungeonClicked);
             RegisterButton(worldBossBtn, OnWorldBossClicked);
+            RegisterButton(townBtn, OnTownClicked);
+            RegisterButton(noticeBtn, OnNoticeClicked);
+            RegisterButton(gameSettingBtn, OnGameSettingClicked);
 
             Debug.Log("[HamburgerMenuPopup] 모든 버튼 이벤트 등록 완료");
         }
@@ -94,6 +101,9 @@ namespace MobileGame.UI
             UnregisterButton(guildBtn, OnGuildClicked);
             UnregisterButton(growthDungeonBtn, OnGrowthDungeonClicked);
             UnregisterButton(worldBossBtn, OnWorldBossClicked);
+            UnregisterButton(townBtn, OnTownClicked);
+            UnregisterButton(noticeBtn, OnNoticeClicked);
+            UnregisterButton(gameSettingBtn, OnGameSettingClicked);
         }
 
         /// <summary>
@@ -232,6 +242,57 @@ namespace MobileGame.UI
         {
             Debug.Log("[HamburgerMenu] 월드 보스 버튼 클릭");
             // TODO: 월드 보스 화면 표시
+        }
+
+        /// <summary>
+        /// 마을 버튼 클릭 핸들러
+        /// </summary>
+        public void OnTownClicked()
+        {
+            Debug.Log("[HamburgerMenu] 마을 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(TownPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[HamburgerMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 공지사항 버튼 클릭 핸들러
+        /// </summary>
+        public void OnNoticeClicked()
+        {
+            Debug.Log("[HamburgerMenu] 공지사항 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(NoticePopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[HamburgerMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
+        }
+
+        /// <summary>
+        /// 게임 설정 버튼 클릭 핸들러
+        /// </summary>
+        public void OnGameSettingClicked()
+        {
+            Debug.Log("[HamburgerMenu] 게임 설정 버튼 클릭");
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPopup(GameSettingPopup.PopupName);
+            }
+            else
+            {
+                Debug.LogWarning("[HamburgerMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+            }
         }
 
         #endregion
