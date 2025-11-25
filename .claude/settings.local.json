@@ -18,7 +18,8 @@
       "Bash(git commit:*)",
       "Bash(tree:*)",
       "Bash(findstr:*)",
-      "Bash(powershell -Command \"(Get-Content ''Assets\\Tests\\PlayMode\\UI\\HamburgerMenuPopupTests.cs'').Count\")"
+      "Bash(powershell -Command \"(Get-Content ''Assets\\Tests\\PlayMode\\UI\\HamburgerMenuPopupTests.cs'').Count\")",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []
