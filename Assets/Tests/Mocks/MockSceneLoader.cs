@@ -15,7 +15,7 @@ namespace MobileGame.Tests.Mocks
     {
         // 씬 로딩 이벤트
         public event Action<string> OnSceneLoadStarted;
-        public event Action<float> OnSceneLoadProgress;
+        public event Action<string, float> OnSceneLoadProgress;
         public event Action<string> OnSceneLoadCompleted;
 
         // 로딩 상태
@@ -33,8 +33,8 @@ namespace MobileGame.Tests.Mocks
             isLoading = true;
 
             OnSceneLoadStarted?.Invoke(sceneName);
-            OnSceneLoadProgress?.Invoke(0.5f);
-            OnSceneLoadProgress?.Invoke(1.0f);
+            OnSceneLoadProgress?.Invoke(sceneName, 0.5f);
+            OnSceneLoadProgress?.Invoke(sceneName, 1.0f);
             OnSceneLoadCompleted?.Invoke(sceneName);
 
             isLoading = false;
@@ -49,8 +49,8 @@ namespace MobileGame.Tests.Mocks
             isLoading = true;
 
             OnSceneLoadStarted?.Invoke(sceneName);
-            OnSceneLoadProgress?.Invoke(0.5f);
-            OnSceneLoadProgress?.Invoke(1.0f);
+            OnSceneLoadProgress?.Invoke(sceneName, 0.5f);
+            OnSceneLoadProgress?.Invoke(sceneName, 1.0f);
             OnSceneLoadCompleted?.Invoke(sceneName);
 
             isLoading = false;

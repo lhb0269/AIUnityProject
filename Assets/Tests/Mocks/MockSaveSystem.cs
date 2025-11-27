@@ -118,6 +118,21 @@ namespace MobileGame.Tests.Mocks
             return defaultValue;
         }
 
+        public int LoadPreferenceInt(string key, int defaultValue = 0)
+        {
+            return GetInt(key, defaultValue);
+        }
+
+        public float LoadPreferenceFloat(string key, float defaultValue = 0f)
+        {
+            return GetFloat(key, defaultValue);
+        }
+
+        public string LoadPreferenceString(string key, string defaultValue = "")
+        {
+            return GetString(key, defaultValue);
+        }
+
         public bool HasKey(string key)
         {
             return inMemoryStorage.ContainsKey(key);
