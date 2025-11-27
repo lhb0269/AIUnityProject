@@ -2,16 +2,17 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Managers
 {
     /// <summary>
     /// 씬 로딩과 전환을 관리하는 매니저
     /// 로딩 화면과 비동기 로딩을 지원
+    /// DI를 통해 주입되어 사용됩니다.
     /// </summary>
-    public class SceneLoader : MonoBehaviour
+    public class SceneLoader : MonoBehaviour, ISceneLoader
     {
-        public static SceneLoader Instance { get; private set; }
 
         [Header("로딩 설정")]
         [SerializeField] private float minimumLoadingTime = 0.5f;
@@ -22,16 +23,17 @@ namespace MobileGame.Managers
 
         public bool IsLoading { get; private set; }
 
+        /// <summary>
+        /// DI 컨테이너에서 호출하는 초기화 메서드
+        /// </summary>
+        public void Initialize()
+        {
+            Debug.Log("[SceneLoader] DI 초기화 완료");
+        }
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // 초기화 없음
         }
 
         /// <summary>
