@@ -19,7 +19,8 @@
       "Bash(tree:*)",
       "Bash(findstr:*)",
       "Bash(powershell -Command \"(Get-Content ''Assets\\Tests\\PlayMode\\UI\\HamburgerMenuPopupTests.cs'').Count\")",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []
