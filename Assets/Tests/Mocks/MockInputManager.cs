@@ -27,10 +27,10 @@ namespace MobileGame.Tests.Mocks
         public int TouchEndedCount { get; private set; } = 0;
         public int SwipeCount { get; private set; } = 0;
 
-        public Vector2 GetTouchWorldPosition(Camera camera = null)
+        public Vector3 GetTouchWorldPosition(Camera camera = null)
         {
-            // 테스트용 가짜 월드 좌표 반환
-            return CurrentTouchPosition;
+            // 테스트용 가짜 월드 좌표 반환 (Vector2를 Vector3로 변환)
+            return new Vector3(CurrentTouchPosition.x, CurrentTouchPosition.y, 0f);
         }
 
         public bool IsTouching()

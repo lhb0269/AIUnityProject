@@ -58,6 +58,21 @@ namespace MobileGame.Tests.Mocks
             Debug.Log("[MockSaveSystem] DeleteSaveData");
         }
 
+        public void SavePreference(string key, int value)
+        {
+            SetInt(key, value);
+        }
+
+        public void SavePreference(string key, float value)
+        {
+            SetFloat(key, value);
+        }
+
+        public void SavePreference(string key, string value)
+        {
+            SetString(key, value);
+        }
+
         public void SetInt(string key, int value)
         {
             inMemoryStorage[key] = value.ToString();
