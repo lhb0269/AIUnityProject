@@ -15,7 +15,7 @@ namespace MobileGame.Tests.Mocks
         public event Action<Vector2> OnTouchStarted;
         public event Action<Vector2> OnTouchMoved;
         public event Action<Vector2> OnTouchEnded;
-        public event Action<Vector2> OnSwipe;
+        public event Action<Vector2, Vector2> OnSwipe; // (시작 위치, 방향)
 
         // 현재 터치 상태
         public bool IsTouchingState { get; set; } = false;
@@ -81,11 +81,11 @@ namespace MobileGame.Tests.Mocks
         /// <summary>
         /// 테스트용 스와이프 시뮬레이션
         /// </summary>
-        public void SimulateSwipe(Vector2 swipeDirection)
+        public void SimulateSwipe(Vector2 startPosition, Vector2 swipeDirection)
         {
             SwipeCount++;
-            OnSwipe?.Invoke(swipeDirection);
-            Debug.Log($"[MockInputManager] SimulateSwipe: {swipeDirection}");
+            OnSwipe?.Invoke(startPosition, swipeDirection);
+            Debug.Log($"[MockInputManager] SimulateSwipe: Start={startPosition}, Direction={swipeDirection}");
         }
 
         /// <summary>
