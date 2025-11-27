@@ -1,5 +1,15 @@
 {
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "jp.hadashikick.vcontainer"
+      ]
+    }
+  ],
   "dependencies": {
+    "jp.hadashikick.vcontainer": "1.15.4",
     "com.unity.2d.animation": "12.0.2",
     "com.unity.2d.aseprite": "2.0.2",
     "com.unity.2d.psdimporter": "11.0.1",

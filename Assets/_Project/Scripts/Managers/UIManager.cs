@@ -2,16 +2,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using MobileGame.UI;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Managers
 {
     /// <summary>
     /// UI 패널과 팝업 관리를 담당하는 매니저
     /// 팝업 프리팹 등록, 생성, 스택 관리를 포함합니다.
+    /// DI를 통해 주입되어 사용됩니다.
     /// </summary>
-    public class UIManager : MonoBehaviour
+    public class UIManager : MonoBehaviour, IUIManager
     {
-        public static UIManager Instance { get; private set; }
 
         [Header("UI 캔버스")]
         [SerializeField] private Canvas mainCanvas;
@@ -29,21 +30,33 @@ namespace MobileGame.Managers
         private int currentSortingOrder;
         private int baseSortingOrder = 100;
 
-        private void Awake()
+        /// <summary>
+        /// DI 컨테이너에서 호출하는 초기화 메서드
+        /// </summary>
+        public void Initialize(Canvas mainCanvas, Canvas popupCanvas, List<PopupPrefabEntry> initialPopupPrefabs)
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            this.mainCanvas = mainCanvas;
+            this.popupCanvas = popupCanvas;
+            this.initialPopupPrefabs = initialPopupPrefabs;
 
             InitializeCanvases();
             RegisterInitialPrefabs();
 
             currentSortingOrder = baseSortingOrder;
+
+            Debug.Log("[UIManager] DI 초기화 완료");
+        }
+
+        private void Awake()
+        {
+            // VContainer가 Initialize()를 호출하지 않은 경우를 위한 폴백
+            // (테스트 환경 등에서 사용)
+            if (mainCanvas == null && popupCanvas == null)
+            {
+                InitializeCanvases();
+                RegisterInitialPrefabs();
+                currentSortingOrder = baseSortingOrder;
+            }
         }
 
         /// <summary>
@@ -419,31 +432,6 @@ namespace MobileGame.Managers
         public bool IsPopupRegistered(string popupName)
         {
             return popupPrefabs.ContainsKey(popupName);
-        }
-
-        /// <summary>
-        /// 테스트 환경에서 UIManager를 완전히 정리합니다.
-        /// DontDestroyOnLoad 객체를 파괴하고 Instance를 null로 리셋합니다.
-        /// </summary>
-        public static void ResetForTesting()
-        {
-            if (Instance != null)
-            {
-                // 모든 팝업 닫기
-                Instance.CloseAllActivePopups();
-
-                // Instance를 null로 설정
-                var instanceToDestroy = Instance;
-                Instance = null;
-
-                // GameObject 파괴
-                if (instanceToDestroy != null)
-                {
-                    Destroy(instanceToDestroy.gameObject);
-                }
-
-                Debug.Log("[UIManager] 테스트를 위해 UIManager 인스턴스가 리셋되었습니다.");
-            }
         }
 
         #endregion

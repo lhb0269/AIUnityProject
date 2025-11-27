@@ -1,32 +1,37 @@
 using UnityEngine;
 using System;
 using System.IO;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Managers
 {
     /// <summary>
     /// 게임 데이터 저장 및 로드를 관리하는 시스템
     /// JSON 기반의 간단한 저장 시스템
+    /// DI를 통해 주입되어 사용됩니다.
     /// </summary>
-    public class SaveSystem : MonoBehaviour
+    public class SaveSystem : MonoBehaviour, ISaveSystem
     {
-        public static SaveSystem Instance { get; private set; }
 
         private string savePath;
         private const string SAVE_FILE_NAME = "gamedata.json";
 
+        /// <summary>
+        /// DI 컨테이너에서 호출하는 초기화 메서드
+        /// </summary>
+        public void Initialize()
+        {
+            InitializeSavePath();
+            Debug.Log("[SaveSystem] DI 초기화 완료");
+        }
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            // 폴백 초기화
+            if (string.IsNullOrEmpty(savePath))
             {
-                Destroy(gameObject);
-                return;
+                InitializeSavePath();
             }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            InitializeSavePath();
         }
 
         /// <summary>
