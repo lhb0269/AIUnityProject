@@ -16,7 +16,7 @@ namespace MobileGame.Interfaces
         event Action<Vector2, Vector2> OnSwipe; // (시작 위치, 방향)
 
         // 입력 상태 조회
-        Vector3 GetTouchWorldPosition();
+        Vector3 GetTouchWorldPosition(Camera camera = null);
         bool IsTouching();
         Vector2 GetTouchPosition();
     }

@@ -11,12 +11,10 @@ namespace MobileGame.Interfaces
         // BGM 관리
         void PlayBGM(AudioClip clip, bool loop = true);
         void StopBGM();
-        void PauseBGM();
-        void ResumeBGM();
+        void PauseBGM(bool pause);
 
         // SFX 관리
-        void PlaySFX(AudioClip clip);
-        void PlaySFX(AudioClip clip, float volume);
+        void PlaySFX(AudioClip clip, float volumeScale = 1f);
         void StopAllSFX();
 
         // 볼륨 제어

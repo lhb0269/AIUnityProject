@@ -11,8 +11,8 @@ namespace MobileGame.Interfaces
         T LoadData<T>() where T : class, new();
 
         // 파일 관리
-        bool HasSaveFile();
-        void DeleteSaveFile();
+        bool HasSaveData();
+        void DeleteSaveData();
 
         // PlayerPrefs 편의 메서드
         void SavePreference(string key, int value);

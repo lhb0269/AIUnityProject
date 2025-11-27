@@ -137,6 +137,17 @@ namespace MobileGame.Managers
         }
 
         /// <summary>
+        /// 모든 SFX 정지
+        /// </summary>
+        public void StopAllSFX()
+        {
+            foreach (var source in sfxSources)
+            {
+                source.Stop();
+            }
+        }
+
+        /// <summary>
         /// 사용 가능한 SFX 소스 가져오기
         /// </summary>
         private AudioSource GetAvailableSFXSource()
