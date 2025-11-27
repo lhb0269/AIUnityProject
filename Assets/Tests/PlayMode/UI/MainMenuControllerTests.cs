@@ -7,6 +7,7 @@ using VContainer;
 using VContainer.Unity;
 using MobileGame.UI;
 using MobileGame.Managers;
+using MobileGame.Interfaces;
 using MobileGame.Tests.Mocks;
 using MobileGame.Tests.Helpers;
 

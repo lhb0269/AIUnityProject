@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using MobileGame.Managers;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Tests.Mocks
 {

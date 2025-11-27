@@ -1,6 +1,7 @@
 using VContainer;
 using VContainer.Unity;
 using MobileGame.Managers;
+using MobileGame.Interfaces;
 using MobileGame.Tests.Mocks;
 
 namespace MobileGame.Tests.Helpers

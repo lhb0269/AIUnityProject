@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 using MobileGame.Managers;
+using MobileGame.Interfaces;
 using MobileGame.UI;
 
 namespace MobileGame.UI

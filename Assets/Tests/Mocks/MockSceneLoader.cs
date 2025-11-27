@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MobileGame.Managers;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Tests.Mocks
 {

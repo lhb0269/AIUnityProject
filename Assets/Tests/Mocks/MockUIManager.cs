@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MobileGame.Managers;
+using MobileGame.Interfaces;
 using MobileGame.UI;
 
 namespace MobileGame.Tests.Mocks
