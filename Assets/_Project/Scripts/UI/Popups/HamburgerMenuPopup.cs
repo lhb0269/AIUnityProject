@@ -10,11 +10,6 @@ namespace MobileGame.UI
     /// </summary>
     public class HamburgerMenuPopup : BasePopup
     {
-        /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "HamburgerMenuPopup";
-
         #region 버튼 참조 필드
 
         [Header("일반 버튼 (로그만 출력)")]
@@ -323,7 +318,7 @@ namespace MobileGame.UI
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 햄버거 메뉴 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.HamburgerMenu}] 햄버거 메뉴 팝업이 열렸습니다.");
         }
     }
 }

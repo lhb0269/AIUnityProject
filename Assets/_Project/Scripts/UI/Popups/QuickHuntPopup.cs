@@ -8,9 +8,5 @@ namespace MobileGame.UI
     /// </summary>
     public class QuickHuntPopup : BasePopup
     {
-        /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "QuickHuntPopup";
     }
 }

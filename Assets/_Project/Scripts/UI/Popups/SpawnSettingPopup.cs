@@ -9,17 +9,12 @@ namespace MobileGame.UI
     public class SpawnSettingPopup : BasePopup
     {
         /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "SpawnSettingPopup";
-
-        /// <summary>
         /// 팝업을 표시합니다.
         /// </summary>
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 스폰 설정 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.SpawnSetting}] 스폰 설정 팝업이 열렸습니다.");
 
             // TODO: 스폰 설정 콘텐츠 초기화
             // - 스폰 간격 설정
