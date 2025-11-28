@@ -159,6 +159,11 @@ namespace MobileGame.Tests.UI
 
             Debug.Log($"[Test] ButtonBinder에 {entryList.Count}개 버튼 엔트리 설정 완료");
 
+            // isInitialized 플래그를 false로 리셋 (재초기화 허용)
+            var isInitializedField = typeof(ButtonBinder).GetField("isInitialized",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            isInitializedField?.SetValue(buttonBinder, false);
+
             // ButtonBinder 초기화 (private 메서드 호출)
             var initMethod = typeof(ButtonBinder).GetMethod("InitializeButtonMap",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -175,6 +180,11 @@ namespace MobileGame.Tests.UI
                 // 초기화 확인
                 var buttonCount = buttonBinder.ButtonCount;
                 Debug.Log($"[Test] 등록된 버튼 수: {buttonCount}");
+
+                if (buttonCount == 0)
+                {
+                    Debug.LogError("[Test] 버튼이 하나도 등록되지 않았습니다! buttonEntries 확인 필요");
+                }
             }
         }
 
