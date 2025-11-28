@@ -155,7 +155,11 @@ namespace MobileGame.Tests.UI
             entryList.Add(CreateButtonEntry(ButtonID.Chatting));
 
             entriesField?.SetValue(buttonBinder, entryList);
-            buttonBinder.Awake(); // 초기화
+
+            // ButtonBinder 초기화 (private 메서드 호출)
+            var initMethod = typeof(ButtonBinder).GetMethod("InitializeButtonMap",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            initMethod?.Invoke(buttonBinder, null);
         }
 
         /// <summary>
@@ -169,7 +173,7 @@ namespace MobileGame.Tests.UI
 
             var entry = new ButtonBinder.ButtonEntry
             {
-                buttonId = buttonId,
+                buttonID = buttonId,
                 button = button
             };
 
