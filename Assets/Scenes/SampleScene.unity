@@ -133,6 +133,8 @@ GameObject:
   - component: {fileID: 78864751}
   - component: {fileID: 78864750}
   - component: {fileID: 78864749}
+  - component: {fileID: 78864755}
+  - component: {fileID: 78864754}
   m_Layer: 0
   m_Name: GameLifeScope
   m_TagString: Untagged
@@ -214,7 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4fa02d0c8ac11a42ba072bf9587110c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MobileGame::MobileGame.Managers.UIManager
-  mainCanvas: {fileID: 0}
+  mainCanvas: {fileID: 2091279259}
   popupCanvas: {fileID: 0}
   initialPopupPrefabs: []
 --- !u!114 &78864753
@@ -241,6 +243,31 @@ MonoBehaviour:
   masterVolume: 1
   bgmVolume: 0.7
   sfxVolume: 1
+--- !u!114 &78864754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66dafcc8db242954c864ba0ed0bfd907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.Managers.SaveSystem
+--- !u!114 &78864755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c66b5bd05d82513448c2dfc78062c21f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.Managers.SceneLoader
+  minimumLoadingTime: 0.5
 --- !u!1 &94323102
 GameObject:
   m_ObjectHideFlags: 0
@@ -8596,7 +8623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de7a4e7a85fd2f54c866a82327d27c4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MobileGame::MobileGame.UI.MainMenuController
-  buttonBinder: {fileID: 0}
+  buttonBinder: {fileID: 2054268149}
 --- !u!1 &2091279256
 GameObject:
   m_ObjectHideFlags: 0
