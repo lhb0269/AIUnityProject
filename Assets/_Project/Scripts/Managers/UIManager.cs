@@ -64,13 +64,20 @@ namespace MobileGame.Managers
         /// </summary>
         private void RegisterInitialPrefabs()
         {
+            Debug.Log($"[UIManager] 등록 시작: {initialPopupPrefabs.Count}개 팝업");
             foreach (var entry in initialPopupPrefabs)
             {
                 if (!string.IsNullOrEmpty(entry.popupName) && entry.prefab != null)
                 {
                     RegisterPopupPrefab(entry.popupName, entry.prefab);
+                    Debug.Log($"[UIManager] 팝업 등록 성공: {entry.popupName}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[UIManager] 팝업 등록 실패: Name={entry.popupName ?? "null"}, Prefab={(entry.prefab != null ? "OK" : "null")}");
                 }
             }
+            Debug.Log($"[UIManager] 최종 등록된 팝업 수: {popupPrefabs.Count}개");
         }
 
         /// <summary>

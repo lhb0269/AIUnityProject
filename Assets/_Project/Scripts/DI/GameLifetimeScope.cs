@@ -31,6 +31,9 @@ namespace MobileGame.DI
 
         protected override void Configure(IContainerBuilder builder)
         {
+            // GameLifetimeScope 자체를 컨테이너에 등록 (설정값 접근을 위해)
+            builder.RegisterComponent(this);
+
             // 필수 매니저
             builder.RegisterComponentInHierarchy<UIManager>().As<IUIManager>();
             builder.RegisterComponentInHierarchy<GameManager>().As<IGameManager>();
@@ -55,16 +58,21 @@ namespace MobileGame.DI
         private class GameInitializer : IStartable
         {
             private readonly IGameManager gameManager;
-            private readonly IUIManager uiManager;
+            private readonly UIManager uiManager;
+            private readonly GameLifetimeScope scope;
 
-            public GameInitializer(IGameManager gameManager, IUIManager uiManager)
+            public GameInitializer(IGameManager gameManager, UIManager uiManager, GameLifetimeScope scope)
             {
                 this.gameManager = gameManager;
                 this.uiManager = uiManager;
+                this.scope = scope;
             }
 
             public void Start()
             {
+                // UIManager 초기화 (Canvas와 팝업 프리팹 전달)
+                uiManager.Initialize(scope.mainCanvas, scope.popupCanvas, scope.initialPopupPrefabs);
+
                 Debug.Log("[GameLifetimeScope] 게임 초기화 완료 - DI 컨테이너 준비됨");
             }
         }
