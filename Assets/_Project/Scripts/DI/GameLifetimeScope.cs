@@ -31,14 +31,15 @@ namespace MobileGame.DI
 
         protected override void Configure(IContainerBuilder builder)
         {
-            // UIManager - MonoBehaviour이므로 ComponentInHierarchy 또는 Instance로 등록
-            // 매니저들은 이 스크립트와 같은 GameObject에 추가될 예정
+            // 필수 매니저 (MainMenuController에서 사용)
             builder.RegisterComponentInHierarchy<UIManager>().As<IUIManager>();
             builder.RegisterComponentInHierarchy<GameManager>().As<IGameManager>();
             builder.RegisterComponentInHierarchy<AudioManager>().As<IAudioManager>();
-            builder.RegisterComponentInHierarchy<InputManager>().As<IInputManager>();
-            builder.RegisterComponentInHierarchy<SceneLoader>().As<ISceneLoader>();
-            builder.RegisterComponentInHierarchy<SaveSystem>().As<ISaveSystem>();
+
+            // 선택적 매니저 (필요시 주석 해제)
+            // builder.RegisterComponentInHierarchy<InputManager>().As<IInputManager>();
+            // builder.RegisterComponentInHierarchy<SceneLoader>().As<ISceneLoader>();
+            // builder.RegisterComponentInHierarchy<SaveSystem>().As<ISaveSystem>();
 
             // EntryPoint 등록 (게임 시작 시 초기화를 위한 진입점)
             builder.RegisterEntryPoint<GameInitializer>();
