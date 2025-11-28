@@ -15,7 +15,7 @@ namespace MobileGame.Tests.Helpers
         /// <summary>
         /// Mock 매니저들을 등록한 테스트용 LifetimeScope 생성
         /// </summary>
-        public static LifetimeScope CreateTestScope(IContainerBuilder builder = null)
+        public static LifetimeScope CreateTestScope(System.Action<IContainerBuilder> customBuilder = null)
         {
             var scope = LifetimeScope.Create(configuration: containerBuilder =>
             {
@@ -28,7 +28,7 @@ namespace MobileGame.Tests.Helpers
                 containerBuilder.Register<MockSaveSystem>(Lifetime.Singleton).As<ISaveSystem>();
 
                 // 추가 커스텀 설정이 있으면 적용
-                builder?.Invoke(containerBuilder);
+                customBuilder?.Invoke(containerBuilder);
             });
 
             return scope;

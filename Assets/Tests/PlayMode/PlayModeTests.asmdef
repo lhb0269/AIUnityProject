@@ -3,6 +3,8 @@
   "rootNamespace": "MobileGame.Tests",
   "references": [
     "MobileGame",
+    "MobileGame.Tests",
+    "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
     "Unity.InputSystem",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
