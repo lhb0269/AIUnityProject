@@ -31,14 +31,14 @@ namespace MobileGame.DI
 
         protected override void Configure(IContainerBuilder builder)
         {
-            // 필수 매니저 (MainMenuController에서 사용)
+            // 필수 매니저
             builder.RegisterComponentInHierarchy<UIManager>().As<IUIManager>();
             builder.RegisterComponentInHierarchy<GameManager>().As<IGameManager>();
             builder.RegisterComponentInHierarchy<AudioManager>().As<IAudioManager>();
+            builder.RegisterComponentInHierarchy<SceneLoader>().As<ISceneLoader>();
 
             // 선택적 매니저 (필요시 주석 해제)
             // builder.RegisterComponentInHierarchy<InputManager>().As<IInputManager>();
-            // builder.RegisterComponentInHierarchy<SceneLoader>().As<ISceneLoader>();
             // builder.RegisterComponentInHierarchy<SaveSystem>().As<ISaveSystem>();
 
             // EntryPoint 등록 (게임 시작 시 초기화를 위한 진입점)
