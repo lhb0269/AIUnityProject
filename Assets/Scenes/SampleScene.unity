@@ -128,29 +128,18 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 78864748}
-  - component: {fileID: 78864747}
+  - component: {fileID: 78864753}
+  - component: {fileID: 78864752}
+  - component: {fileID: 78864751}
+  - component: {fileID: 78864750}
+  - component: {fileID: 78864749}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GameLifeScope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &78864747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 78864746}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a7a55cee73425c4daa328d40c73a567, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MobileGame.Managers.GameManager
-  currentState: 0
-  targetFrameRate: 60
-  allowScreenDimming: 0
 --- !u!4 &78864748
 Transform:
   m_ObjectHideFlags: 0
@@ -166,6 +155,92 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &78864749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22f7ad118dfed234c8fbdbbcf94d60d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.Managers.AudioManager
+  bgmSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  masterVolume: 1
+  bgmVolume: 0.7
+  sfxVolume: 1
+  maxSFXSources: 5
+--- !u!114 &78864750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2059b8e5fbeae439bd1ca0770c19e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.Managers.InputManager
+  touchSensitivity: 1
+  swipeThreshold: 50
+--- !u!114 &78864751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a7a55cee73425c4daa328d40c73a567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.Managers.GameManager
+  currentState: 0
+  targetFrameRate: 60
+  allowScreenDimming: 0
+--- !u!114 &78864752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4fa02d0c8ac11a42ba072bf9587110c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.Managers.UIManager
+  mainCanvas: {fileID: 0}
+  popupCanvas: {fileID: 0}
+  initialPopupPrefabs: []
+--- !u!114 &78864753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 78864746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c248d112a9c3e4aa9e9f1937f231b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MobileGame::MobileGame.DI.GameLifetimeScope
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  mainCanvas: {fileID: 0}
+  popupCanvas: {fileID: 0}
+  initialPopupPrefabs: []
+  targetFrameRate: 60
+  allowScreenDimming: 0
+  masterVolume: 1
+  bgmVolume: 0.7
+  sfxVolume: 1
 --- !u!1 &94323102
 GameObject:
   m_ObjectHideFlags: 0
@@ -3707,7 +3782,7 @@ GameObject:
   - component: {fileID: 746449327}
   - component: {fileID: 746449326}
   m_Layer: 5
-  m_Name: Button (Legacy)
+  m_Name: ChapterBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8421,12 +8496,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2054268147}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -782.5, y: -476, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 2091279260}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2054268149
 MonoBehaviour:
@@ -8437,42 +8512,78 @@ MonoBehaviour:
   m_GameObject: {fileID: 2054268147}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 881deb28b9b5d704fb2dc9ddee8d6990, type: 3}
+  m_Script: {fileID: 11500000, guid: d39c79baa18f3534db819f5f4b9c3183, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MobileGame.UI.MainMenuButtonHandler
-  hamburgerMenuBtn: {fileID: 1201299262}
-  userInfoBtn: {fileID: 870484156}
-  guideQuestBtn: {fileID: 371471544}
-  shopBtn: {fileID: 1953433690}
-  recruitmentBtn: {fileID: 432212957}
-  eventBtn: {fileID: 1413526364}
-  characterButton: {fileID: 1346838630}
-  SkillSettingBtn: {fileID: 798763370}
-  skill1Btn: {fileID: 1251161017}
-  skill2Btn: {fileID: 570444327}
-  skill3Btn: {fileID: 943762846}
-  skill4Btn: {fileID: 921812733}
-  skill5Btn: {fileID: 528491531}
-  skill6Btn: {fileID: 647252077}
-  weaponButton: {fileID: 1511403018}
-  equipButton: {fileID: 569968873}
-  coworkerButton: {fileID: 733635576}
-  jumpBtn: {fileID: 202546724}
-  coworkerSpawnBtn: {fileID: 355760347}
-  hpPotionBtn: {fileID: 551431211}
-  mpPotionBtn: {fileID: 94323104}
-  potionSettingBtn: {fileID: 1242946287}
-  controllBtn: {fileID: 458339607}
-  chapterBtn: {fileID: 746449326}
-  monsterSpawnBtn: {fileID: 1028264316}
-  spawnSettingBtn: {fileID: 594400375}
-  continuousSpawnBtn: {fileID: 1383401876}
-  quickHuntBtn: {fileID: 994365560}
-  autoResultBtn: {fileID: 252031641}
-  boosterBtn: {fileID: 221393868}
-  growUpGuideBtn: {fileID: 1019292661}
-  questBtn: {fileID: 1263629162}
-  chattingBtn: {fileID: 1974263658}
+  m_EditorClassIdentifier: MobileGame::MobileGame.UI.ButtonBinder
+  buttonEntries:
+  - buttonID: HamburgerMenu
+    button: {fileID: 1201299262}
+  - buttonID: Setting
+    button: {fileID: 0}
+  - buttonID: UserInfo
+    button: {fileID: 870484156}
+  - buttonID: GuideQuest
+    button: {fileID: 371471544}
+  - buttonID: Shop
+    button: {fileID: 1953433690}
+  - buttonID: Recruitment
+    button: {fileID: 432212957}
+  - buttonID: Event
+    button: {fileID: 1413526364}
+  - buttonID: Character
+    button: {fileID: 1346838630}
+  - buttonID: SkillSetting
+    button: {fileID: 798763370}
+  - buttonID: Skill1
+    button: {fileID: 1251161017}
+  - buttonID: Skill2
+    button: {fileID: 570444327}
+  - buttonID: Skill3
+    button: {fileID: 943762846}
+  - buttonID: Skill4
+    button: {fileID: 921812733}
+  - buttonID: Skill5
+    button: {fileID: 528491531}
+  - buttonID: Skill6
+    button: {fileID: 647252077}
+  - buttonID: Weapon
+    button: {fileID: 1511403018}
+  - buttonID: Equip
+    button: {fileID: 569968873}
+  - buttonID: Coworker
+    button: {fileID: 733635576}
+  - buttonID: Jump
+    button: {fileID: 202546724}
+  - buttonID: CoworkerSpawn
+    button: {fileID: 355760347}
+  - buttonID: HPPotion
+    button: {fileID: 551431211}
+  - buttonID: MPPotion
+    button: {fileID: 94323104}
+  - buttonID: PotionSetting
+    button: {fileID: 1242946287}
+  - buttonID: Control
+    button: {fileID: 458339607}
+  - buttonID: Chapter
+    button: {fileID: 746449326}
+  - buttonID: MonsterSpawn
+    button: {fileID: 1028264316}
+  - buttonID: SpawnSetting
+    button: {fileID: 594400375}
+  - buttonID: ContinuousSpawn
+    button: {fileID: 1383401876}
+  - buttonID: QuickHunt
+    button: {fileID: 994365560}
+  - buttonID: AutoResult
+    button: {fileID: 252031641}
+  - buttonID: Booster
+    button: {fileID: 221393868}
+  - buttonID: GrowUpGuide
+    button: {fileID: 371471544}
+  - buttonID: Quest
+    button: {fileID: 1263629162}
+  - buttonID: Chatting
+    button: {fileID: 1974263658}
 --- !u!114 &2054268150
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8482,60 +8593,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2054268147}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4fa02d0c8ac11a42ba072bf9587110c, type: 3}
+  m_Script: {fileID: 11500000, guid: de7a4e7a85fd2f54c866a82327d27c4b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MobileGame.Managers.UIManager
-  mainCanvas: {fileID: 2091279259}
-  popupCanvas: {fileID: 2091279259}
-  initialPopupPrefabs:
-  - popupName: ChapterPopup
-    prefab: {fileID: 2884121858976555704, guid: 21c53f5cadd67f44bb7ecf887adbcb64, type: 3}
-  - popupName: CharacterPopup
-    prefab: {fileID: 2884121858976555704, guid: bf63ed6a5bf559646bf79284eae0143a, type: 3}
-  - popupName: CoworkerPopup
-    prefab: {fileID: 2884121858976555704, guid: 4709bd18e09361540bd1c4a781b999ab, type: 3}
-  - popupName: EquipmentPopup
-    prefab: {fileID: 2884121858976555704, guid: d1de8e66c7b12b147b0aafd8108ea9f9, type: 3}
-  - popupName: EventPopup
-    prefab: {fileID: 2884121858976555704, guid: d01d52b58caa5dc46951e17553d84ec9, type: 3}
-  - popupName: HamburgerMenuPopup
-    prefab: {fileID: 2884121858976555704, guid: 16a9f9f785eab2842b21c5d061a9e646, type: 3}
-  - popupName: PotionSettingPopup
-    prefab: {fileID: 2884121858976555704, guid: bcf54140f5e061346895f24f46780c86, type: 3}
-  - popupName: RecruitmentPopup
-    prefab: {fileID: 2884121858976555704, guid: bf9c1390e4e89a84a8542355fcb46489, type: 3}
-  - popupName: SettingsPopup
-    prefab: {fileID: 2884121858976555704, guid: 02ec556a7fc0e0c449c12f57f193cd08, type: 3}
-  - popupName: ShopPopup
-    prefab: {fileID: 2884121858976555704, guid: 3348dcadb6ffcf749b6d048e153dcc9b, type: 3}
-  - popupName: SkillSettingPopup
-    prefab: {fileID: 2884121858976555704, guid: 9bd19eb90f806554485af66af15ab369, type: 3}
-  - popupName: SpawnSettingPopup
-    prefab: {fileID: 2884121858976555704, guid: 1fdfb5bfb04e2d6468399a0f81d30e62, type: 3}
-  - popupName: UserInfoPopup
-    prefab: {fileID: 2884121858976555704, guid: 7489eb923b50c8a4185ec5adb72e2c87, type: 3}
-  - popupName: WeaponPopup
-    prefab: {fileID: 2884121858976555704, guid: 31ba3d3184e9f884dba14cb332405856, type: 3}
-  - popupName: AutoResultPopup
-    prefab: {fileID: 2884121858976555704, guid: 820bb60c6d997d940af1a4ca2d5bea4d, type: 3}
-  - popupName: BoosterPopup
-    prefab: {fileID: 2884121858976555704, guid: 73e41206f62ec824ebf9bd7b498cfddd, type: 3}
-  - popupName: QuickHuntPopup
-    prefab: {fileID: 2884121858976555704, guid: a1da179639b8ff148831235cb98a9a07, type: 3}
-  - popupName: ContinuousSpawnPopup
-    prefab: {fileID: 2884121858976555704, guid: 21081fa2fde4852468c2f88f7fc327d8, type: 3}
-  - popupName: QuestPopup
-    prefab: {fileID: 2884121858976555704, guid: ee9dcb7bd83334343b23a5a81538785a, type: 3}
-  - popupName: GrowUpGuidePopup
-    prefab: {fileID: 2884121858976555704, guid: cb6d2ca7602b09d46a15ebd79cb043ac, type: 3}
-  - popupName: ChattingPopup
-    prefab: {fileID: 2884121858976555704, guid: ad00b0fe0abd103458ad929a3631aa1c, type: 3}
-  - popupName: TownPopup
-    prefab: {fileID: 2884121858976555704, guid: 761a72f4a423d294c9518352af3e4190, type: 3}
-  - popupName: GameSettingPopup
-    prefab: {fileID: 2884121858976555704, guid: e2df297e5903df9479a06109cf8f83e3, type: 3}
-  - popupName: NoticePopup
-    prefab: {fileID: 2884121858976555704, guid: 4a75ea4faaab73b44a81ce6b2b76b3b0, type: 3}
+  m_EditorClassIdentifier: MobileGame::MobileGame.UI.MainMenuController
+  buttonBinder: {fileID: 0}
 --- !u!1 &2091279256
 GameObject:
   m_ObjectHideFlags: 0
@@ -8643,6 +8704,7 @@ RectTransform:
   - {fileID: 982652972}
   - {fileID: 1087059378}
   - {fileID: 272198750}
+  - {fileID: 2054268148}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -8831,6 +8893,5 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 78864748}
-  - {fileID: 2054268148}
   - {fileID: 2091279260}
   - {fileID: 748085639}
