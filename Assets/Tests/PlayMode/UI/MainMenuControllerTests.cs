@@ -69,6 +69,7 @@ namespace MobileGame.Tests.UI
             testScope.Container.Inject(controller);
 
             yield return null; // Start() 실행 대기
+            yield return null; // ButtonBinder 완전 초기화 대기
         }
 
         /// <summary>
@@ -156,10 +157,25 @@ namespace MobileGame.Tests.UI
 
             entriesField?.SetValue(buttonBinder, entryList);
 
+            Debug.Log($"[Test] ButtonBinder에 {entryList.Count}개 버튼 엔트리 설정 완료");
+
             // ButtonBinder 초기화 (private 메서드 호출)
             var initMethod = typeof(ButtonBinder).GetMethod("InitializeButtonMap",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            initMethod?.Invoke(buttonBinder, null);
+
+            if (initMethod == null)
+            {
+                Debug.LogError("[Test] InitializeButtonMap 메서드를 찾을 수 없습니다!");
+            }
+            else
+            {
+                initMethod.Invoke(buttonBinder, null);
+                Debug.Log("[Test] ButtonBinder 초기화 완료");
+
+                // 초기화 확인
+                var buttonCount = buttonBinder.ButtonCount;
+                Debug.Log($"[Test] 등록된 버튼 수: {buttonCount}");
+            }
         }
 
         /// <summary>
@@ -440,7 +456,18 @@ namespace MobileGame.Tests.UI
         private IEnumerator TestButtonOpensPopup(string buttonId, string expectedPopupId, string buttonDisplayName)
         {
             // Arrange
+            Debug.Log($"[Test] {buttonDisplayName} 버튼 테스트 시작 - ButtonID: {buttonId}");
+            Debug.Log($"[Test] ButtonBinder 등록된 버튼 수: {buttonBinder.ButtonCount}");
+
             Button button = buttonBinder.GetButton(buttonId);
+
+            if (button == null)
+            {
+                var allButtons = buttonBinder.GetAllButtonIDs();
+                Debug.LogError($"[Test] {buttonDisplayName} 버튼을 찾을 수 없습니다! ButtonID: {buttonId}");
+                Debug.LogError($"[Test] 등록된 버튼 ID 목록: {string.Join(", ", allButtons)}");
+            }
+
             Assert.IsNotNull(button, $"{buttonDisplayName} 버튼이 존재해야 합니다");
 
             mockUIManager.Reset();
