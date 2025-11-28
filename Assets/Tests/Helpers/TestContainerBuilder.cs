@@ -17,7 +17,7 @@ namespace MobileGame.Tests.Helpers
         /// </summary>
         public static LifetimeScope CreateTestScope(IContainerBuilder builder = null)
         {
-            var scope = LifetimeScope.Create(configureContainer: containerBuilder =>
+            var scope = LifetimeScope.Create(configuration: containerBuilder =>
             {
                 // Mock 매니저들을 싱글톤으로 등록
                 containerBuilder.Register<MockUIManager>(Lifetime.Singleton).As<IUIManager>();
@@ -39,7 +39,7 @@ namespace MobileGame.Tests.Helpers
         /// </summary>
         public static LifetimeScope CreateUITestScope()
         {
-            return LifetimeScope.Create(configureContainer: builder =>
+            return LifetimeScope.Create(configuration: builder =>
             {
                 builder.Register<MockUIManager>(Lifetime.Singleton).As<IUIManager>();
             });
@@ -56,7 +56,7 @@ namespace MobileGame.Tests.Helpers
             bool includeScene = false,
             bool includeSave = false)
         {
-            return LifetimeScope.Create(configureContainer: builder =>
+            return LifetimeScope.Create(configuration: builder =>
             {
                 if (includeUI)
                     builder.Register<MockUIManager>(Lifetime.Singleton).As<IUIManager>();
