@@ -41,6 +41,9 @@ namespace MobileGame.DI
             // builder.RegisterComponentInHierarchy<InputManager>().As<IInputManager>();
             // builder.RegisterComponentInHierarchy<SaveSystem>().As<ISaveSystem>();
 
+            // UI 컨트롤러 자동 주입 (씬에 있는 MonoBehaviour에 DI)
+            builder.RegisterComponentInHierarchy<MainMenuController>();
+
             // EntryPoint 등록 (게임 시작 시 초기화를 위한 진입점)
             builder.RegisterEntryPoint<GameInitializer>();
         }
