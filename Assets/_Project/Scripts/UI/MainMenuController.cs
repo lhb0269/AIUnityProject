@@ -62,6 +62,19 @@ namespace MobileGame.UI
 
         #endregion
 
+        #region 헬퍼 메서드
+
+        /// <summary>
+        /// 팝업이 열려있는지 확인
+        /// 팝업이 열려있으면 메인 메뉴 버튼 클릭을 차단
+        /// </summary>
+        private bool IsPopupOpen()
+        {
+            return uiManager != null && uiManager.GetActivePopupCount() > 0;
+        }
+
+        #endregion
+
         #region 버튼 이벤트 등록/해제
 
         /// <summary>
@@ -212,6 +225,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnHamburgerMenuClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 햄버거 메뉴 버튼 클릭");
             uiManager?.ShowPopup(PopupID.HamburgerMenu);
         }
@@ -221,6 +235,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnSettingClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 설정 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Settings);
         }
@@ -234,6 +249,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnUserInfoClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 유저 정보 버튼 클릭");
             uiManager?.ShowPopup(PopupID.UserInfo);
         }
@@ -258,6 +274,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnShopClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 상점 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Shop);
         }
@@ -267,6 +284,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnRecruitmentClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 모집 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Recruitment);
         }
@@ -276,6 +294,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnEventClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 이벤트 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Event);
         }
@@ -289,6 +308,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnCharacterClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 캐릭터 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Character);
         }
@@ -298,6 +318,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnSkillSettingClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 스킬 설정 버튼 클릭");
             uiManager?.ShowPopup(PopupID.SkillSetting);
         }
@@ -373,6 +394,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnWeaponClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 무기 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Weapon);
         }
@@ -382,6 +404,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnEquipClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 장비 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Equipment);
         }
@@ -391,6 +414,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnCoworkerClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 협력자 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Coworker);
         }
@@ -448,6 +472,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnPotionSettingClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 포션 설정 버튼 클릭");
             uiManager?.ShowPopup(PopupID.PotionSetting);
         }
@@ -472,6 +497,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnChapterClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 챕터 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Chapter);
         }
@@ -492,6 +518,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnSpawnSettingClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 스폰 설정 버튼 클릭");
             uiManager?.ShowPopup(PopupID.SpawnSetting);
         }
@@ -505,6 +532,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnQuickHuntClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 퀵 헌트 버튼 클릭");
             uiManager?.ShowPopup(PopupID.QuickHunt);
         }
@@ -514,6 +542,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnAutoResultClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 자동 결과 버튼 클릭");
             uiManager?.ShowPopup(PopupID.AutoResult);
         }
@@ -523,6 +552,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnBoosterClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 부스터 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Booster);
         }
@@ -532,6 +562,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnContinuousSpawnClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 지속 스폰 버튼 클릭");
             uiManager?.ShowPopup(PopupID.ContinuousSpawn);
         }
@@ -541,6 +572,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnGrowUpGuideClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 성장 가이드 버튼 클릭");
             uiManager?.ShowPopup(PopupID.GrowUpGuide);
         }
@@ -550,6 +582,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnQuestClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 퀘스트 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Quest);
         }
@@ -559,6 +592,7 @@ namespace MobileGame.UI
         /// </summary>
         public void OnChattingClicked()
         {
+            if (IsPopupOpen()) return;
             Debug.Log("[MainMenu] 채팅 버튼 클릭");
             uiManager?.ShowPopup(PopupID.Chatting);
         }
