@@ -8655,7 +8655,7 @@ MonoBehaviour:
   - buttonID: Booster
     button: {fileID: 221393868}
   - buttonID: GrowUpGuide
-    button: {fileID: 371471544}
+    button: {fileID: 1019292661}
   - buttonID: Quest
     button: {fileID: 1263629162}
   - buttonID: Chatting
