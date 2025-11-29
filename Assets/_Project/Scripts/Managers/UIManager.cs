@@ -27,6 +27,10 @@ namespace MobileGame.Managers
         // 팝업 프리팹 관리용 필드
         private Dictionary<string, GameObject> popupPrefabs = new Dictionary<string, GameObject>();
         private Stack<BasePopup> activePopupStack = new Stack<BasePopup>();
+
+        // 팝업 인스턴스 캐싱 (재사용을 위한 딕셔너리)
+        private Dictionary<string, BasePopup> popupInstances = new Dictionary<string, BasePopup>();
+
         private int currentSortingOrder;
         private int baseSortingOrder = 100;
 
@@ -246,9 +250,10 @@ namespace MobileGame.Managers
 
         /// <summary>
         /// 지정된 이름의 팝업을 표시합니다.
+        /// 이미 생성된 인스턴스가 있으면 재사용하고, 없으면 새로 생성합니다.
         /// </summary>
         /// <param name="popupName">팝업 이름</param>
-        /// <returns>생성된 BasePopup 인스턴스, 실패 시 null</returns>
+        /// <returns>생성/재사용된 BasePopup 인스턴스, 실패 시 null</returns>
         public BasePopup ShowPopup(string popupName)
         {
             if (string.IsNullOrEmpty(popupName))
@@ -257,6 +262,36 @@ namespace MobileGame.Managers
                 return null;
             }
 
+            // 1. 이미 생성된 인스턴스가 있는지 확인 (재사용)
+            if (popupInstances.TryGetValue(popupName, out BasePopup existingPopup))
+            {
+                // 이미 활성화되어 있으면 무시
+                if (existingPopup.gameObject.activeSelf)
+                {
+                    Debug.LogWarning($"[UIManager] 팝업이 이미 열려있습니다: {popupName}");
+                    return existingPopup;
+                }
+
+                // 비활성화된 인스턴스를 재사용
+                existingPopup.gameObject.SetActive(true);
+
+                // 정렬 순서 업데이트
+                Canvas popupInstanceCanvas = existingPopup.GetComponent<Canvas>();
+                if (popupInstanceCanvas != null)
+                {
+                    popupInstanceCanvas.sortingOrder = currentSortingOrder;
+                    currentSortingOrder += 10;
+                }
+
+                // 스택에 추가하고 표시
+                activePopupStack.Push(existingPopup);
+                existingPopup.Show();
+
+                Debug.Log($"[UIManager] 팝업 재사용: {popupName} (활성 팝업 수: {activePopupStack.Count})");
+                return existingPopup;
+            }
+
+            // 2. 등록된 프리팹 확인
             if (!popupPrefabs.TryGetValue(popupName, out GameObject prefab))
             {
                 Debug.LogError($"[UIManager] 등록되지 않은 팝업: {popupName}");
@@ -269,7 +304,7 @@ namespace MobileGame.Managers
                 return null;
             }
 
-            // 팝업 인스턴스 생성
+            // 3. 새 팝업 인스턴스 생성
             GameObject popupInstance = Instantiate(prefab, popupCanvas.transform);
 
             if (popupInstance == null)
@@ -318,17 +353,21 @@ namespace MobileGame.Managers
                 popupInstance.AddComponent<GraphicRaycaster>();
             }
 
+            // 4. 캐시에 저장 (재사용을 위해)
+            popupInstances[popupName] = popup;
+
             // 스택에 추가하고 표시
             activePopupStack.Push(popup);
             popup.Show();
 
-            Debug.Log($"[UIManager] 팝업 표시: {popupName} (활성 팝업 수: {activePopupStack.Count})");
+            Debug.Log($"[UIManager] 팝업 생성: {popupName} (활성 팝업 수: {activePopupStack.Count})");
 
             return popup;
         }
 
         /// <summary>
         /// 특정 팝업을 닫습니다.
+        /// 인스턴스는 파괴하지 않고 비활성화하여 재사용 가능하도록 합니다.
         /// </summary>
         /// <param name="popup">닫을 팝업</param>
         public void ClosePopup(BasePopup popup)
@@ -351,7 +390,8 @@ namespace MobileGame.Managers
                 {
                     found = true;
                     current.Hide();
-                    Destroy(current.gameObject);
+                    // Destroy 대신 비활성화 (재사용을 위해 인스턴스 유지)
+                    current.gameObject.SetActive(false);
                     currentSortingOrder -= 10;
                     break;
                 }
@@ -378,7 +418,8 @@ namespace MobileGame.Managers
         }
 
         /// <summary>
-        /// 최상단 팝업을 닫습니다 (프리팹 기반).
+        /// 최상단 팝업을 닫습니다.
+        /// 인스턴스는 파괴하지 않고 비활성화하여 재사용 가능하도록 합니다.
         /// </summary>
         public void CloseCurrentActivePopup()
         {
@@ -393,14 +434,16 @@ namespace MobileGame.Managers
             if (popup != null)
             {
                 popup.Hide();
-                Destroy(popup.gameObject);
+                // Destroy 대신 비활성화 (재사용을 위해 인스턴스 유지)
+                popup.gameObject.SetActive(false);
                 currentSortingOrder -= 10;
                 Debug.Log($"[UIManager] 최상단 팝업 닫기 완료 (활성 팝업 수: {activePopupStack.Count})");
             }
         }
 
         /// <summary>
-        /// 모든 활성 팝업을 닫습니다 (프리팹 기반).
+        /// 모든 활성 팝업을 닫습니다.
+        /// 인스턴스는 파괴하지 않고 비활성화하여 재사용 가능하도록 합니다.
         /// </summary>
         public void CloseAllActivePopups()
         {
@@ -413,7 +456,8 @@ namespace MobileGame.Managers
                 if (popup != null)
                 {
                     popup.Hide();
-                    Destroy(popup.gameObject);
+                    // Destroy 대신 비활성화 (재사용을 위해 인스턴스 유지)
+                    popup.gameObject.SetActive(false);
                 }
             }
 
@@ -439,6 +483,47 @@ namespace MobileGame.Managers
         public bool IsPopupRegistered(string popupName)
         {
             return popupPrefabs.ContainsKey(popupName);
+        }
+
+        /// <summary>
+        /// 특정 팝업 인스턴스를 완전히 제거합니다 (메모리 정리용).
+        /// 일반적으로는 필요하지 않지만, 메모리 관리가 필요한 경우 사용합니다.
+        /// </summary>
+        /// <param name="popupName">제거할 팝업 이름</param>
+        public void DestroyPopupInstance(string popupName)
+        {
+            if (popupInstances.TryGetValue(popupName, out BasePopup popup))
+            {
+                if (popup != null && popup.gameObject != null)
+                {
+                    Destroy(popup.gameObject);
+                }
+                popupInstances.Remove(popupName);
+                Debug.Log($"[UIManager] 팝업 인스턴스 제거: {popupName}");
+            }
+        }
+
+        /// <summary>
+        /// 모든 캐시된 팝업 인스턴스를 제거합니다 (메모리 정리용).
+        /// 씬 전환 전이나 메모리 부족 시 호출합니다.
+        /// </summary>
+        public void DestroyAllPopupInstances()
+        {
+            int count = popupInstances.Count;
+
+            foreach (var popup in popupInstances.Values)
+            {
+                if (popup != null && popup.gameObject != null)
+                {
+                    Destroy(popup.gameObject);
+                }
+            }
+
+            popupInstances.Clear();
+            activePopupStack.Clear();
+            currentSortingOrder = baseSortingOrder;
+
+            Debug.Log($"[UIManager] 모든 팝업 인스턴스 제거 완료 ({count}개)");
         }
 
         #endregion
