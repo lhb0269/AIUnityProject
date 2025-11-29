@@ -276,10 +276,10 @@ namespace MobileGame.Managers
                 existingPopup.gameObject.SetActive(true);
 
                 // 정렬 순서 업데이트
-                Canvas popupInstanceCanvas = existingPopup.GetComponent<Canvas>();
-                if (popupInstanceCanvas != null)
+                Canvas existingCanvas = existingPopup.GetComponent<Canvas>();
+                if (existingCanvas != null)
                 {
-                    popupInstanceCanvas.sortingOrder = currentSortingOrder;
+                    existingCanvas.sortingOrder = currentSortingOrder;
                     currentSortingOrder += 10;
                 }
 
