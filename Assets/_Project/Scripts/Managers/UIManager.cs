@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using MobileGame.UI;
 using MobileGame.Interfaces;
+using VContainer;
+using VContainer.Unity;
 
 namespace MobileGame.Managers
 {
@@ -13,6 +15,8 @@ namespace MobileGame.Managers
     /// </summary>
     public class UIManager : MonoBehaviour, IUIManager
     {
+        // VContainer DI 컨테이너 참조 (동적으로 생성되는 팝업에 의존성 주입용)
+        [Inject] private IObjectResolver container;
 
         [Header("UI 캔버스")]
         [SerializeField] private Canvas mainCanvas;
@@ -335,6 +339,17 @@ namespace MobileGame.Managers
                 Debug.LogError($"[UIManager] BasePopup 컴포넌트를 찾을 수 없습니다: {popupName}");
                 Destroy(popupInstance);
                 return null;
+            }
+
+            // VContainer를 통해 의존성 주입 (중요: 동적 생성된 오브젝트는 수동 주입 필요)
+            if (container != null)
+            {
+                container.Inject(popup);
+                Debug.Log($"[UIManager] 팝업에 DI 주입 완료: {popupName}");
+            }
+            else
+            {
+                Debug.LogWarning($"[UIManager] DI 컨테이너가 없어 의존성 주입 불가: {popupName}");
             }
 
             // 정렬 순서 설정 (각 팝업이 이전 것 위에 표시되도록)
