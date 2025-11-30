@@ -426,34 +426,34 @@ namespace MobileGame.Tests.UI
         #region Tests - Integration
 
         /// <summary>
-        /// 테스트: 여러 팝업 연속 열기
-        /// Given: MockUIManager 준비
-        /// When: 3개 버튼 연속 클릭
-        /// Then: 각 팝업 ShowPopup이 3번 호출됨
+        /// 테스트: 팝업 열린 상태에서 다른 메인 메뉴 버튼 클릭 시 차단
+        /// Given: 햄버거 메뉴 팝업이 열린 상태
+        /// When: 상점 버튼 클릭 시도
+        /// Then: IsPopupOpen() 체크로 인해 두 번째 팝업 열리지 않음
         /// </summary>
         [UnityTest]
-        public IEnumerator WhenMultipleButtonsClicked_ThenMultipleShowPopupsCalled()
+        public IEnumerator WhenPopupOpenAndAnotherButtonClicked_ThenSecondPopupNotOpened()
         {
             // Arrange
             Button hamburgerBtn = buttonBinder.GetButton(ButtonID.HamburgerMenu);
             Button shopBtn = buttonBinder.GetButton(ButtonID.Shop);
-            Button characterBtn = buttonBinder.GetButton(ButtonID.Character);
 
-            // Act
+            // Act - 첫 번째 팝업 열기
             hamburgerBtn.onClick.Invoke();
             yield return null;
 
+            // 팝업이 열린 상태 시뮬레이션
+            mockUIManager.FakeActivePopupCount = 1;
+
+            // Act - 두 번째 버튼 클릭 시도 (차단되어야 함)
             shopBtn.onClick.Invoke();
             yield return null;
 
-            characterBtn.onClick.Invoke();
-            yield return null;
-
             // Assert
-            Assert.AreEqual(3, mockUIManager.ShownPopups.Count, "3개의 팝업이 열려야 합니다");
-            Assert.AreEqual(PopupID.HamburgerMenu, mockUIManager.ShownPopups[0], "첫 번째는 햄버거 메뉴");
-            Assert.AreEqual(PopupID.Shop, mockUIManager.ShownPopups[1], "두 번째는 상점");
-            Assert.AreEqual(PopupID.Character, mockUIManager.ShownPopups[2], "세 번째는 캐릭터");
+            Assert.AreEqual(1, mockUIManager.ShownPopups.Count,
+                "팝업이 열려있을 때는 다른 메인 메뉴 버튼이 차단되어 1개만 열려야 합니다");
+            Assert.AreEqual(PopupID.HamburgerMenu, mockUIManager.ShownPopups[0],
+                "햄버거 메뉴만 열려야 합니다");
         }
 
         #endregion
