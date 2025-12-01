@@ -67,7 +67,7 @@ Unity Test Framework와 VContainer DI를 활용한 테스트 자동화 시스템
 - Given-When-Then 명명 규칙 표준화
 - VContainer DI 기반 Mock 객체 사용 패턴
 
-**2. MainMenuButtonHandlerTests (54개 테스트)**
+**2. MainMenuControllerTests (54개 테스트)**
 - 20개 팝업 열기 테스트 (13개 기본 + 7개 추가)
 - 20개 팝업 닫기 테스트 (13개 기본 + 7개 추가)
 - 13개 일반 버튼 로그 검증 테스트
@@ -102,16 +102,16 @@ Unity Test Framework와 VContainer DI를 활용한 테스트 자동화 시스템
 
 ## 💻 작업물에 대한 코드 및 코드 가이드
 
-### 1. MainMenuButtonHandlerTests 상세 가이드
+### 1. MainMenuControllerTests 상세 가이드
 
 #### 1.1 파일 위치
-`Assets/Tests/PlayMode/UI/MainMenuButtonHandlerTests.cs`
+`Assets/Tests/PlayMode/UI/MainMenuControllerTests.cs`
 
 #### 1.2 테스트 구조
 
 ```csharp
 [TestFixture]
-public class MainMenuButtonHandlerTests
+public class MainMenuControllerTests
 {
     private const string TEST_SCENE_NAME = "SampleScene";
     private bool sceneLoaded = false;
@@ -558,19 +558,19 @@ mockUIManager.FakeActivePopupCount = 1; // Town 팝업 닫힘
 
 ## 🔧 작업 중 발생한 기억에 남는 이슈 및 해결 방법
 
-### 이슈 #1: DontDestroyOnLoad 싱글톤 간섭 문제 (MainMenuButtonHandlerTests)
+### 이슈 #1: DontDestroyOnLoad 싱글톤 간섭 문제 (MainMenuControllerTests)
 
 #### 작업 배경
-MainMenuButtonHandlerTests를 작성하는 과정에서 발생한 이슈입니다. 여러 테스트 클래스를 순차적으로 실행할 때 UIManager 싱글톤이 테스트 간 간섭을 일으켰습니다.
+MainMenuControllerTests를 작성하는 과정에서 발생한 이슈입니다. 여러 테스트 클래스를 순차적으로 실행할 때 UIManager 싱글톤이 테스트 간 간섭을 일으켰습니다.
 
 #### 문제 상황
 
 ```
 HamburgerMenuPopupTests 실행 완료
     ↓
-MainMenuButtonHandlerTests 실행 시작
+MainMenuControllerTests 실행 시작
     ↓
-씬 리로드 → MainMenuButtonHandler 재생성
+씬 리로드 → MainMenuController 재생성
     ↓
 UIManager는 DontDestroyOnLoad로 그대로 유지
     ↓
@@ -580,8 +580,8 @@ UIManager는 DontDestroyOnLoad로 그대로 유지
 #### 원인 분석
 
 - `UIManager`는 `DontDestroyOnLoad`를 사용하여 싱글톤으로 씬 전환 시에도 유지됩니다
-- 테스트 간 씬 리로드 시 `MainMenuButtonHandler`는 새로 생성되지만, `UIManager`는 이전 상태를 유지합니다
-- 이로 인해 새로운 `MainMenuButtonHandler`의 버튼들이 이전 `UIManager`와 연결되지 않습니다
+- 테스트 간 씬 리로드 시 `MainMenuController`는 새로 생성되지만, `UIManager`는 이전 상태를 유지합니다
+- 이로 인해 새로운 `MainMenuController`의 버튼들이 이전 `UIManager`와 연결되지 않습니다
 
 #### 해결 방법
 
@@ -617,7 +617,7 @@ public static void ResetForTesting()
 
 **2. 테스트 클래스에서 OneTimeTearDown 활용**:
 ```csharp
-// Assets/Tests/PlayMode/UI/MainMenuButtonHandlerTests.cs
+// Assets/Tests/PlayMode/UI/MainMenuControllerTests.cs
 
 [OneTimeTearDown]
 public void OneTimeTearDown()
@@ -649,10 +649,10 @@ public void OneTimeTearDown()
 
 ---
 
-### 이슈 #2: WaitForSeconds로 인한 느리고 불안정한 테스트 (MainMenuButtonHandlerTests)
+### 이슈 #2: WaitForSeconds로 인한 느리고 불안정한 테스트 (MainMenuControllerTests)
 
 #### 작업 배경
-MainMenuButtonHandlerTests에서 팝업 생성을 기다릴 때 고정 시간 대기를 사용했습니다.
+MainMenuControllerTests에서 팝업 생성을 기다릴 때 고정 시간 대기를 사용했습니다.
 
 #### 문제 상황
 
@@ -1041,7 +1041,7 @@ public IEnumerator WhenPopupOpenAndAnotherButtonClicked_ThenSecondPopupNotOpened
 
 ### 핵심 교훈 요약
 
-#### MainMenuButtonHandlerTests에서 배운 것
+#### MainMenuControllerTests에서 배운 것
 1. **싱글톤 관리**: `DontDestroyOnLoad` 싱글톤은 테스트용 `ResetForTesting()` 메서드 필수
 2. **조건 기반 대기**: `WaitForSeconds` 대신 `WaitUntil` 사용으로 67% 속도 향상
 
