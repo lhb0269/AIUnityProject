@@ -4,6 +4,10 @@ Unity Test Framework와 VContainer DI를 활용한 테스트 자동화 시스템
 
 프로젝트 구축 및 자동화 스크립트 작성에 Claude AI를 사용하였습니다.
 
+
+https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
+
+
 ---
 
 ## 목차
