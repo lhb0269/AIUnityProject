@@ -55,7 +55,6 @@ Unity Test Framework와 VContainer DI를 활용한 테스트 자동화 시스템
 | **테스트 가이드라인** | 10개 섹션, ~500줄 |
 | **테스트 패턴** | 3개 (팝업 열기, 로그 검증, Edge Case) |
 | **해결한 주요 이슈** | 5개 (싱글톤 간섭, WaitForSeconds 문제, Mock 인스턴스, 팝업 호출 횟수, 비현실적 시나리오) |
-| **슬래시 커맨드** | `/generate-test` (5단계 프로세스) |
 
 ### 작업 범위
 
@@ -68,20 +67,20 @@ Unity Test Framework와 VContainer DI를 활용한 테스트 자동화 시스템
 - VContainer DI 기반 Mock 객체 사용 패턴
 
 **2. MainMenuControllerTests (34개 테스트)**
-- 20개 팝업 열기 테스트 (VContainer DI 기반)
-- 13개 일반 버튼 로그 검증 테스트
-- 1개 팝업 중복 열기 방지 통합 테스트
-- 총 517줄, VContainer DI + ButtonBinder 패턴
+- Popup Opening Tests: 20개 (VContainer DI 기반)
+- Non-Popup Button Tests: 13개 (로그 검증)
+- Integration Tests: 1개 (팝업 중복 열기 방지)
+- VContainer DI + ButtonBinder 패턴
 - 2가지 재사용 패턴 메서드
 
 **3. HamburgerMenuPopupTests (21개 테스트)**
-- Basic Lifecycle: 2개 (Show, CloseButton)
-- DI Injection 검증: 1개 (UIManager 주입)
+- Basic Lifecycle Tests: 2개 (Show, CloseButton)
+- DI Injection Tests: 1개 (UIManager 주입 검증)
 - Button Interactions (Log Only): 12개 (일반 버튼)
 - Button Interactions (Popup Opening): 3개 (Town, Notice, GameSetting)
-- Edge Cases: 2개 (중복 팝업 방지, UIManager null)
-- Integration Test: 1개 (여러 팝업 연속 열기)
-- 총 555줄, VContainer DI 패턴
+- Edge Case Tests: 2개 (중복 팝업 방지, UIManager null)
+- Integration Tests: 1개 (여러 팝업 연속 열기)
+- VContainer DI 패턴
 
 **4. 테스트 헬퍼 시스템**
 - `TestContainerBuilder` - VContainer 테스트 스코프 빌더
