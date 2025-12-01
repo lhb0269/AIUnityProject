@@ -41,9 +41,8 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
    - Given-When-Then 명명 규칙 확립
    - VContainer DI 기반 Mock 객체 패턴 정립
 
-2. **HamburgerMenuPopupTests 완성**
-   - 21개 테스트 작성 (Basic, DI, 버튼, Edge Case, 통합)
-   - 모든 테스트 통과 (100% 성공률)
+2. **메인 메뉴 및 2차 메뉴의 버튼을 대상으로 한 테스트 스크립트 완성**
+   - 55개 테스트 작성 (Basic, DI, 버튼, Edge Case, 통합)
 
 3. **3가지 주요 이슈 해결**
    - Mock 인스턴스 불일치 → `GetMockUIManager()` 패턴
