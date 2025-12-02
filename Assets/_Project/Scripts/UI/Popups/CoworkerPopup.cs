@@ -9,17 +9,12 @@ namespace MobileGame.UI
     public class CoworkerPopup : BasePopup
     {
         /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "CoworkerPopup";
-
-        /// <summary>
         /// 팝업을 표시합니다.
         /// </summary>
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 협력자 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.Coworker}] 협력자 팝업이 열렸습니다.");
 
             // TODO: 협력자 콘텐츠 초기화
             // - 협력자 목록

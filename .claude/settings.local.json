@@ -20,7 +20,10 @@
       "Bash(findstr:*)",
       "Bash(powershell -Command \"(Get-Content ''Assets\\Tests\\PlayMode\\UI\\HamburgerMenuPopupTests.cs'').Count\")",
       "Bash(cp:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []

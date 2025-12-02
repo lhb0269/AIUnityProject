@@ -9,17 +9,12 @@ namespace MobileGame.UI
     public class CharacterPopup : BasePopup
     {
         /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "CharacterPopup";
-
-        /// <summary>
         /// 팝업을 표시합니다.
         /// </summary>
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 캐릭터 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.Character}] 캐릭터 팝업이 열렸습니다.");
 
             // TODO: 캐릭터 콘텐츠 초기화
             // - 캐릭터 목록 표시

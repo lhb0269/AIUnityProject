@@ -1,15 +1,15 @@
 using UnityEngine;
 using System;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Managers
 {
     /// <summary>
     /// 게임의 전체적인 상태와 흐름을 관리하는 메인 매니저
-    /// 싱글톤 패턴을 사용하여 어디서든 접근 가능
+    /// DI를 통해 주입되어 사용됩니다.
     /// </summary>
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IGameManager
     {
-        public static GameManager Instance { get; private set; }
 
         [Header("게임 상태")]
         [SerializeField] private GameState currentState = GameState.Menu;
@@ -20,18 +20,20 @@ namespace MobileGame.Managers
 
         public event Action<GameState> OnGameStateChanged;
 
+        /// <summary>
+        /// DI 컨테이너에서 호출하는 초기화 메서드
+        /// </summary>
+        public void Initialize(int targetFrameRate, bool allowScreenDimming)
+        {
+            this.targetFrameRate = targetFrameRate;
+            this.allowScreenDimming = allowScreenDimming;
+            InitializeMobileSettings();
+            Debug.Log("[GameManager] DI 초기화 완료");
+        }
+
         private void Awake()
         {
-            // 싱글톤 패턴 구현
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-
+            // 폴백 초기화
             InitializeMobileSettings();
         }
 
@@ -149,14 +151,4 @@ namespace MobileGame.Managers
         }
     }
 
-    /// <summary>
-    /// 게임 상태 열거형
-    /// </summary>
-    public enum GameState
-    {
-        Menu,       // 메뉴 화면
-        Playing,    // 게임 플레이 중
-        Paused,     // 일시정지
-        GameOver    // 게임 종료
-    }
 }

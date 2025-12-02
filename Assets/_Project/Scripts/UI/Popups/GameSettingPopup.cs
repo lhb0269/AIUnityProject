@@ -7,6 +7,5 @@ namespace MobileGame.UI
     /// </summary>
     public class GameSettingPopup : BasePopup
     {
-        public const string PopupName = "GameSettingPopup";
     }
 }

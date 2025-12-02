@@ -1,4 +1,13 @@
 {
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "jp.hadashikick.vcontainer"
+      ]
+    }
+  ],
   "dependencies": {
     "com.unity.2d.animation": "12.0.2",
     "com.unity.2d.aseprite": "2.0.2",
@@ -17,6 +26,7 @@
     "com.unity.timeline": "1.8.9",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.8",
+    "jp.hadashikick.vcontainer": "1.17.0",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",

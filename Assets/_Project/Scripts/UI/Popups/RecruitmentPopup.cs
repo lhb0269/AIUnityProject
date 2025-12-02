@@ -9,17 +9,12 @@ namespace MobileGame.UI
     public class RecruitmentPopup : BasePopup
     {
         /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "RecruitmentPopup";
-
-        /// <summary>
         /// 팝업을 표시합니다.
         /// </summary>
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 모집 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.Recruitment}] 모집 팝업이 열렸습니다.");
 
             // TODO: 모집 콘텐츠 초기화
             // - 모집 배너 표시

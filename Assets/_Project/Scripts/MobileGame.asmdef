@@ -2,7 +2,9 @@
   "name": "MobileGame",
   "rootNamespace": "MobileGame",
   "references": [
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.TextMeshPro",
+    "VContainer"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

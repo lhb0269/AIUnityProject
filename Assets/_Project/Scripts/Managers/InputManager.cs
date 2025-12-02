@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Managers
 {
     /// <summary>
     /// 입력 처리를 관리하는 매니저
     /// 터치 및 모바일 입력에 최적화
+    /// DI를 통해 주입되어 사용됩니다.
     /// </summary>
-    public class InputManager : MonoBehaviour
+    public class InputManager : MonoBehaviour, IInputManager
     {
-        public static InputManager Instance { get; private set; }
 
         [Header("터치 설정")]
         [SerializeField] private float touchSensitivity = 1f;
@@ -26,16 +27,17 @@ namespace MobileGame.Managers
         private Vector2 touchCurrentPosition;
         private bool isTouching;
 
+        /// <summary>
+        /// DI 컨테이너에서 호출하는 초기화 메서드
+        /// </summary>
+        public void Initialize()
+        {
+            Debug.Log("[InputManager] DI 초기화 완료");
+        }
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // 초기화 없음 - Update에서 자동 동작
         }
 
         private void Update()

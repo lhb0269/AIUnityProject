@@ -1,14 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
+using MobileGame.Interfaces;
 
 namespace MobileGame.UI
 {
     /// <summary>
     /// 모든 팝업의 기본 클래스
     /// 공통 기능인 표시/숨김, 닫기 버튼, 모달 블로커를 제공합니다.
+    /// DI를 통해 UIManager를 주입받습니다.
     /// </summary>
     public class BasePopup : MonoBehaviour
     {
+        [Inject] protected IUIManager uiManager;
         #region 직렬화 필드
 
         [Header("팝업 기본 요소")]
@@ -100,15 +104,16 @@ namespace MobileGame.UI
         {
             Debug.Log($"[{GetType().Name}] 닫기 버튼 클릭");
 
-            // UIManager를 통해 팝업 닫기
-            if (Managers.UIManager.Instance != null)
+            // DI로 주입된 UIManager를 통해 팝업 닫기
+            if (uiManager != null)
             {
-                Managers.UIManager.Instance.ClosePopup(this);
+                uiManager.ClosePopup(this);
             }
             else
             {
-                // UIManager가 없으면 직접 숨김
+                // UIManager가 주입되지 않은 경우 직접 숨김
                 Hide();
+                Debug.LogWarning($"[{GetType().Name}] UIManager가 주입되지 않았습니다.");
             }
         }
 

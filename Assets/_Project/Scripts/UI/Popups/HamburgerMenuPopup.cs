@@ -10,11 +10,6 @@ namespace MobileGame.UI
     /// </summary>
     public class HamburgerMenuPopup : BasePopup
     {
-        /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "HamburgerMenuPopup";
-
         #region 버튼 참조 필드
 
         [Header("일반 버튼 (로그만 출력)")]
@@ -253,20 +248,20 @@ namespace MobileGame.UI
         {
             Debug.Log("[HamburgerMenu] 마을 버튼 클릭");
 
-            if (UIManager.Instance == null)
+            if (uiManager == null)
             {
-                Debug.LogWarning("[HamburgerMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+                Debug.LogWarning("[HamburgerMenu] UIManager가 주입되지 않았습니다.");
                 return;
             }
 
             // 이미 다른 팝업이 열려있으면 중복 열기 방지
-            if (UIManager.Instance.GetActivePopupCount() > 1)
+            if (uiManager.GetActivePopupCount() > 1)
             {
                 Debug.LogWarning("[HamburgerMenu] 이미 다른 팝업이 열려있습니다. 먼저 닫아주세요.");
                 return;
             }
 
-            UIManager.Instance.ShowPopup(TownPopup.PopupName);
+            uiManager.ShowPopup(PopupID.Town);
         }
 
         /// <summary>
@@ -276,20 +271,20 @@ namespace MobileGame.UI
         {
             Debug.Log("[HamburgerMenu] 공지사항 버튼 클릭");
 
-            if (UIManager.Instance == null)
+            if (uiManager == null)
             {
-                Debug.LogWarning("[HamburgerMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+                Debug.LogWarning("[HamburgerMenu] UIManager가 주입되지 않았습니다.");
                 return;
             }
 
             // 이미 다른 팝업이 열려있으면 중복 열기 방지
-            if (UIManager.Instance.GetActivePopupCount() > 1)
+            if (uiManager.GetActivePopupCount() > 1)
             {
                 Debug.LogWarning("[HamburgerMenu] 이미 다른 팝업이 열려있습니다. 먼저 닫아주세요.");
                 return;
             }
 
-            UIManager.Instance.ShowPopup(NoticePopup.PopupName);
+            uiManager.ShowPopup(PopupID.Notice);
         }
 
         /// <summary>
@@ -299,20 +294,20 @@ namespace MobileGame.UI
         {
             Debug.Log("[HamburgerMenu] 게임 설정 버튼 클릭");
 
-            if (UIManager.Instance == null)
+            if (uiManager == null)
             {
-                Debug.LogWarning("[HamburgerMenu] UIManager 인스턴스를 찾을 수 없습니다.");
+                Debug.LogWarning("[HamburgerMenu] UIManager가 주입되지 않았습니다.");
                 return;
             }
 
             // 이미 다른 팝업이 열려있으면 중복 열기 방지
-            if (UIManager.Instance.GetActivePopupCount() > 1)
+            if (uiManager.GetActivePopupCount() > 1)
             {
                 Debug.LogWarning("[HamburgerMenu] 이미 다른 팝업이 열려있습니다. 먼저 닫아주세요.");
                 return;
             }
 
-            UIManager.Instance.ShowPopup(GameSettingPopup.PopupName);
+            uiManager.ShowPopup(PopupID.GameSetting);
         }
 
         #endregion
@@ -323,7 +318,7 @@ namespace MobileGame.UI
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 햄버거 메뉴 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.HamburgerMenu}] 햄버거 메뉴 팝업이 열렸습니다.");
         }
     }
 }

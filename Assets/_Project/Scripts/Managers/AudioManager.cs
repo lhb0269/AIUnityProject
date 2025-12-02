@@ -1,15 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
+using MobileGame.Interfaces;
 
 namespace MobileGame.Managers
 {
     /// <summary>
     /// 오디오 재생과 관리를 담당하는 매니저
     /// BGM과 SFX를 분리하여 관리
+    /// DI를 통해 주입되어 사용됩니다.
     /// </summary>
-    public class AudioManager : MonoBehaviour
+    public class AudioManager : MonoBehaviour, IAudioManager
     {
-        public static AudioManager Instance { get; private set; }
 
         [Header("오디오 소스")]
         [SerializeField] private AudioSource bgmSource;
@@ -27,19 +28,28 @@ namespace MobileGame.Managers
         private List<AudioSource> sfxSources = new List<AudioSource>();
         private int currentSFXIndex = 0;
 
-        private void Awake()
+        /// <summary>
+        /// DI 컨테이너에서 호출하는 초기화 메서드
+        /// </summary>
+        public void Initialize(float masterVolume, float bgmVolume, float sfxVolume)
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            this.masterVolume = masterVolume;
+            this.bgmVolume = bgmVolume;
+            this.sfxVolume = sfxVolume;
 
             InitializeAudioSources();
             LoadPlayerPrefs();
+            Debug.Log("[AudioManager] DI 초기화 완료");
+        }
+
+        private void Awake()
+        {
+            // 폴백 초기화
+            if (bgmSource == null && sfxSource == null)
+            {
+                InitializeAudioSources();
+                LoadPlayerPrefs();
+            }
         }
 
         /// <summary>
@@ -124,6 +134,17 @@ namespace MobileGame.Managers
             // SFX 소스 풀에서 사용 가능한 소스 찾기
             AudioSource availableSource = GetAvailableSFXSource();
             availableSource.PlayOneShot(clip, volumeScale);
+        }
+
+        /// <summary>
+        /// 모든 SFX 정지
+        /// </summary>
+        public void StopAllSFX()
+        {
+            foreach (var source in sfxSources)
+            {
+                source.Stop();
+            }
         }
 
         /// <summary>

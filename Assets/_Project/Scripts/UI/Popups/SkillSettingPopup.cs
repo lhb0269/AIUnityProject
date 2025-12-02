@@ -9,17 +9,12 @@ namespace MobileGame.UI
     public class SkillSettingPopup : BasePopup
     {
         /// <summary>
-        /// 팝업 식별자
-        /// </summary>
-        public const string PopupName = "SkillSettingPopup";
-
-        /// <summary>
         /// 팝업을 표시합니다.
         /// </summary>
         public override void Show()
         {
             base.Show();
-            Debug.Log($"[{PopupName}] 스킬 설정 팝업이 열렸습니다.");
+            Debug.Log($"[{PopupID.SkillSetting}] 스킬 설정 팝업이 열렸습니다.");
 
             // TODO: 스킬 설정 콘텐츠 초기화
             // - 사용 가능한 스킬 목록
