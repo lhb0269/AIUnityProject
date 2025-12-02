@@ -49,12 +49,11 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 2. **메인 메뉴 및 2차 메뉴의 버튼을 대상으로 한 테스트 스크립트 완성**
    - 55개 테스트 작성 (Basic, DI, 버튼, Edge Case, 통합)
 
-3. **5가지 주요 이슈 해결**
+3. **4가지 주요 이슈 해결**
    - ButtonBinder 패턴 도입 → Reflection 대신 ID 기반 접근
    - VContainer DI 테스트 환경 구축 → MockUIManager 주입으로 테스트 격리
    - Mock 인스턴스 불일치 → `GetMockUIManager()` 패턴
    - 팝업 호출 횟수 불일치 → 부모 팝업 먼저 열기
-   - 비현실적 시나리오 → 실제 사용자 흐름 반영
 
 
 ### 주요 성과
@@ -64,7 +63,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 | **작성한 테스트** | 총 55개 (MainMenu 34개 + HamburgerMenu 21개) |
 | **테스트 가이드라인** | 10개 섹션, ~500줄 |
 | **테스트 패턴** | 3개 (팝업 열기, 로그 검증, Edge Case) |
-| **해결한 주요 이슈** | 5개 (싱글톤 간섭, WaitForSeconds 문제, Mock 인스턴스, 팝업 호출 횟수, 비현실적 시나리오) |
+| **해결한 주요 이슈** | 4개 (싱글톤 간섭, WaitForSeconds 문제, Mock 인스턴스, 팝업 호출 횟수) |
 
 ### 작업 범위
 
@@ -113,10 +112,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 
 ### 1. MainMenuControllerTests 상세 가이드
 
-#### 1.1 파일 위치
-`Assets/Tests/PlayMode/UI/MainMenuControllerTests.cs`
-
-#### 1.2 테스트 구조
+#### 1.1 테스트 구조
 
 ```csharp
 [TestFixture]
@@ -155,26 +151,10 @@ public class MainMenuControllerTests
     [UnityTearDown]
     public IEnumerator Teardown() { /* Mock 리셋 및 정리 */ }
     #endregion
-
-    #region Tests - Popup Opening (20개)
-    // TestButtonOpensPopup() 패턴 메서드 재사용
-    #endregion
-
-    #region Tests - Non-Popup Buttons (13개)
-    // TestButtonClickWithoutPopup() 패턴 메서드 재사용
-    #endregion
-
-    #region Tests - Integration (1개)
-    // 팝업 중복 열기 방지 검증
-    #endregion
-
-    #region Helper Methods - Test Patterns
-    // 2가지 재사용 패턴 메서드
-    #endregion
 }
 ```
 
-#### 1.3 2가지 핵심 패턴 메서드
+#### 1.2 2가지 핵심 패턴 메서드
 
 **패턴 1: 팝업 열기 테스트 (20개 재사용)**
 ```csharp
@@ -543,8 +523,8 @@ var hamburgerBtnField = typeof(MainMenuController)
 Button hamburgerBtn = hamburgerBtnField.GetValue(controller) as Button;
 
 // 문제점:
-// 1. 리플렉션은 느리고 타입 안전하지 않음
-// 2. 필드명 변경 시 테스트가 깨짐 (컴파일 에러가 아닌 런타임 에러)
+// 1. 리플렉션은 느리고 안전하지 않음
+// 2. 필드명 변경 시 테스트가 불가 (컴파일 에러가 아닌 런타임 에러)
 // 3. 버튼이 34개나 되어 매번 리플렉션 코드 작성이 번거로움
 ```
 
@@ -903,139 +883,3 @@ public BasePopup ShowPopup(string popupName)
 - 3개의 팝업 열기 테스트가 모두 통과하였습니다
 
 ---
-
-### 이슈 #5: 비현실적인 테스트 시나리오로 인한 테스트 실패 (MainMenuControllerTests)
-
-#### 작업 배경
-MainMenuControllerTests에서 여러 팝업을 연속으로 여는 테스트를 작성하였습니다.
-
-#### 문제 상황
-
-기존 테스트 코드:
-```csharp
-[UnityTest]
-public IEnumerator WhenMultipleButtonsClicked_ThenMultipleShowPopupsCalled()
-{
-    // 햄버거 메뉴 버튼 클릭
-    hamburgerBtn.onClick.Invoke();
-    yield return null;
-
-    // 상점 버튼 클릭
-    shopBtn.onClick.Invoke();
-    yield return null;
-
-    // 캐릭터 버튼 클릭
-    characterBtn.onClick.Invoke();
-    yield return null;
-
-    // ❌ 3개의 팝업이 열렸을 것으로 예상
-    Assert.AreEqual(3, mockUIManager.ShownPopups.Count); // 실패!
-}
-```
-
-테스트 실행 결과:
-```
-Expected: 3
-But was: 1
-```
-
-#### 원인 분석
-
-MainMenuController의 버튼 클릭 로직에는 **팝업 중복 열기 방지** 기능이 구현되어 있었습니다:
-
-```csharp
-// MainMenuButtonHandler.cs
-private void OnShopButtonClicked()
-{
-    // 이미 팝업이 열려있으면 차단
-    if (uiManager.IsPopupOpen())
-    {
-        Debug.Log("[MainMenu] 팝업이 이미 열려 있어 상점 팝업을 열 수 없습니다.");
-        return; // ❌ 중복 열기 차단
-    }
-
-    uiManager.ShowPopup(PopupID.Shop);
-}
-```
-
-**문제의 핵심**:
-- 실제 게임에서는 **팝업이 열려있으면 메인 메뉴 버튼을 클릭할 수 없습니다**
-- 팝업이 메인 메뉴를 덮고 있기 때문입니다
-- 따라서 메인 메뉴에서 3개의 팝업을 연속으로 여는 것은 **불가능한 시나리오**입니다
-
-**실제 사용자 시나리오**:
-1. 사용자가 햄버거 버튼 클릭
-2. HamburgerMenuPopup이 열림 (메인 메뉴 버튼은 가려짐)
-3. 사용자가 메인 메뉴의 상점 버튼 클릭 시도
-4. **팝업이 버튼을 가리고 있어 클릭 불가능**
-5. 또는 코드에서 `IsPopupOpen()` 체크로 중복 열기 차단
-
-#### 해결 방법
-
-테스트를 실제 사용자 시나리오를 반영하도록 수정하였습니다:
-
-```csharp
-[UnityTest]
-public IEnumerator WhenPopupOpenAndAnotherButtonClicked_ThenSecondPopupNotOpened()
-{
-    // Given - 햄버거 메뉴 팝업 열기
-    hamburgerBtn.onClick.Invoke();
-    yield return null;
-
-    // 팝업이 열린 상태 시뮬레이션
-    mockUIManager.FakeActivePopupCount = 1;
-
-    // When - 팝업이 열려있는 상태에서 다른 버튼 클릭 시도
-    shopBtn.onClick.Invoke();
-    yield return null;
-
-    // Then - 두 번째 팝업은 열리지 않아야 함 (중복 차단)
-    Assert.AreEqual(1, mockUIManager.ShownPopups.Count,
-        "팝업이 이미 열려있을 때는 다른 팝업이 열리지 않아야 합니다");
-    Assert.AreEqual(PopupID.HamburgerMenu, mockUIManager.ShownPopups[0]);
-}
-```
-
-**테스트 목적 변경**:
-- 이전: "3개의 팝업이 열린다" (불가능한 시나리오)
-- 이후: "팝업이 열려있을 때 다른 팝업이 열리지 않는다" (중복 방지 검증)
-
-#### 결과
-
-- 팝업 중복 열기 방지 로직을 정확히 검증합니다
-- 실제 게임 플레이 시나리오를 반영합니다
-- 테스트가 의미있는 버그를 찾을 수 있게 되었습니다
-
-#### 핵심 교훈
-
-1. **실제 사용자 시나리오 반영**
-   - 테스트는 **실제로 발생 가능한 사용자 시나리오**를 반영해야 합니다
-   - 코드만 보고 테스트를 작성하면 불가능한 시나리오를 만들 수 있습니다
-
-2. **기획 의도 이해**
-   - 기획 의도를 이해하고 테스트를 작성해야 합니다
-   - "팝업이 열리면 메인 메뉴 버튼 차단"이라는 기획 의도가 있었습니다
-
-3. **테스트의 목적 재정의**
-   - 테스트가 실패하면, "테스트가 잘못되었나?" 먼저 검토해야 합니다
-   - 이 경우 테스트 목적을 "중복 팝업 방지 검증"으로 재정의하였습니다
-
-4. **프로덕션 코드 리뷰 중요성**
-   - 코드 리뷰 없이 테스트만 작성하면 프로덕션 로직을 놓칠 수 있습니다
-   - `IsPopupOpen()` 체크 로직을 사전에 파악했다면 올바른 테스트를 작성할 수 있었습니다
-
----
-
-### 피드백 요약
-
-#### MainMenuControllerTests에서 배운 것
-1. **ButtonBinder 패턴**: 리플렉션 대신 ID 기반 버튼 접근으로 50배 성능 향상 및 타입 안전성 확보
-2. **VContainer DI 활용**: 프로덕션 코드 수정 없이 MockUIManager 주입으로 테스트 가능
-
-#### HamburgerMenuPopupTests에서 배운 것
-3. **DI 컨테이너 인스턴스 관리**: 컨테이너에서 주입된 인스턴스를 사용해야 합니다
-4. **실제 시나리오 반영**: 팝업 내부 버튼 테스트 시 부모 팝업을 먼저 열어야 합니다
-
-#### 공통 피드백
-5. **기획 의도 이해**: 불가능한 시나리오를 테스트하지 않아야 합니다
-6. **테스트 격리 원칙**: 각 테스트는 완전히 독립적이어야 합니다 (VContainer 스코프 활용)
