@@ -26,13 +26,18 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 - 주요 특징: 간단한 버튼 조작 중심의 UI
 
 ### 작업 배경
-
-기존 Unity UI 자동화 테스트 시스템에 VContainer DI(Dependency Injection) 패턴을 도입하여 테스트 격리성과 유지보수성을 향상시키는 작업을 진행하였습니다.
+초기 프로젝트 구성방식은 Singleton과 Static method에 많이 의존하는 형태였습니다.
+이는 테스트 간 종속이 생기게 만들었고, 몇몇 테스트는 독립성이 깨지기도 하였습니다.
+이에 VContainer DI(Dependency Injection) 패턴을 도입하여 테스트 격리성과 유지보수성을 향상시키는 작업을 진행하였습니다.
 
 ### 프로젝트 목표
 
 **MD (Milestone Deliverable)**
 > 메이플 키우기의 메인 메뉴 및 2차 메뉴(햄버거 메뉴)의 모든 버튼을 클릭했을 때 해당 기능이 정상적으로 동작한다.
+위 MD에서의 테스트 수행은 수동 테스트보다 자동 테스트가 더 효율적이라 판단했습니다.
+실제로 아직 프로젝트는 버튼 클릭시 팝업 노출 또는 로그 출력만이 구현되어있는 상태이기에
+유지보수가 가능한 자동 테스트 환경을 만든다면 회귀 테스트까지 효율적인 품질관리가 가능하리라 생각해 구현하였습니다.
+
 
 ## 요약
 
@@ -44,7 +49,9 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 2. **메인 메뉴 및 2차 메뉴의 버튼을 대상으로 한 테스트 스크립트 완성**
    - 55개 테스트 작성 (Basic, DI, 버튼, Edge Case, 통합)
 
-3. **3가지 주요 이슈 해결**
+3. **5가지 주요 이슈 해결**
+   - ButtonBinder 패턴 도입 → Reflection 대신 ID 기반 접근
+   - VContainer DI 테스트 환경 구축 → MockUIManager 주입으로 테스트 격리
    - Mock 인스턴스 불일치 → `GetMockUIManager()` 패턴
    - 팝업 호출 횟수 불일치 → 부모 팝업 먼저 열기
    - 비현실적 시나리오 → 실제 사용자 흐름 반영
@@ -52,7 +59,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 
 ### 주요 성과
 
-| 지표 | 값 |
+| 카테고리 | 값 |
 |-----|-----|
 | **작성한 테스트** | 총 55개 (MainMenu 34개 + HamburgerMenu 21개) |
 | **테스트 가이드라인** | 10개 섹션, ~500줄 |
@@ -256,59 +263,7 @@ public IEnumerator WhenGuideQuestButtonClicked_ThenLogMessagePrinted()
 
 ### 2. HamburgerMenuPopupTests 상세 가이드
 
-#### 2.1 파일 위치
-`Assets/Tests/PlayMode/UI/HamburgerMenuPopupTests.cs`
-
-#### 2.2 테스트 구조
-
-```csharp
-[TestFixture]
-public class HamburgerMenuPopupTests
-{
-    private LifetimeScope testScope;
-    private MockUIManager mockUIManager;
-    private HamburgerMenuPopup popup;
-    private Button townBtn, noticeBtn, gameSettingBtn;
-
-    #region Setup/Teardown
-    [UnitySetUp]
-    public IEnumerator Setup() { /* ... */ }
-
-    [UnityTearDown]
-    public IEnumerator Teardown() { /* ... */ }
-    #endregion
-
-    #region Tests - Basic Lifecycle
-    // 2개 테스트
-    #endregion
-
-    #region Tests - DI Injection
-    // 1개 테스트
-    #endregion
-
-    #region Tests - Button Interactions (Log Only)
-    // 12개 테스트
-    #endregion
-
-    #region Tests - Button Interactions (Popup Opening)
-    // 3개 테스트
-    #endregion
-
-    #region Tests - Edge Cases
-    // 2개 테스트
-    #endregion
-
-    #region Tests - Integration
-    // 1개 테스트
-    #endregion
-
-    #region Helper Methods
-    // 헬퍼 메서드
-    #endregion
-}
-```
-
-#### 2.3 주요 테스트 패턴
+#### 2.1 주요 테스트 패턴
 
 **패턴 1: 기본 Lifecycle 테스트**
 ```csharp
@@ -447,10 +402,7 @@ public IEnumerator WhenMultiplePopupButtonsClicked_ThenAllPopupsOpened()
 
 ### 3. TestContainerBuilder 헬퍼 시스템
 
-#### 3.1 파일 위치
-`Assets/Tests/Helpers/TestContainerBuilder.cs`
-
-#### 3.2 주요 메서드
+#### 3.1 주요 메서드
 
 **메서드 1: 테스트 스코프 생성**
 ```csharp
@@ -539,10 +491,7 @@ public IEnumerator Setup()
 
 ### 4. MockUIManager 동작 이해
 
-#### 4.1 파일 위치
-`Assets/Tests/Mocks/MockUIManager.cs`
-
-#### 4.2 핵심 동작
+#### 4.1 핵심 동작
 
 **ShowPopup 메서드**
 ```csharp
@@ -1077,7 +1026,7 @@ public IEnumerator WhenPopupOpenAndAnotherButtonClicked_ThenSecondPopupNotOpened
 
 ---
 
-### 핵심 교훈 요약
+### 피드백 요약
 
 #### MainMenuControllerTests에서 배운 것
 1. **ButtonBinder 패턴**: 리플렉션 대신 ID 기반 버튼 접근으로 50배 성능 향상 및 타입 안전성 확보
@@ -1087,14 +1036,6 @@ public IEnumerator WhenPopupOpenAndAnotherButtonClicked_ThenSecondPopupNotOpened
 3. **DI 컨테이너 인스턴스 관리**: 컨테이너에서 주입된 인스턴스를 사용해야 합니다
 4. **실제 시나리오 반영**: 팝업 내부 버튼 테스트 시 부모 팝업을 먼저 열어야 합니다
 
-#### 공통 교훈
+#### 공통 피드백
 5. **기획 의도 이해**: 불가능한 시나리오를 테스트하지 않아야 합니다
 6. **테스트 격리 원칙**: 각 테스트는 완전히 독립적이어야 합니다 (VContainer 스코프 활용)
-
----
-
-## 📞 문의 및 피드백
-
-프로젝트에 대한 질문이나 피드백은 GitHub Issues를 통해 남겨주세요.
-
-**제작**: Claude AI를 활용한 VContainer DI 기반 테스트 시스템 구축
