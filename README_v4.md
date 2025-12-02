@@ -141,7 +141,7 @@ public class MainMenuControllerTests
         controllerObject = new GameObject("TestMainMenuController");
         controller = controllerObject.AddComponent<MainMenuController>();
         buttonBinder = controllerObject.AddComponent<ButtonBinder>();
-        SetupButtonBinder(); // 34개 버튼 등록
+        SetupButtonBinder(); //버튼 등록
 
         // 4. DI 주입
         testScope.Container.Inject(controller);
@@ -525,7 +525,7 @@ Button hamburgerBtn = hamburgerBtnField.GetValue(controller) as Button;
 // 문제점:
 // 1. 리플렉션은 느리고 안전하지 않음
 // 2. 필드명 변경 시 테스트가 불가 (컴파일 에러가 아닌 런타임 에러)
-// 3. 버튼이 34개나 되어 매번 리플렉션 코드 작성이 번거로움
+// 3. 버튼이 33개나 되어 매번 리플렉션 코드 작성이 번거로움
 ```
 
 #### 해결 방법
@@ -560,10 +560,9 @@ private void SetupButtonBinder()
 
     var entryList = new List<ButtonBinder.ButtonEntry>();
 
-    // 34개 버튼 등록 (ID 기반)
+    //버튼 등록 (ID 기반)
     entryList.Add(CreateButtonEntry(ButtonID.HamburgerMenu));
     entryList.Add(CreateButtonEntry(ButtonID.Shop));
-    // ... 나머지 32개
 
     entriesField.SetValue(buttonBinder, entryList);
 }
@@ -667,7 +666,7 @@ public static LifetimeScope CreateCustomScope(
 - ✅ 프로덕션 코드 수정 없이 테스트 가능
 - ✅ MockUIManager로 팝업 호출 추적 가능
 - ✅ 테스트 격리 완벽히 보장 (각 테스트마다 새로운 스코프)
-- ✅ 34개 테스트 모두 통과
+- ✅ 34개 테스트 모두 통과 (33개 버튼 + 1개 통합 테스트)
 
 #### 배운점
 
