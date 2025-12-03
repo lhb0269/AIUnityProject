@@ -71,10 +71,17 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 - **Integration Tests (1개)**: 팝업 중복 열기 방지
 
 **2. HamburgerMenuPopupTests (21개 테스트)**
-- **Basic Lifecycle Tests (2개)**: Show, CloseButton 동작 검증
+- **Popup Opening Tests (3개)**: VContainer DI 기반으로 팝업 열기 테스트
+  - ButtonBinder를 통한 버튼 접근
+  - MockUIManager로 팝업 호출 추적
+  - 예: Town, Notice, GameSetting 팝업
+- **Log Only Button Tests (12개)**: 로그 검증 테스트
+  - 버튼 클릭 시 로그 메시지 출력 확인
+  - 팝업이 열리지 않음을 검증
+  - 예: MissionClear, Stage
+- **Lifecycle Tests (2개)**: 팝업 기본 동작 검증
+  - Show 동작, CloseButton 동작
 - **DI Injection Tests (1개)**: UIManager 주입 검증
-- **Button Interactions - Log Only (12개)**: 일반 버튼 로그 검증
-- **Button Interactions - Popup Opening (3개)**: Town, Notice, GameSetting 팝업 열기
 - **Edge Case Tests (2개)**: 중복 팝업 방지, UIManager null 처리
 - **Integration Tests (1개)**: 여러 팝업 연속 열기
 

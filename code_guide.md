@@ -85,13 +85,13 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 - 2가지 재사용 패턴 메서드
 
 **3. HamburgerMenuPopupTests (21개 테스트)**
-- Basic Lifecycle Tests: 2개 (Show, CloseButton)
+- Popup Opening Tests: 3개 (VContainer DI 기반)
+- Log Only Button Tests: 12개 (로그 검증)
+- Lifecycle Tests: 2개 (Show, CloseButton)
 - DI Injection Tests: 1개 (UIManager 주입 검증)
-- Button Interactions (Log Only): 12개 (일반 버튼)
-- Button Interactions (Popup Opening): 3개 (Town, Notice, GameSetting)
 - Edge Case Tests: 2개 (중복 팝업 방지, UIManager null)
 - Integration Tests: 1개 (여러 팝업 연속 열기)
-- VContainer DI 패턴
+- VContainer DI + ButtonBinder 패턴
 
 **4. 테스트 헬퍼 시스템**
 - `TestContainerBuilder` - VContainer 테스트 스코프 빌더
