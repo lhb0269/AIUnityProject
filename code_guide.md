@@ -65,7 +65,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 | **작성한 테스트** | 총 55개 (MainMenu 34개 + HamburgerMenu 21개) |
 | **테스트 가이드라인** | 10개 섹션, ~500줄 |
 | **테스트 패턴** | 3개 (팝업 열기, 로그 검증, Edge Case) |
-| **해결한 주요 이슈** | 4개 (싱글톤 간섭, WaitForSeconds 문제, Mock 인스턴스, 팝업 호출 횟수) |
+| **해결한 주요 이슈** | 4개 (ButtonBinder 패턴, VContainer DI 환경, Mock 인스턴스, 팝업 호출 횟수) |
 
 ### 작업 범위
 
@@ -143,7 +143,7 @@ public class MainMenuControllerTests
         controllerObject = new GameObject("TestMainMenuController");
         controller = controllerObject.AddComponent<MainMenuController>();
         buttonBinder = controllerObject.AddComponent<ButtonBinder>();
-        SetupButtonBinder(); //버튼 등록
+        SetupButtonBinder(); // 33개 버튼 등록
 
         // 4. DI 주입
         testScope.Container.Inject(controller);
@@ -444,7 +444,7 @@ public static MockUIManager GetMockUIManager(IObjectResolver container)
 }
 ```
 
-#### 3.3 사용 예시
+#### 3.2 사용 예시
 
 ```csharp
 [UnitySetUp]
@@ -562,9 +562,10 @@ private void SetupButtonBinder()
 
     var entryList = new List<ButtonBinder.ButtonEntry>();
 
-    //버튼 등록 (ID 기반)
+    // 33개 버튼 등록 (ID 기반)
     entryList.Add(CreateButtonEntry(ButtonID.HamburgerMenu));
     entryList.Add(CreateButtonEntry(ButtonID.Shop));
+    // ... 나머지 31개 (Setting, UserInfo, GuideQuest, Recruitment, Event, etc.)
 
     entriesField.SetValue(buttonBinder, entryList);
 }
