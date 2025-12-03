@@ -47,7 +47,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 | **테스트 코드 라인** | ~1,072줄 (517줄 + 555줄) |
 | **코드 중복 제거율** | 49% (패턴 메서드 재사용) |
 | **테스트 패턴** | 3개 (팝업 열기, 로그 검증, Edge Case) |
-| **해결한 주요 이슈** | 5개 (ButtonBinder, VContainer DI, Mock 인스턴스, 팝업 호출 횟수, 비현실적 시나리오) |
+| **해결한 주요 이슈** | 4개 (ButtonBinder 패턴, VContainer DI 환경, Mock 인스턴스, 팝업 호출 횟수) |
 
 ---
 
@@ -78,7 +78,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
 - **Log Only Button Tests (12개)**: 로그 검증 테스트
   - 버튼 클릭 시 로그 메시지 출력 확인
   - 팝업이 열리지 않음을 검증
-  - 예: MissionClear, Stage
+  - 예: MissionClear, Stage, Soul, Relic, Growth, Skill, Weapon, Equipment, Expedition, Summon, Infinity, Arena
 - **Lifecycle Tests (2개)**: 팝업 기본 동작 검증
   - Show 동작, CloseButton 동작
 - **DI Injection Tests (1개)**: UIManager 주입 검증
