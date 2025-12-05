@@ -1,4 +1,4 @@
-# Unity 게임 UI 자동화 테스트 포트폴리오
+# Unity 게임 UI 자동화 테스트
 
 Unity Test Framework와 VContainer DI를 활용한 UI 자동화 테스트 시스템 구현 사례입니다.
 
