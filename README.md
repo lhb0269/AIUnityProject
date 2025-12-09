@@ -75,7 +75,7 @@ https://github.com/user-attachments/assets/06964e2a-55fc-4a24-90cf-5d55e42835cd
   - ButtonBinder를 통한 버튼 접근
   - MockUIManager로 팝업 호출 추적
   - 예: Town, Notice, GameSetting 팝업
-- **Log Only Button Tests (12개)**: 로그 검증 테스트
+- **Non-Popup Button Tests (12개)**: 로그 검증 테스트
   - 버튼 클릭 시 로그 메시지 출력 확인
   - 팝업이 열리지 않음을 검증
   - 예: MissionClear, Stage, Soul, Relic, Growth, Skill, Weapon, Equipment, Expedition, Summon, Infinity, Arena
