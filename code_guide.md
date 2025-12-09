@@ -1,4 +1,4 @@
-# Unity 게임 자동화 테스트 작업물 - VContainer DI 기반 테스트 시스템
+# Unity 게임 UI 자동화 테스트
 
 Unity Test Framework와 VContainer DI를 활용한 테스트 자동화 시스템 구축 사례입니다.
 
